@@ -1,0 +1,22 @@
+import { QueryRunner } from 'typeorm';
+import { ZoneEntity } from '../../../entities/zone.entity';
+import { LoadZoneByIdRequest, LoadZoneByIdResponse } from '../../../../domain/models/zone.model';
+
+export class LoadZoneByIdAction {
+  constructor(private readonly session: QueryRunner) {}
+
+  public async execute(params: LoadZoneByIdRequest): Promise<LoadZoneByIdResponse | null> {
+    try {
+      const entity = await this.session.manager.findOne(ZoneEntity, {
+        where: { _id: params._id },
+      });
+
+      if (!entity) return null;
+
+      // Return entity directly
+      return entity;
+    } catch (error) {
+      throw error instanceof Error ? error : new Error(error?.message);
+    }
+  }
+}

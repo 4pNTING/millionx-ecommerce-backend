@@ -1,0 +1,46 @@
+meta {
+  name: 04 Create Product
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{staffToken}}
+}
+
+body:json {
+  {
+    "query": "mutation CreateProduct($input: CreateProductInput!) { createProduct(input: $input) { id categoryId name slug description brand isActive } }",
+    "variables": {
+      "input": {
+        "categoryId": "{{categoryId}}",
+        "name": "ແລັບທັອບທົດສອບ MillionX",
+        "slug": "millionx-demo-laptop-{{runId}}",
+        "description": "ສິນຄ້າຕົວຢ່າງສຳລັບທົດສອບ API Phase 1",
+        "brand": "MillionX"
+      }
+    }
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+  if (body?.data?.createProduct?.id) {
+    bru.setEnvVar("productId", body.data.createProduct.id);
+  }
+}
+
+tests {
+  test("ສ້າງສິນຄ້າ ແລະ ເກັບ productId", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.createProduct.id).to.be.a("string");
+  });
+}

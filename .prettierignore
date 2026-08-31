@@ -1,0 +1,10 @@
+node_modules
+dist
+coverage
+uploads
+.env
+.env.*
+!.env.example
+src/schema.gql
+*.tsbuildinfo
+api-client/bruno/**/*.bru

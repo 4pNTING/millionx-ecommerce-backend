@@ -1,0 +1,39 @@
+meta {
+  name: 07 Add Product Image
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{staffToken}}
+}
+
+body:json {
+  {
+    "query": "mutation AddProductImage($input: AddProductImageInput!) { addProductImage(input: $input) { id name images { id url altText sortOrder } } }",
+    "variables": {
+      "input": {
+        "productId": "{{productId}}",
+        "variantId": "{{variantId}}",
+        "url": "https://images.example.com/millionx-demo-laptop.jpg",
+        "altText": "ຮູບແລັບທັອບທົດສອບ MillionX",
+        "sortOrder": 1
+      }
+    }
+  }
+}
+
+tests {
+  test("ເພີ່ມຮູບສິນຄ້າສຳເລັດ", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.addProductImage.images).to.be.an("array");
+  });
+}

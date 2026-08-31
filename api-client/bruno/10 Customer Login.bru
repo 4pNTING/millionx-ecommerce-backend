@@ -1,0 +1,43 @@
+meta {
+  name: 10 Customer Login
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "query": "mutation CustomerLogin($input: CustomerLoginInput!) { customerLogin(input: $input) { accountId customerId email phone token refreshToken } }",
+    "variables": {
+      "input": {
+        "identifier": "{{customerIdentifier}}",
+        "password": "{{customerPassword}}"
+      }
+    }
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+  if (body?.data?.customerLogin?.token) {
+    bru.setEnvVar("customerToken", body.data.customerLogin.token);
+    bru.setEnvVar("customerId", body.data.customerLogin.customerId);
+  }
+}
+
+tests {
+  test("Customer login ໄດ້ access token", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.customerLogin.token).to.be.a("string");
+  });
+}

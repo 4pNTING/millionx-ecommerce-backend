@@ -1,0 +1,38 @@
+meta {
+  name: 06 Set Price
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{staffToken}}
+}
+
+body:json {
+  {
+    "query": "mutation SetProductPrice($input: SetProductPriceInput!) { setProductPrice(input: $input) { id name variants { id sku prices { id currency amount compareAtAmount isActive } } } }",
+    "variables": {
+      "input": {
+        "variantId": "{{variantId}}",
+        "currency": "LAK",
+        "amount": 12500000,
+        "compareAtAmount": 13900000
+      }
+    }
+  }
+}
+
+tests {
+  test("ກຳນົດລາຄາ LAK ໃຫ້ Variant ສຳເລັດ", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.setProductPrice.id).to.be.a("string");
+  });
+}

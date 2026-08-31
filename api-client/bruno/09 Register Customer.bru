@@ -1,0 +1,53 @@
+meta {
+  name: 09 Register Customer
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+script:pre-request {
+  const runId = Date.now().toString();
+  bru.setEnvVar("runId", runId);
+  bru.setEnvVar("customerIdentifier", `customer-${runId}@example.com`);
+  bru.setEnvVar("customerPassword", "Customer123!");
+}
+
+body:json {
+  {
+    "query": "mutation RegisterCustomer($input: RegisterCustomerInput!) { registerCustomer(input: $input) { accountId customerId email phone token refreshToken } }",
+    "variables": {
+      "input": {
+        "firstName": "ສົມພອນ",
+        "lastName": "ໄຊຍະວົງ",
+        "email": "{{customerIdentifier}}",
+        "phone": "+85620{{runId}}",
+        "password": "{{customerPassword}}"
+      }
+    }
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+  if (body?.data?.registerCustomer?.token) {
+    bru.setEnvVar("customerToken", body.data.registerCustomer.token);
+    bru.setEnvVar("customerId", body.data.registerCustomer.customerId);
+  }
+}
+
+tests {
+  test("ສະໝັກ Customer ແລະ ໄດ້ access token", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.registerCustomer.token).to.be.a("string");
+  });
+}

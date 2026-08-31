@@ -1,0 +1,42 @@
+meta {
+  name: 01 Login
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "query": "mutation Login($input: LoginInput!) { login(input: $input) { _id username role isActive token refreshToken } }",
+    "variables": {
+      "input": {
+        "username": "{{username}}",
+        "password": "{{password}}"
+      }
+    }
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+  if (body?.data?.login?.token) {
+    bru.setEnvVar("staffToken", body.data.login.token);
+  }
+}
+
+tests {
+  test("Staff/Admin login ໄດ້ access token", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.login.token).to.be.a("string");
+  });
+}

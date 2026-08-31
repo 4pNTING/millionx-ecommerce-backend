@@ -1,0 +1,49 @@
+meta {
+  name: 03 Create Category
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{staffToken}}
+}
+
+body:json {
+  {
+    "query": "mutation CreateCategory($input: CreateCategoryInput!) { createCategory(input: $input) { id parentId name slug description sortOrder isActive } }",
+    "variables": {
+      "input": {
+        "name": "ເຄື່ອງໃຊ້ໄຟຟ້າໃນເຮືອນ",
+        "slug": "home-appliances-{{runId}}",
+        "description": "ເຄື່ອງໃຊ້ໄຟຟ້າພາຍໃນບ້ານ",
+        "sortOrder": 3
+      }
+    }
+  }
+}
+
+script:pre-request {
+  bru.setEnvVar("runId", Date.now().toString());
+}
+
+script:post-response {
+  const body = res.getBody();
+  if (body?.data?.createCategory?.id) {
+    bru.setEnvVar("categoryId", body.data.createCategory.id);
+  }
+}
+
+tests {
+  test("ສ້າງໝວດໝູ່ ແລະ ໄດ້ UUID ກັບຄືນ", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.createCategory.id).to.be.a("string");
+  });
+}

@@ -1,0 +1,51 @@
+meta {
+  name: 12 Create My Address
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{customerToken}}
+}
+
+body:json {
+  {
+    "query": "mutation CreateAddress($input: CreateCustomerAddressDto!) { createCustomerAddress(input: $input) { id firstName lastName addresses { id label recipientName phone addressLine1 village district province countryCode isDefault } } }",
+    "variables": {
+      "input": {
+        "label": "ຫ້ອງການ",
+        "recipientName": "ສົມພອນ ໄຊຍະວົງ",
+        "phone": "+8562012345678",
+        "addressLine1": "ຫ້ອງ 12, ຖະໜົນໄກສອນພົມວິຫານ",
+        "village": "ບ້ານໂພນພະເນົາ",
+        "district": "ເມືອງໄຊເສດຖາ",
+        "province": "ນະຄອນຫຼວງວຽງຈັນ",
+        "countryCode": "LA",
+        "isDefault": false
+      }
+    }
+  }
+}
+
+script:post-response {
+  const addresses = res.getBody()?.data?.createCustomerAddress?.addresses || [];
+  const created = addresses.find((address) => address.label === "ຫ້ອງການ");
+  if (created?.id) {
+    bru.setEnvVar("addressId", created.id);
+  }
+}
+
+tests {
+  test("ສ້າງທີ່ຢູ່ Customer ແລະ ເກັບ addressId", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.createCustomerAddress.addresses).to.be.an("array");
+  });
+}

@@ -1,0 +1,46 @@
+meta {
+  name: 05 Create Variant
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{staffToken}}
+}
+
+body:json {
+  {
+    "query": "mutation CreateProductVariant($input: CreateProductVariantInput!) { createProductVariant(input: $input) { id productId sku barcode name attributesJson isActive } }",
+    "variables": {
+      "input": {
+        "productId": "{{productId}}",
+        "sku": "MX-LAPTOP-{{runId}}",
+        "barcode": "885000{{runId}}",
+        "name": "RAM 16GB / SSD 512GB / ສີເທົາ",
+        "attributesJson": "{\"ram\":\"16GB\",\"storage\":\"512GB\",\"color\":\"Space Gray\"}"
+      }
+    }
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+  if (body?.data?.createProductVariant?.id) {
+    bru.setEnvVar("variantId", body.data.createProductVariant.id);
+  }
+}
+
+tests {
+  test("ສ້າງ Variant ແລະ ເກັບ variantId", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.createProductVariant.id).to.be.a("string");
+  });
+}

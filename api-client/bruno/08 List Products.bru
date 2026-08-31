@@ -1,0 +1,36 @@
+meta {
+  name: 08 List Products
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "query": "query Products($filter: ProductFilterInput) { products(filter: $filter) { total page limit items { id categoryId name slug description brand isActive variants { id sku name attributesJson prices { id currency amount compareAtAmount } } images { id url altText sortOrder } } } }",
+    "variables": {
+      "filter": {
+        "currency": "LAK",
+        "page": 1,
+        "limit": 20
+      }
+    }
+  }
+}
+
+tests {
+  test("ສາມາດດຶງລາຍການສິນຄ້າໄດ້", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.products.items).to.be.an("array");
+  });
+}

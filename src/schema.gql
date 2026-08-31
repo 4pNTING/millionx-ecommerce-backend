@@ -1,0 +1,371 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type LoginPayload {
+  _id: String
+  username: String
+  role: String
+  isActive: String
+  token: String
+  refreshToken: String
+}
+
+type Zone {
+  _id: String
+  uniqueId: Int
+  uid: String
+  name: String!
+  isActive: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type LoadZoneResponse {
+  count: Int
+  zone: [Zone!]!
+}
+
+type LoadZoneByIdResponse {
+  zone: Zone
+}
+
+type CreateZoneResponse {
+  zone: Zone
+}
+
+type UpdateZoneResponse {
+  zone: Zone
+}
+
+type DeleteZoneResponse {
+  zone: Zone
+}
+
+type RestoreZoneResponse {
+  zone: Zone
+}
+
+type Category {
+  id: String!
+  parentId: String
+  name: String!
+  slug: String!
+  description: String
+  sortOrder: Int!
+  isActive: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type CategoryPage {
+  items: [Category!]!
+  total: Int!
+  page: Int!
+  limit: Int!
+}
+
+type ProductPrice {
+  id: String!
+  variantId: String!
+  currency: String!
+  amount: Float!
+  compareAtAmount: Float
+  startsAt: DateTime
+  endsAt: DateTime
+  isActive: Boolean!
+}
+
+type ProductImage {
+  id: String!
+  productId: String!
+  variantId: String
+  url: String!
+  altText: String
+  sortOrder: Int!
+}
+
+type ProductVariant {
+  id: String!
+  productId: String!
+  sku: String!
+  barcode: String
+  name: String
+  attributesJson: String!
+  isActive: Boolean!
+  prices: [ProductPrice!]!
+}
+
+type Product {
+  id: String!
+  categoryId: String!
+  name: String!
+  slug: String!
+  description: String
+  brand: String
+  isActive: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  variants: [ProductVariant!]!
+  images: [ProductImage!]!
+}
+
+type ProductPage {
+  items: [Product!]!
+  total: Int!
+  page: Int!
+  limit: Int!
+}
+
+type CustomerAddress {
+  id: String!
+  customerId: String!
+  label: String!
+  recipientName: String!
+  phone: String!
+  addressLine1: String!
+  addressLine2: String
+  village: String
+  district: String
+  province: String!
+  postalCode: String
+  countryCode: String!
+  latitude: Float
+  longitude: Float
+  isDefault: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type CustomerProfile {
+  id: String!
+  firstName: String
+  lastName: String
+  email: String
+  phone: String
+  isActive: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  addresses: [CustomerAddress!]!
+}
+
+type CustomerAuthPayload {
+  accountId: String!
+  customerId: String!
+  email: String
+  phone: String
+  token: String!
+  refreshToken: String!
+}
+
+"""DateTime scalar — returns ISO 8601 UTC string"""
+scalar DateTime
+
+type Query {
+  loadZone(input: LoadZoneDto): LoadZoneResponse!
+  loadZoneById(input: LoadZoneByIdDto!): LoadZoneByIdResponse!
+  categories(filter: CategoryFilterInput): CategoryPage!
+  products(filter: ProductFilterInput): ProductPage!
+  product(id: String, slug: String, currency: String): Product!
+  myCustomerProfile: CustomerProfile!
+}
+
+input LoadZoneDto {
+  page: Int
+  limit: Int
+  isActive: ActiveStatus
+  keyword: String
+  sortField: String
+  sortDirection: String
+}
+
+"""Filter for active, inactive, or all items"""
+enum ActiveStatus {
+  active
+  inactive
+  all
+}
+
+input LoadZoneByIdDto {
+  _id: String!
+}
+
+input CategoryFilterInput {
+  parentId: String
+  keyword: String
+  page: Int = 1
+  limit: Int = 20
+  isActive: Boolean
+  includeInactive: Boolean = false
+  rootOnly: Boolean = false
+  fetchAll: Boolean = false
+}
+
+input ProductFilterInput {
+  categoryId: String
+  keyword: String
+  currency: String
+  page: Int = 1
+  limit: Int = 20
+  includeInactive: Boolean = false
+}
+
+type Mutation {
+  login(input: LoginInput!): LoginPayload!
+  createZone(input: CreateZoneDto!): CreateZoneResponse!
+  updateZone(input: UpdateZoneDto!): UpdateZoneResponse!
+  deleteZone(input: DeleteZoneDto!): DeleteZoneResponse!
+  restoreZone(input: RestoreZoneDto!): RestoreZoneResponse!
+  createCategory(input: CreateCategoryInput!): Category!
+  updateCategory(input: UpdateCategoryInput!): Category!
+  createProduct(input: CreateProductInput!): Product!
+  updateProduct(input: UpdateProductInput!): Product!
+  createProductVariant(input: CreateProductVariantInput!): ProductVariant!
+  setProductPrice(input: SetProductPriceInput!): Product!
+  addProductImage(input: AddProductImageInput!): Product!
+  upsertCustomerProfile(input: UpsertCustomerProfileDto!): CustomerProfile!
+  createCustomerAddress(input: CreateCustomerAddressDto!): CustomerProfile!
+  updateCustomerAddress(input: UpdateCustomerAddressDto!): CustomerProfile!
+  setDefaultCustomerAddress(addressId: String!): CustomerProfile!
+  deleteCustomerAddress(addressId: String!): Boolean!
+  registerCustomer(input: RegisterCustomerInput!): CustomerAuthPayload!
+  customerLogin(input: CustomerLoginInput!): CustomerAuthPayload!
+}
+
+input LoginInput {
+  username: String!
+  password: String!
+}
+
+input CreateZoneDto {
+  name: String!
+  isActive: String
+}
+
+input UpdateZoneDto {
+  _id: String!
+  name: String
+  description: String
+  isActive: String
+}
+
+input DeleteZoneDto {
+  _id: String!
+}
+
+input RestoreZoneDto {
+  _id: String!
+}
+
+input CreateCategoryInput {
+  parentId: String
+  name: String!
+  slug: String!
+  description: String
+  sortOrder: Int = 0
+}
+
+input UpdateCategoryInput {
+  id: String!
+  parentId: String
+  name: String
+  slug: String
+  description: String
+  sortOrder: Int
+  isActive: Boolean
+}
+
+input CreateProductInput {
+  categoryId: String!
+  name: String!
+  slug: String!
+  description: String
+  brand: String
+}
+
+input UpdateProductInput {
+  id: String!
+  categoryId: String
+  name: String
+  slug: String
+  description: String
+  brand: String
+  isActive: Boolean
+}
+
+input CreateProductVariantInput {
+  productId: String!
+  sku: String!
+  barcode: String
+  name: String
+  attributesJson: String
+}
+
+input SetProductPriceInput {
+  variantId: String!
+  currency: String!
+  amount: Float!
+  compareAtAmount: Float
+  startsAt: DateTime
+}
+
+input AddProductImageInput {
+  productId: String!
+  variantId: String
+  url: String!
+  altText: String
+  sortOrder: Int = 0
+}
+
+input UpsertCustomerProfileDto {
+  firstName: String
+  lastName: String
+  email: String
+  phone: String
+}
+
+input CreateCustomerAddressDto {
+  label: String!
+  recipientName: String!
+  phone: String!
+  addressLine1: String!
+  addressLine2: String
+  village: String
+  district: String
+  province: String!
+  postalCode: String
+  countryCode: String = "LA"
+  latitude: Float
+  longitude: Float
+  isDefault: Boolean = false
+}
+
+input UpdateCustomerAddressDto {
+  id: String!
+  label: String
+  recipientName: String
+  phone: String
+  addressLine1: String
+  addressLine2: String
+  village: String
+  district: String
+  province: String
+  postalCode: String
+  countryCode: String
+  latitude: Float
+  longitude: Float
+  isDefault: Boolean
+}
+
+input RegisterCustomerInput {
+  firstName: String
+  lastName: String
+  email: String
+  phone: String
+  password: String!
+}
+
+input CustomerLoginInput {
+  identifier: String!
+  password: String!
+}

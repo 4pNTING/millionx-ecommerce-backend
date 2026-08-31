@@ -1,0 +1,41 @@
+meta {
+  name: 02 List Categories
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "query": "query Categories($filter: CategoryFilterInput) { categories(filter: $filter) { items { id parentId name slug description sortOrder isActive createdAt updatedAt } total page limit } }",
+    "variables": {
+      "filter": {
+        "page": 1,
+        "limit": 10,
+        "includeInactive": true,
+        "rootOnly": false,
+        "fetchAll": false
+      }
+    }
+  }
+}
+
+tests {
+  test("ສາມາດດຶງລາຍການໝວດໝູ່ໄດ້", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.categories.items).to.be.an("array");
+    expect(res.getBody().data.categories.total).to.be.a("number");
+    expect(res.getBody().data.categories.page).to.equal(1);
+    expect(res.getBody().data.categories.limit).to.equal(10);
+  });
+}

@@ -1,0 +1,54 @@
+import { Inject } from '@nestjs/common';
+import { Args, Mutation, Resolver, Field, InputType, ObjectType } from '@nestjs/graphql';
+import { IsString, IsNotEmpty } from 'class-validator';
+import { AuthUsecasesProxyModule } from '../../usecases-proxy/auth-usecases-proxy.module';
+import { LoginUseCase } from '../../../usecases/auth/login.usecase';
+import { LoginResponse } from '../../../domain/models/user.model';
+import { ActiveStatus } from '../../../domain/enums/enum';
+
+@InputType()
+class LoginInput {
+  @Field()
+  @IsString()
+  @IsNotEmpty()
+  username: string;
+
+  @Field()
+  @IsString()
+  @IsNotEmpty()
+  password: string;
+}
+
+@ObjectType()
+class LoginPayload {
+  @Field({ nullable: true })
+  _id?: string;
+
+  @Field({ nullable: true })
+  username: string;
+
+  @Field({ nullable: true })
+  role?: string;
+
+  @Field(() => String, { nullable: true })
+  isActive?: ActiveStatus;
+
+  @Field({ nullable: true })
+  token?: string;
+
+  @Field({ nullable: true })
+  refreshToken?: string;
+}
+
+@Resolver()
+export class AuthResolver {
+  constructor(
+    @Inject(AuthUsecasesProxyModule.LOGIN_PROXY)
+    private readonly loginUseCase: LoginUseCase,
+  ) {}
+
+  @Mutation(() => LoginPayload)
+  async login(@Args('input') input: LoginInput): Promise<LoginResponse> {
+    return this.loginUseCase.execute(input);
+  }
+}
