@@ -11,7 +11,7 @@
 ວຽກຫຼັກ:
 
 1. ໃຊ້ UUID ແລະປິດ TypeORM synchronize.
-2. ສ້າງ SQL init/reset/verify ແລະ seed ພາສາລາວ.
+2. ສ້າງ SQL init/reset/verify. Seed ໃຊ້ສະເພາະ development; ຂໍ້ມູນຈິງສ້າງຜ່ານ API.
 3. ສ້າງ Category, Product ແລະ Customer Entity, Repository, Use Case ແລະ Resolver.
 4. ແຍກ `ecommerce.users` ສຳລັບ Staff/Admin ຈາກ Customer account.
 5. ຮອງຮັບ Customer register/login, profile ແລະ address.
@@ -19,7 +19,30 @@
 7. ເພີ່ມ Redis cache ພ້ອມ database fallback.
 8. ທົດສອບຜ່ານ Bruno, GraphQL ແລະ Navicat.
 
-ຜ່ານເມື່ອ: 10 ຕາຕະລາງຄົບ, seed/login/category/product query ສຳເລັດ, category cycle ຖືກປ້ອງກັນ ແລະ Redis ລົ້ມແລ້ວ Category/Product ຍັງອ່ານໄດ້.
+### Customer storefront
+
+1. ໜ້າ Register ແລະ Login ດ້ວຍ email ຫຼື phone.
+2. ໜ້າ Profile ສຳລັບເບິ່ງ/ແກ້ໄຂຂໍ້ມູນລູກຄ້າ.
+3. ໜ້າ Address Book: create, update, set default ແລະ delete.
+4. ໜ້າ Category/Product list ແລະ Product detail ຈາກ public GraphQL query.
+5. ແຍກ Customer token storage/session ອອກຈາກ Staff/Admin.
+
+### Admin back office
+
+1. Staff/Admin login ຈາກ `ecommerce.users`.
+2. Category management ແລະ hierarchy ດ້ວຍ `parentId`.
+3. Product, Variant, Price ແລະ Image management.
+4. Customer ເປັນຜູ້ໃຊ້ໜ້າຮ້ານ; ບໍ່ໃຊ້ Staff/Admin account.
+
+### Phase 1 completion gate
+
+- 10 ຕາຕະລາງຄົບ ແລະ SQL verify ຜ່ານ.
+- Staff login ແລະ Customer register/login ອ່ານຈາກ database ຈິງ.
+- Category/Product public query ແລະ Admin mutation ທຳງານ.
+- Customer profile/address flow ທຳງານຄົບ.
+- Access token ແລະ Refresh token ແຍກ token type/secret; Refresh token ໃຊ້ເປັນ Access token ບໍ່ໄດ້.
+- Login/Register ມີ rate limit ແລະ automated integration test.
+- Category cycle ຖືກປ້ອງກັນ ແລະ Redis ລົ້ມແລ້ວ Category/Product ຍັງອ່ານໄດ້.
 
 ## Phase 2 — Shopping
 

@@ -5,6 +5,7 @@ import {
   CatalogProductModel,
   CatalogProductPageModel,
   CatalogProductQuery,
+  CreateCatalogProductBundleRequest,
   CreateCatalogProductRequest,
   UpdateCatalogProductRequest,
 } from '../../../domain/models/product.model';
@@ -13,7 +14,11 @@ import {
   CreateCatalogVariantRequest,
 } from '../../../domain/models/product-variant.model';
 import { SetCatalogProductPriceRequest } from '../../../domain/models/product-price.model';
-import { AddCatalogProductImageRequest } from '../../../domain/models/product-image.model';
+import {
+  AddCatalogProductImageRequest,
+  DeleteCatalogProductImageRequest,
+  UpdateCatalogProductImageRequest,
+} from '../../../domain/models/product-image.model';
 import { IProductRepository } from '../../../domain/repositories/product.repository.interface';
 import { RedisService } from '../../cache/redis.service';
 import { CategoryEntity } from '../../entities/category.entity';
@@ -26,8 +31,12 @@ import { AddCatalogProductImageValidation } from './addImage/addImage.validation
 import { CatalogProductMapper } from './catalog-product.mapper';
 import { CreateCatalogProductAction } from './createProduct/createProduct.action';
 import { CreateCatalogProductValidation } from './createProduct/createProduct.validation';
+import { CreateCatalogProductBundleAction } from './createProductBundle/createProductBundle.action';
+import { CreateCatalogProductBundleValidation } from './createProductBundle/createProductBundle.validation';
 import { CreateCatalogVariantAction } from './createVariant/createVariant.action';
 import { CreateCatalogVariantValidation } from './createVariant/createVariant.validation';
+import { DeleteCatalogProductImageAction } from './deleteImage/deleteImage.action';
+import { DeleteCatalogProductImageValidation } from './deleteImage/deleteImage.validation';
 import { LoadCatalogProductAction } from './loadProduct/loadProduct.action';
 import { LoadCatalogProductValidation } from './loadProduct/loadProduct.validation';
 import { LoadCatalogProductsAction } from './loadProducts/loadProducts.action';
@@ -36,6 +45,8 @@ import { SetCatalogProductPriceAction } from './setPrice/setPrice.action';
 import { SetCatalogProductPriceValidation } from './setPrice/setPrice.validation';
 import { UpdateCatalogProductAction } from './updateProduct/updateProduct.action';
 import { UpdateCatalogProductValidation } from './updateProduct/updateProduct.validation';
+import { UpdateCatalogProductImageAction } from './updateImage/updateImage.action';
+import { UpdateCatalogProductImageValidation } from './updateImage/updateImage.validation';
 
 @Injectable()
 export class DatabaseProductRepository implements IProductRepository {
@@ -104,11 +115,25 @@ export class DatabaseProductRepository implements IProductRepository {
     return (await this.productMapper.hydrateProducts([product]))[0];
   }
 
+  async createProductBundle(
+    input: CreateCatalogProductBundleRequest,
+  ): Promise<CatalogProductModel> {
+    new CreateCatalogProductBundleValidation().execute(input);
+    const product = await this.runTransaction((session) =>
+      new CreateCatalogProductBundleAction(session).execute(input),
+    );
+    await this.clearCache();
+    return (await this.productMapper.hydrateProducts([product]))[0];
+  }
+
   async updateProduct(input: UpdateCatalogProductRequest): Promise<CatalogProductModel> {
     const product = await this.runTransaction(async (session) => {
       const validatedProduct = await new UpdateCatalogProductValidation(
         session.manager.getRepository(CategoryEntity),
         session.manager.getRepository(ProductEntity),
+        session.manager.getRepository(ProductVariantEntity),
+        session.manager.getRepository(ProductPriceEntity),
+        session.manager.getRepository(ProductImageEntity),
       ).execute(input);
       return new UpdateCatalogProductAction(session).execute(validatedProduct, input);
     });
@@ -148,7 +173,30 @@ export class DatabaseProductRepository implements IProductRepository {
       return new AddCatalogProductImageAction(session).execute(input);
     });
     await this.clearCache();
-    return this.loadProduct(productId);
+    return this.hydrateProductById(productId);
+  }
+
+  async updateImage(input: UpdateCatalogProductImageRequest): Promise<CatalogProductModel> {
+    const productId = await this.runTransaction(async (session) => {
+      const image = await new UpdateCatalogProductImageValidation(
+        session.manager.getRepository(ProductImageEntity),
+        session.manager.getRepository(ProductVariantEntity),
+      ).execute(input);
+      return new UpdateCatalogProductImageAction(session).execute(image, input);
+    });
+    await this.clearCache();
+    return this.hydrateProductById(productId);
+  }
+
+  async deleteImage(input: DeleteCatalogProductImageRequest): Promise<CatalogProductModel> {
+    const productId = await this.runTransaction(async (session) => {
+      const image = await new DeleteCatalogProductImageValidation(
+        session.manager.getRepository(ProductImageEntity),
+      ).execute(input);
+      return new DeleteCatalogProductImageAction(session).execute(image);
+    });
+    await this.clearCache();
+    return this.hydrateProductById(productId);
   }
 
   private async runTransaction<T>(work: (session: QueryRunner) => Promise<T>): Promise<T> {
@@ -165,6 +213,11 @@ export class DatabaseProductRepository implements IProductRepository {
     } finally {
       await session.release();
     }
+  }
+
+  private async hydrateProductById(productId: string): Promise<CatalogProductModel> {
+    const product = await this.productEntity.findOneOrFail({ where: { id: productId } });
+    return (await this.productMapper.hydrateProducts([product]))[0];
   }
 
   private clearCache(): Promise<void> {

@@ -23,6 +23,9 @@
     "start:prod": "node dist/main.js",
     "seed": "ts-node -r tsconfig-paths/register src/seed.ts",
     "db:migrate:customer-auth": "ts-node -r tsconfig-paths/register src/migrate-customer-auth.ts",
+    "db:verify:phase1": "node --env-file=.env scripts/verify-phase1.js",
+    "test:integration": "node --env-file=.env --test --test-concurrency=1 test/integration/phase1.integration.test.js",
+    "test:redis-fallback": "node --env-file=.env --test --test-concurrency=1 test/fallback/redis-outage.test.js",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

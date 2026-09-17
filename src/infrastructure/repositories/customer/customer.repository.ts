@@ -3,7 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, QueryRunner, Repository } from 'typeorm';
 import {
   CreateCustomerAddressRequest,
+  CustomerPageModel,
   CustomerProfileModel,
+  CustomerQuery,
   UpdateCustomerAddressRequest,
   UpsertCustomerProfileRequest,
 } from '../../../domain/models/customer.model';
@@ -17,6 +19,8 @@ import { DeleteCustomerAddressAction } from './deleteAddress/deleteAddress.actio
 import { DeleteCustomerAddressValidation } from './deleteAddress/deleteAddress.validation';
 import { LoadCustomerProfileAction } from './loadProfile/loadProfile.action';
 import { LoadCustomerProfileValidation } from './loadProfile/loadProfile.validation';
+import { LoadCustomersAction } from './loadCustomers/loadCustomers.action';
+import { LoadCustomersValidation } from './loadCustomers/loadCustomers.validation';
 import { SetDefaultCustomerAddressAction } from './setDefaultAddress/setDefaultAddress.action';
 import { SetDefaultCustomerAddressValidation } from './setDefaultAddress/setDefaultAddress.validation';
 import { UpdateCustomerAddressAction } from './updateAddress/updateAddress.action';
@@ -36,6 +40,15 @@ export class DatabaseCustomerRepository implements ICustomerRepository {
     private readonly dataSource: DataSource,
   ) {
     this.profileMapper = new CustomerProfileMapper(this.customerEntity, this.addressEntity);
+  }
+
+  async loadCustomers(filter: CustomerQuery = {}): Promise<CustomerPageModel> {
+    const normalized = new LoadCustomersValidation().execute(filter);
+    return new LoadCustomersAction(this.customerEntity).execute(
+      normalized.filter,
+      normalized.page,
+      normalized.limit,
+    );
   }
 
   async loadProfile(customerId: string): Promise<CustomerProfileModel> {

@@ -1,6 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { RedisService } from './redis.service';
+import { AuthRateLimitService } from '../common/auth-rate-limit.service';
 
 /**
  * RedisModule — Global module ที่ provide RedisService ให้ทุก module ใช้ได้ทันที
@@ -9,7 +10,7 @@ import { RedisService } from './redis.service';
 @Global()
 @Module({
   imports: [ConfigModule],
-  providers: [RedisService],
-  exports: [RedisService],
+  providers: [RedisService, AuthRateLimitService],
+  exports: [RedisService, AuthRateLimitService],
 })
 export class RedisModule {}

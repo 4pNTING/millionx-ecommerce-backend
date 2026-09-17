@@ -17,7 +17,7 @@ headers {
 
 body:json {
   {
-    "query": "mutation CreateAddress($input: CreateCustomerAddressDto!) { createCustomerAddress(input: $input) { id firstName lastName addresses { id label recipientName phone addressLine1 village district province countryCode isDefault } } }",
+    "query": "mutation CreateCustomerAddress($input: CreateCustomerAddressInput!) { createCustomerAddress(input: $input) { id firstName lastName addresses { id label recipientName phone addressLine1 village district province countryCode isDefault } } }",
     "variables": {
       "input": {
         "label": "ຫ້ອງການ",

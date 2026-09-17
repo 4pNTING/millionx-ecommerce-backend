@@ -1,11 +1,14 @@
 import {
   CreateCustomerAddressRequest,
+  CustomerPageModel,
   CustomerProfileModel,
+  CustomerQuery,
   UpdateCustomerAddressRequest,
   UpsertCustomerProfileRequest,
 } from '../models/customer.model';
 
 export interface ICustomerRepository {
+  loadCustomers(query?: CustomerQuery): Promise<CustomerPageModel>;
   loadProfile(customerId: string): Promise<CustomerProfileModel>;
   upsertProfile(
     customerId: string,

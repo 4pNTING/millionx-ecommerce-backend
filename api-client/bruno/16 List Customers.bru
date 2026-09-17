@@ -1,0 +1,39 @@
+meta {
+  name: 16 List Customers
+  type: http
+  seq: 16
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{staffToken}}
+}
+
+body:json {
+  {
+    "query": "query Customers($filter: CustomerFilterInput) { customers(filter: $filter) { items { id firstName lastName email phone isActive accountId accountIsActive emailVerifiedAt phoneVerifiedAt lastLoginAt addressCount createdAt updatedAt } total page limit } }",
+    "variables": {
+      "filter": {
+        "page": 1,
+        "limit": 20
+      }
+    }
+  }
+}
+
+tests {
+  test("Admin ສາມາດດຶງລາຍການ Customer ໄດ້", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.customers.items).to.be.an("array");
+    expect(res.getBody().data.customers.total).to.be.a("number");
+    expect(res.getBody().data.customers.page).to.equal(1);
+    expect(res.getBody().data.customers.limit).to.equal(20);
+  });
+}

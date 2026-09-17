@@ -26,6 +26,7 @@ src/
     │   │   └── category.repository.ts
     │   ├── product/
     │   │   ├── createProduct/
+    │   │   ├── createProductBundle/
     │   │   ├── createVariant/
     │   │   ├── loadProduct/
     │   │   ├── loadProducts/

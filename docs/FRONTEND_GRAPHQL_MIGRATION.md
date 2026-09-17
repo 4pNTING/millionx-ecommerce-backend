@@ -4,39 +4,44 @@ GraphQL API ແຍກ Category ແລະ Product ອອກຈາກຊື່ leg
 
 ## Operation mapping
 
-| Old GraphQL name         | New GraphQL name       |
-| ------------------------ | ---------------------- |
-| `catalogCategories`      | `categories`           |
-| `catalogProducts`        | `products`             |
-| `catalogProduct`         | `product`              |
-| `createCatalogCategory`  | `createCategory`       |
-| `updateCatalogCategory`  | `updateCategory`       |
-| `createCatalogProduct`   | `createProduct`        |
-| `updateCatalogProduct`   | `updateProduct`        |
-| `createCatalogVariant`   | `createProductVariant` |
-| `setCatalogProductPrice` | `setProductPrice`      |
-| `addCatalogProductImage` | `addProductImage`      |
+| Old GraphQL name         | New GraphQL name        |
+| ------------------------ | ----------------------- |
+| `catalogCategories`      | `categories`            |
+| `catalogProducts`        | `products`              |
+| `catalogProduct`         | `product`               |
+| `createCatalogCategory`  | `createCategory`        |
+| `updateCatalogCategory`  | `updateCategory`        |
+| `createCatalogProduct`   | `createProduct`         |
+| `updateCatalogProduct`   | `updateProduct`         |
+| `createCatalogVariant`   | `createProductVariant`  |
+| `setCatalogProductPrice` | `setProductPrice`       |
+| `addCatalogProductImage` | `addProductImage`       |
+| `customerLogin`          | `loginCustomer`         |
+| `upsertCustomerProfile`  | `updateCustomerProfile` |
 
 ## Type and input mapping
 
-| Old type/input              | New type/input              |
-| --------------------------- | --------------------------- |
-| `CatalogCategory`           | `Category`                  |
-| `CatalogCategoryPage`       | `CategoryPage`              |
-| `CatalogCategoryFilterDto`  | `CategoryFilterInput`       |
-| `CreateCatalogCategoryDto`  | `CreateCategoryInput`       |
-| `UpdateCatalogCategoryDto`  | `UpdateCategoryInput`       |
-| `CatalogProduct`            | `Product`                   |
-| `CatalogProductPage`        | `ProductPage`               |
-| `CatalogProductFilterDto`   | `ProductFilterInput`        |
-| `CatalogVariant`            | `ProductVariant`            |
-| `CatalogPrice`              | `ProductPrice`              |
-| `CatalogImage`              | `ProductImage`              |
-| `CreateCatalogProductDto`   | `CreateProductInput`        |
-| `UpdateCatalogProductDto`   | `UpdateProductInput`        |
-| `CreateCatalogVariantDto`   | `CreateProductVariantInput` |
-| `SetCatalogProductPriceDto` | `SetProductPriceInput`      |
-| `AddCatalogProductImageDto` | `AddProductImageInput`      |
+| Old type/input              | New type/input               |
+| --------------------------- | ---------------------------- |
+| `CatalogCategory`           | `Category`                   |
+| `CatalogCategoryPage`       | `CategoryPage`               |
+| `CatalogCategoryFilterDto`  | `CategoryFilterInput`        |
+| `CreateCatalogCategoryDto`  | `CreateCategoryInput`        |
+| `UpdateCatalogCategoryDto`  | `UpdateCategoryInput`        |
+| `CatalogProduct`            | `Product`                    |
+| `CatalogProductPage`        | `ProductPage`                |
+| `CatalogProductFilterDto`   | `ProductFilterInput`         |
+| `CatalogVariant`            | `ProductVariant`             |
+| `CatalogPrice`              | `ProductPrice`               |
+| `CatalogImage`              | `ProductImage`               |
+| `CreateCatalogProductDto`   | `CreateProductInput`         |
+| `UpdateCatalogProductDto`   | `UpdateProductInput`         |
+| `CreateCatalogVariantDto`   | `CreateProductVariantInput`  |
+| `SetCatalogProductPriceDto` | `SetProductPriceInput`       |
+| `AddCatalogProductImageDto` | `AddProductImageInput`       |
+| `UpsertCustomerProfileDto`  | `UpdateCustomerProfileInput` |
+| `CreateCustomerAddressDto`  | `CreateCustomerAddressInput` |
+| `UpdateCustomerAddressDto`  | `UpdateCustomerAddressInput` |
 
 ## Category query
 

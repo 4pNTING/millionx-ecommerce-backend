@@ -1,0 +1,43 @@
+meta {
+  name: 17 Refresh Staff Token
+  type: http
+  seq: 17
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "query": "mutation RefreshStaffToken($input: RefreshTokenInput!) { refreshStaffToken(input: $input) { _id username role isActive token refreshToken } }",
+    "variables": {
+      "input": {
+        "refreshToken": "{{staffRefreshToken}}"
+      }
+    }
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+  if (body?.data?.refreshStaffToken?.token) {
+    bru.setEnvVar("staffToken", body.data.refreshStaffToken.token);
+    bru.setEnvVar("staffRefreshToken", body.data.refreshStaffToken.refreshToken);
+  }
+}
+
+tests {
+  test("Staff refresh ໄດ້ token ຄູ່ໃໝ່", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.refreshStaffToken.token).to.be.a("string");
+    expect(res.getBody().data.refreshStaffToken.refreshToken).to.be.a("string");
+  });
+}

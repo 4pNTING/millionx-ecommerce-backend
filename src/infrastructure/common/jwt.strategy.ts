@@ -1,6 +1,6 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -10,9 +10,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       secretOrKey: config.getOrThrow<string>('JWT_SECRET'),
+      algorithms: ['HS256'],
     });
   }
   async validate(payload: any) {
+    if (payload?.tokenType !== 'access') {
+      throw new UnauthorizedException('Access token is required');
+    }
+
     return {
       userId: payload.id,
       customerId: payload.customerId,

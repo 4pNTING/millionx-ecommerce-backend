@@ -2,30 +2,30 @@ import { Inject, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { AddCatalogProductImageUseCase } from '../../../usecases/product/addCatalogProductImage.usecase';
 import { CreateCatalogProductUseCase } from '../../../usecases/product/createCatalogProduct.usecase';
+import { CreateCatalogProductBundleUseCase } from '../../../usecases/product/createCatalogProductBundle.usecase';
 import { CreateCatalogVariantUseCase } from '../../../usecases/product/createCatalogVariant.usecase';
+import { DeleteCatalogProductImageUseCase } from '../../../usecases/product/deleteCatalogProductImage.usecase';
 import { LoadCatalogProductUseCase } from '../../../usecases/product/loadCatalogProduct.usecase';
 import { LoadCatalogProductsUseCase } from '../../../usecases/product/loadCatalogProducts.usecase';
 import { SetCatalogProductPriceUseCase } from '../../../usecases/product/setCatalogProductPrice.usecase';
 import { UpdateCatalogProductUseCase } from '../../../usecases/product/updateCatalogProduct.usecase';
+import { UpdateCatalogProductImageUseCase } from '../../../usecases/product/updateCatalogProductImage.usecase';
 import { CatalogWriteGuard } from '../../common/catalog-write.guard';
 import { JwtAuthGuard } from '../../common/jwt-auth.guard';
 import { ProductUsecasesProxyModule } from '../../usecases-proxy/product-usecases-proxy.module';
 import {
   AddProductImageInput,
   CreateProductInput,
+  CreateProductBundleInput,
   CreateProductVariantInput,
+  DeleteProductImageInput,
   Product,
   ProductFilterInput,
   ProductPage,
   ProductVariant,
   SetProductPriceInput,
   UpdateProductInput,
-  CatalogProductFilterDto,
-  CreateCatalogProductDto,
-  UpdateCatalogProductDto,
-  CreateCatalogVariantDto,
-  SetCatalogProductPriceDto,
-  AddCatalogProductImageDto,
+  UpdateProductImageInput,
 } from './product.model';
 
 @Resolver(() => Product)
@@ -37,6 +37,8 @@ export class ProductResolver {
     private readonly loadProductUseCase: LoadCatalogProductUseCase,
     @Inject(ProductUsecasesProxyModule.CREATE_PRODUCT_PROXY)
     private readonly createProductUseCase: CreateCatalogProductUseCase,
+    @Inject(ProductUsecasesProxyModule.CREATE_PRODUCT_BUNDLE_PROXY)
+    private readonly createProductBundleUseCase: CreateCatalogProductBundleUseCase,
     @Inject(ProductUsecasesProxyModule.UPDATE_PRODUCT_PROXY)
     private readonly updateProductUseCase: UpdateCatalogProductUseCase,
     @Inject(ProductUsecasesProxyModule.CREATE_VARIANT_PROXY)
@@ -45,6 +47,10 @@ export class ProductResolver {
     private readonly setPriceUseCase: SetCatalogProductPriceUseCase,
     @Inject(ProductUsecasesProxyModule.ADD_IMAGE_PROXY)
     private readonly addImageUseCase: AddCatalogProductImageUseCase,
+    @Inject(ProductUsecasesProxyModule.UPDATE_IMAGE_PROXY)
+    private readonly updateImageUseCase: UpdateCatalogProductImageUseCase,
+    @Inject(ProductUsecasesProxyModule.DELETE_IMAGE_PROXY)
+    private readonly deleteImageUseCase: DeleteCatalogProductImageUseCase,
   ) {}
 
   @Query(() => ProductPage)
@@ -65,6 +71,12 @@ export class ProductResolver {
   @UseGuards(JwtAuthGuard, CatalogWriteGuard)
   createProduct(@Args('input') input: CreateProductInput) {
     return this.createProductUseCase.execute(input);
+  }
+
+  @Mutation(() => Product)
+  @UseGuards(JwtAuthGuard, CatalogWriteGuard)
+  createProductBundle(@Args('input') input: CreateProductBundleInput) {
+    return this.createProductBundleUseCase.execute(input);
   }
 
   @Mutation(() => Product)
@@ -91,48 +103,15 @@ export class ProductResolver {
     return this.addImageUseCase.execute(input);
   }
 
-  // Backward compatibility legacy queries & mutations
-  @Query(() => ProductPage, { deprecationReason: 'Use products instead' })
-  catalogProducts(@Args('filter', { nullable: true }) filter?: CatalogProductFilterDto) {
-    return this.products(filter);
-  }
-
-  @Query(() => Product, { deprecationReason: 'Use product instead' })
-  catalogProduct(
-    @Args('id', { nullable: true }) id?: string,
-    @Args('slug', { nullable: true }) slug?: string,
-    @Args('currency', { nullable: true }) currency?: string,
-  ) {
-    return this.product(id, slug, currency);
-  }
-
-  @Mutation(() => Product, { deprecationReason: 'Use createProduct instead' })
+  @Mutation(() => Product)
   @UseGuards(JwtAuthGuard, CatalogWriteGuard)
-  createCatalogProduct(@Args('input') input: CreateCatalogProductDto) {
-    return this.createProduct(input);
+  updateProductImage(@Args('input') input: UpdateProductImageInput) {
+    return this.updateImageUseCase.execute(input);
   }
 
-  @Mutation(() => Product, { deprecationReason: 'Use updateProduct instead' })
+  @Mutation(() => Product)
   @UseGuards(JwtAuthGuard, CatalogWriteGuard)
-  updateCatalogProduct(@Args('input') input: UpdateCatalogProductDto) {
-    return this.updateProduct(input);
-  }
-
-  @Mutation(() => ProductVariant, { deprecationReason: 'Use createProductVariant instead' })
-  @UseGuards(JwtAuthGuard, CatalogWriteGuard)
-  createCatalogVariant(@Args('input') input: CreateCatalogVariantDto) {
-    return this.createProductVariant(input);
-  }
-
-  @Mutation(() => Product, { deprecationReason: 'Use setProductPrice instead' })
-  @UseGuards(JwtAuthGuard, CatalogWriteGuard)
-  setCatalogProductPrice(@Args('input') input: SetCatalogProductPriceDto) {
-    return this.setProductPrice(input);
-  }
-
-  @Mutation(() => Product, { deprecationReason: 'Use addProductImage instead' })
-  @UseGuards(JwtAuthGuard, CatalogWriteGuard)
-  addCatalogProductImage(@Args('input') input: AddCatalogProductImageDto) {
-    return this.addProductImage(input);
+  deleteProductImage(@Args('input') input: DeleteProductImageInput) {
+    return this.deleteImageUseCase.execute(input);
   }
 }

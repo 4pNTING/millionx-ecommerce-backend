@@ -10,13 +10,13 @@ export class ProductImageEntity implements ProductImageModel {
   productId: string;
 
   @Column('uuid', { nullable: true })
-  variantId?: string;
+  variantId?: string | null;
 
   @Column('text')
   url: string;
 
-  @Column({ nullable: true })
-  altText?: string;
+  @Column('varchar', { nullable: true })
+  altText?: string | null;
 
   @Column('int', { default: 0 })
   sortOrder: number;

@@ -12,9 +12,6 @@ import {
   CategoryPage,
   CreateCategoryInput,
   UpdateCategoryInput,
-  CatalogCategoryFilterDto,
-  CreateCatalogCategoryDto,
-  UpdateCatalogCategoryDto,
 } from './category.model';
 
 @Resolver(() => Category)
@@ -43,23 +40,5 @@ export class CategoryResolver {
   @UseGuards(JwtAuthGuard, CatalogWriteGuard)
   updateCategory(@Args('input') input: UpdateCategoryInput) {
     return this.updateCategoryUseCase.execute(input);
-  }
-
-  // Backward compatibility legacy queries & mutations
-  @Query(() => CategoryPage, { deprecationReason: 'Use categories instead' })
-  catalogCategories(@Args('filter', { nullable: true }) filter?: CatalogCategoryFilterDto) {
-    return this.categories(filter);
-  }
-
-  @Mutation(() => Category, { deprecationReason: 'Use createCategory instead' })
-  @UseGuards(JwtAuthGuard, CatalogWriteGuard)
-  createCatalogCategory(@Args('input') input: CreateCatalogCategoryDto) {
-    return this.createCategory(input);
-  }
-
-  @Mutation(() => Category, { deprecationReason: 'Use updateCategory instead' })
-  @UseGuards(JwtAuthGuard, CatalogWriteGuard)
-  updateCatalogCategory(@Args('input') input: UpdateCatalogCategoryDto) {
-    return this.updateCategory(input);
   }
 }

@@ -40,6 +40,7 @@ script:post-response {
   const body = res.getBody();
   if (body?.data?.registerCustomer?.token) {
     bru.setEnvVar("customerToken", body.data.registerCustomer.token);
+    bru.setEnvVar("customerRefreshToken", body.data.registerCustomer.refreshToken);
     bru.setEnvVar("customerId", body.data.registerCustomer.customerId);
   }
 }

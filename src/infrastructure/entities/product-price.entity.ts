@@ -22,10 +22,10 @@ export class ProductPriceEntity implements ProductPriceModel {
   amount: string;
 
   @Column({ nullable: true })
-  compareAtAmount?: string;
+  compareAtAmount?: string | null;
 
   @Column({ nullable: true })
-  startsAt?: Date;
+  startsAt?: Date | null;
 
   @Column({ nullable: true })
   endsAt?: Date;

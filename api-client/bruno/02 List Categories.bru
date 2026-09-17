@@ -29,6 +29,14 @@ body:json {
   }
 }
 
+script:post-response {
+  const items = res.getBody()?.data?.categories?.items;
+  const category = items?.find(item => item.isActive) || items?.[0];
+  if (category?.id) {
+    bru.setEnvVar("categoryId", category.id);
+  }
+}
+
 tests {
   test("ສາມາດດຶງລາຍການໝວດໝູ່ໄດ້", function () {
     expect(res.getStatus()).to.equal(200);

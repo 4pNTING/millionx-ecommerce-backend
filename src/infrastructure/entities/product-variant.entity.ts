@@ -19,10 +19,10 @@ export class ProductVariantEntity implements ProductVariantModel {
   sku: string;
 
   @Column({ length: 100, nullable: true })
-  barcode?: string;
+  barcode?: string | null;
 
   @Column({ length: 160, nullable: true })
-  name?: string;
+  name?: string | null;
 
   @Column('jsonb', { default: {} })
   attributes: Record<string, unknown>;

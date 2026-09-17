@@ -17,7 +17,7 @@ headers {
 
 body:json {
   {
-    "query": "mutation UpdateProfile($input: UpsertCustomerProfileDto!) { upsertCustomerProfile(input: $input) { id firstName lastName email phone isActive } }",
+    "query": "mutation UpdateCustomerProfile($input: UpdateCustomerProfileInput!) { updateCustomerProfile(input: $input) { id firstName lastName email phone isActive } }",
     "variables": {
       "input": {
         "firstName": "ສົມພອນ",
@@ -33,6 +33,6 @@ tests {
   test("ອັບເດດໂປຣໄຟລ໌ Customer ສຳເລັດ", function () {
     expect(res.getStatus()).to.equal(200);
     expect(res.getBody().errors).to.equal(undefined);
-    expect(res.getBody().data.upsertCustomerProfile.firstName).to.equal("ສົມພອນ");
+    expect(res.getBody().data.updateCustomerProfile.firstName).to.equal("ສົມພອນ");
   });
 }

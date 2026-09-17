@@ -1,14 +1,14 @@
 import { IUserRepository } from '../../domain/repositories/user.repository.interface';
 import { LoginRequest, LoginResponse } from '../../domain/models/user.model';
 import * as bcrypt from 'bcrypt';
-import * as jwt from 'jsonwebtoken';
 import { UnauthorizedException } from '@nestjs/common';
+import { AuthTokenService } from './auth-token.service';
+import { ActiveStatus } from '../../domain/enums/enum';
 
 export class LoginUseCase {
   constructor(
     private readonly userRepository: IUserRepository,
-    private readonly jwtSecret: string,
-    private readonly jwtExpiration: string,
+    private readonly tokenService: AuthTokenService,
   ) {}
 
   async execute(request: LoginRequest): Promise<LoginResponse> {
@@ -22,6 +22,10 @@ export class LoginUseCase {
       throw new UnauthorizedException('Invalid username or password');
     }
 
+    if (user.isActive !== ActiveStatus.active) {
+      throw new UnauthorizedException('User account is inactive');
+    }
+
     const isPasswordValid = await bcrypt.compare(request.password, user.password);
 
     if (!isPasswordValid) {
@@ -32,23 +36,17 @@ export class LoginUseCase {
       id: user._id,
       username: user.username,
       role: user.role,
-      actorType: 'staff',
+      actorType: 'staff' as const,
     };
 
-    const accessToken = jwt.sign(payload, this.jwtSecret, {
-      expiresIn: this.jwtExpiration as jwt.SignOptions['expiresIn'],
-    });
-
-    // Generate Refresh Token
-    const refreshToken = jwt.sign(payload, this.jwtSecret, { expiresIn: '7d' });
+    const tokens = this.tokenService.issue(payload);
 
     return {
       _id: user._id,
       username: user.username,
       isActive: user.isActive,
       role: user.role,
-      token: accessToken,
-      refreshToken: refreshToken,
+      ...tokens,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };

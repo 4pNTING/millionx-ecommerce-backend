@@ -13,6 +13,7 @@ import { DateScalar } from './infrastructure/common/graphql/date.scalar';
 import { JwtStrategy } from './infrastructure/common/jwt.strategy';
 import { CatalogWriteGuard } from './infrastructure/common/catalog-write.guard';
 import { CustomerAccountGuard } from './infrastructure/common/customer-account.guard';
+import { StaffCustomerReadGuard } from './infrastructure/common/staff-customer-read.guard';
 import { RepositoriesModule } from './infrastructure/repositories/repositories.module';
 
 // Use-case modules
@@ -26,6 +27,7 @@ import { CustomerAuthUsecasesProxyModule } from './infrastructure/usecases-proxy
 // Controllers
 import { AuthController } from './infrastructure/controllers/auth/auth.controller';
 import { ZoneController } from './infrastructure/controllers/zone/zone.controller';
+import { ProductImageUploadController } from './infrastructure/controllers/upload/product-image-upload.controller';
 
 // Resolvers
 import { AuthResolver } from './infrastructure/resolvers/auth/auth.resolver';
@@ -66,7 +68,21 @@ import { CustomerAccountEntity } from './infrastructure/entities/customer-accoun
       playground: false,
       plugins: [ApolloServerPluginLandingPageLocalDefault({ embed: true })],
       path: '/api-gateway',
-      formatError: (error) => ({ message: error.message }),
+      formatError: (error) => {
+        const extensions = error.extensions || {};
+        const safeExtensions = {
+          ...(extensions.code ? { code: extensions.code } : {}),
+          ...(extensions.statusCode ? { statusCode: extensions.statusCode } : {}),
+          ...(extensions.retryAfterSeconds
+            ? { retryAfterSeconds: extensions.retryAfterSeconds }
+            : {}),
+        };
+
+        return {
+          message: error.message,
+          ...(Object.keys(safeExtensions).length > 0 ? { extensions: safeExtensions } : {}),
+        };
+      },
     }),
 
     TypeOrmModule.forRootAsync({
@@ -111,7 +127,7 @@ import { CustomerAccountEntity } from './infrastructure/entities/customer-accoun
     CustomerUsecasesProxyModule.register(),
     CustomerAuthUsecasesProxyModule.register(),
   ],
-  controllers: [AuthController, ZoneController],
+  controllers: [AuthController, ZoneController, ProductImageUploadController],
   providers: [
     DateScalar,
     AuthResolver,
@@ -123,6 +139,7 @@ import { CustomerAccountEntity } from './infrastructure/entities/customer-accoun
     JwtStrategy,
     CatalogWriteGuard,
     CustomerAccountGuard,
+    StaffCustomerReadGuard,
   ],
 })
 export class AppModule {}

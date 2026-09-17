@@ -1,6 +1,8 @@
 # Phase 1 — Foundation Guide
 
-Phase 1 ປະກອບດ້ວຍ Category, Product, Customer profile, Customer login ແລະ Address. Primary key ຂອງຕາຕະລາງ E-commerce ໃຊ້ UUID.
+Phase 1 ປະກອບດ້ວຍ Category, Product, Customer profile, Customer login ແລະ Address. Primary key ຂອງຕາຕະລາງ E-commerce ໃຊ້ RFC 4122 UUID v4.
+
+ສຳລັບ database ເກົ່າ ໃຫ້ run `database/migrations/20260903_normalize_phase1_uuid_v4.sql` ໜຶ່ງຄັ້ງ. Migration ຈະສ້າງ UUID v4 ໃໝ່ສະເພາະແຖວທີ່ ID ຜິດມາດຕະຖານ ແລະ update Foreign Key ທີ່ເຊື່ອມກັນໃຫ້ອັດຕະໂນມັດ.
 
 ## ຕາຕະລາງ
 
@@ -28,6 +30,8 @@ npm run start:dev
 ```
 
 GraphQL: `http://localhost:3001/api-gateway`
+
+ຖ້າ Backend run ຜ່ານ Docker, PostgreSQL ທີ່ Backend ໃຊ້ຢູ່ໃນ container ແລະ Navicat ຕ້ອງເຊື່ອມ `localhost:5436` (ຫຼືຄ່າ `DB_HOST_PORT`). `localhost:5432` ແມ່ນ PostgreSQL ທີ່ run ໂດຍກົງໃນ Mac ແລະເປັນຄົນລະ instance; ຂໍ້ມູນຈຶ່ງອາດບໍ່ຄືກັນ.
 
 ## Reset ແລະ seed ຜ່ານ Navicat
 
@@ -155,19 +159,59 @@ Category filter behavior:
 
 ## ສ້າງ Category/Product data
 
+หน้า Create Product ຄວນໃຊ້ `createProductBundle` ເພື່ອສ້າງ Product, Variant, Price ແລະ Image ໃນ PostgreSQL transaction ດຽວ. ຖ້າຂັ້ນຕອນໃດຜິດ ຂໍ້ມູນທັງໝົດຈະ rollback.
+
 ```graphql
-mutation CreateProduct($categoryId: String!) {
-  createProduct(
-    input: {
-      categoryId: $categoryId
-      name: "ແລັບທັອບ MillionX Pro"
-      slug: "millionx-laptop-pro"
-      description: "ແລັບທັອບສຳລັບວຽກຫ້ອງການ"
-      brand: "MillionX"
-    }
-  ) {
+mutation CreateProductBundle($input: CreateProductBundleInput!) {
+  createProductBundle(input: $input) {
     id
     name
+    variants {
+      id
+      sku
+      prices {
+        currency
+        amount
+        compareAtAmount
+      }
+    }
+    images {
+      id
+      url
+    }
+  }
+}
+```
+
+`compareAtAmount` ແມ່ນລາຄາກ່ອນຫຼຸດ ແລະຕ້ອງຫຼາຍກວ່າ ຫຼືເທົ່າກັບ `amount`.
+
+### Product image mutation
+
+- `addProductImage` ເພີ່ມແຖວຮູບໃໝ່.
+- `updateProductImage` ແກ້ຮູບເດີມດ້ວຍ `imageId`; ຮອງຮັບ `url`, `altText`, `sortOrder` ແລະ `variantId`.
+- `deleteProductImage` ລຶບແຖວຮູບຕາມ `imageId`. API ບໍ່ລຶບໄຟລ໌ຈາກ Upload storage.
+- ການສົ່ງ `variantId: null` ໃນ `updateProductImage` ຈະປ່ຽນຮູບໃຫ້ເປັນຮູບຂອງ Product ຫຼັກ.
+
+```graphql
+mutation UpdateProductImage($input: UpdateProductImageInput!) {
+  updateProductImage(input: $input) {
+    id
+    images {
+      id
+      variantId
+      url
+      altText
+      sortOrder
+    }
+  }
+}
+
+mutation DeleteProductImage($input: DeleteProductImageInput!) {
+  deleteProductImage(input: $input) {
+    id
+    images {
+      id
+    }
   }
 }
 ```
@@ -191,6 +235,59 @@ mutation CreateProductVariant($productId: String!) {
 
 `attributesJson` ຈະຖືກແປງເປັນ PostgreSQL `jsonb`. Entity ຕ້ອງໃຊ້ `@Column('jsonb', { default: {} })`.
 
+### Update Product ແບບຊຸດ
+
+`updateProduct` ຮອງຮັບການແກ້ Product, Variant/Attributes, Price ແລະ Image/Alternative text
+ໃນ request ດຽວ. ຂໍ້ມູນທັງໝົດຖືກບັນທຶກໃນ transaction ດຽວ; ຖ້າສ່ວນໃດຜິດຈະ rollback ທັງຊຸດ.
+ການສົ່ງ `id` ຂອງ Variant, Price ຫຼື Image ຈະແກ້ແຖວເດີມ ໂດຍບໍ່ສ້າງແຖວຊ້ຳ.
+ໃຊ້ `deleteImageIds` ເພື່ອລຶບຫຼາຍຮູບໃນ transaction ດຽວ. ຖ້າສ້າງ Variant ໃໝ່
+ແລະຮູບຂອງ Variant ພ້ອມກັນ ໃຫ້ສົ່ງ `variantSku` ໃນ Image; Backend ຈະສ້າງ Variant
+ແລ້ວຜູກ UUID ໃຫ້ຮູບອັດຕະໂນມັດ.
+
+```graphql
+mutation UpdateProduct($input: UpdateProductInput!) {
+  updateProduct(input: $input) {
+    id
+    variants {
+      id
+      attributesJson
+    }
+    images {
+      id
+      altText
+    }
+  }
+}
+```
+
+```json
+{
+  "input": {
+    "id": "PRODUCT_UUID",
+    "variants": [
+      {
+        "id": "VARIANT_UUID",
+        "sku": "MX-LAPTOP-16-512-BLK",
+        "attributesJson": "{\"ram\":\"16GB\",\"storage\":\"512GB\"}"
+      }
+    ],
+    "images": [
+      {
+        "id": "IMAGE_UUID",
+        "altText": "ຮູບດ້ານໜ້າຂອງແລັບທັອບ"
+      },
+      {
+        "variantSku": "MX-LAPTOP-16-512-BLK",
+        "url": "https://example.com/images/millionx-black.jpg",
+        "altText": "ຮູບຕົວເລືອກສີດຳ",
+        "sortOrder": 1
+      }
+    ],
+    "deleteImageIds": ["OLD_IMAGE_UUID"]
+  }
+}
+```
+
 ## Customer register/login
 
 ```graphql
@@ -213,7 +310,7 @@ mutation RegisterCustomer {
 
 ```graphql
 mutation CustomerLogin($input: CustomerLoginInput!) {
-  customerLogin(input: $input) {
+  loginCustomer(input: $input) {
     customerId
     email
     token
@@ -223,13 +320,59 @@ mutation CustomerLogin($input: CustomerLoginInput!) {
 
 Customer Profile/Address API ໃຊ້ `customerId` ຈາກ JWT ແລະບໍ່ຮັບ `customerId` ຈາກ client.
 
+## Login/Register Rate Limit
+
+Rate Limit ຖືກໃຊ້ກັບ GraphQL `login`, `loginCustomer`, `registerCustomer` ແລະ REST
+`POST /api/auth/login`:
+
+| Operation          | Default limit   | Counter dimensions  |
+| ------------------ | --------------- | ------------------- |
+| `login`            | 5 / 60 ວິນາທີ   | IP + Staff username |
+| `loginCustomer`    | 5 / 60 ວິນາທີ   | IP + email/phone    |
+| `registerCustomer` | 3 / 3600 ວິນາທີ | IP + email/phone    |
+
+Counter ໃຊ້ Redis atomic increment + TTL. ຖ້າ Redis ໃຊ້ບໍ່ໄດ້ Backend ຈະໃຊ້ in-memory
+counter ເພື່ອບໍ່ເປີດຊ່ອງໃຫ້ brute force. Username, email, phone ແລະ IP ຖືກ hash
+ກ່ອນສ້າງ Redis key.
+
+Frontend ບໍ່ຕ້ອງປ່ຽນ mutation. ເມື່ອເກີນ limit ໃຫ້ສະແດງ GraphQL error message
+`Too many ... attempts. Try again in N seconds` ແລະ disable ປຸ່ມ submit ຕາມເວລາທີ່ລະບຸ.
+
 ## Bruno flow
 
-ເປີດ `api-client/bruno`, ເລືອກ `Local` ແລະ run `01` ຫາ `13`. Collection ຈະເກັບ Staff token, Customer token, Category ID, Product ID, Variant ID ແລະ Address ID ໃຫ້ອັດຕະໂນມັດ.
+ເປີດ `api-client/bruno`, ເລືອກ `Local` ແລະ run `01` ຫາ `18`. Collection ຈະເກັບ Staff token, Customer token, Category ID, Product ID, Variant ID, Product Image ID ແລະ Address ID ໃຫ້ອັດຕະໂນມັດ. Request `19` ໃຊ້ທົດສອບ Rate Limit ແຍກຕ່າງຫາກ.
+
+## Automated integration test
+
+```bash
+docker compose --profile full up -d --build
+npm run test:integration
+```
+
+Test ຄອບຄຸມ Staff/Customer Auth, Refresh token, Category, Product bundle transaction,
+Variant/Price/Image, Customer Profile/Address, Admin Customer List, rollback ແລະ Rate Limit.
+Test ບໍ່ອະນຸຍາດໃຫ້ run ໃນ production ແລະ cleanup ສະເພາະ UUID ທີ່ມັນສ້າງ.
+
+## Automated Redis outage test
+
+```bash
+npm run test:redis-fallback
+```
+
+Test ຈະຢຸດ Redis container ຊົ່ວຄາວ ແລ້ວກວດວ່າ Category/Product query
+ຍັງອ່ານຈາກ PostgreSQL ໄດ້ ແລະ Auth Rate Limit ໃຊ້ in-memory counter.
+ຫຼັງທົດສອບ Test ຈະເປີດ Redis, restart Backend ແລະກວດ Redis cache ອີກຄັ້ງ.
+ຄຳສັ່ງນີ້ປະຕິເສດ Production/Remote URL ແລະບໍ່ປ່ຽນ application rows.
 
 ## ກວດ database
 
-Run `database/verify/phase1_verify.sql`. ຜົນ `phase1EcommerceTableCount` ຕ້ອງເທົ່າກັບ `10`.
+```bash
+npm run db:verify:phase1
+```
+
+ຫຼື run `database/verify/phase1_verify.sql` ໃນ Navicat. ຜົນທຸກ check ຕ້ອງເປັນ `PASS`.
+Verification gate ນີ້ເປັນ read-only ສຳລັບ application data ແລະ rollback temporary state
+ທັງໝົດຫຼັງກວດສຳເລັດ. ຖ້າ check ໃດບໍ່ຜ່ານ SQL ຈະ raise exception.
 
 ## ສ່ວນທີ່ຍັງບໍ່ມີໃນ Phase 1
 

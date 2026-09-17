@@ -30,6 +30,7 @@ script:post-response {
   const body = res.getBody();
   if (body?.data?.login?.token) {
     bru.setEnvVar("staffToken", body.data.login.token);
+    bru.setEnvVar("staffRefreshToken", body.data.login.refreshToken);
   }
 }
 

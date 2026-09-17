@@ -33,7 +33,7 @@ export class CategoryPage {
 
 @InputType()
 export class CategoryFilterInput {
-  @Field({ nullable: true }) @IsOptional() @IsUUID('loose') parentId?: string;
+  @Field({ nullable: true }) @IsOptional() @IsUUID() parentId?: string;
   @Field({ nullable: true }) @IsOptional() @IsString() keyword?: string;
   @Field(() => Int, { nullable: true, defaultValue: 1 })
   @IsOptional()
@@ -84,13 +84,3 @@ export class UpdateCategoryInput {
   @Field(() => Int, { nullable: true }) @IsOptional() @IsInt() @Min(0) sortOrder?: number;
   @Field({ nullable: true }) @IsOptional() @IsBoolean() isActive?: boolean;
 }
-
-// Backward Compatibility Legacy Types
-@InputType('CatalogCategoryFilterDto')
-export class CatalogCategoryFilterDto extends CategoryFilterInput {}
-
-@InputType('CreateCatalogCategoryDto')
-export class CreateCatalogCategoryDto extends CreateCategoryInput {}
-
-@InputType('UpdateCatalogCategoryDto')
-export class UpdateCatalogCategoryDto extends UpdateCategoryInput {}

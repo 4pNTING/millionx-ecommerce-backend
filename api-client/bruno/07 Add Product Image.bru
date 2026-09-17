@@ -30,10 +30,17 @@ body:json {
   }
 }
 
+script:post-response {
+  const images = res.getBody()?.data?.addProductImage?.images ?? [];
+  const image = images.filter(item => item.altText === "ຮູບແລັບທັອບທົດສອບ MillionX").at(-1);
+  if (image?.id) bru.setEnvVar("imageId", image.id);
+}
+
 tests {
   test("ເພີ່ມຮູບສິນຄ້າສຳເລັດ", function () {
     expect(res.getStatus()).to.equal(200);
     expect(res.getBody().errors).to.equal(undefined);
     expect(res.getBody().data.addProductImage.images).to.be.an("array");
+    expect(bru.getEnvVar("imageId")).to.be.a("string");
   });
 }

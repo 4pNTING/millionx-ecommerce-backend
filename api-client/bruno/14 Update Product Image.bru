@@ -1,0 +1,40 @@
+meta {
+  name: 14 Update Product Image
+  type: http
+  seq: 14
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{staffToken}}
+}
+
+body:json {
+  {
+    "query": "mutation UpdateProductImage($input: UpdateProductImageInput!) { updateProductImage(input: $input) { id name images { id productId variantId url altText sortOrder } } }",
+    "variables": {
+      "input": {
+        "id": "{{imageId}}",
+        "variantId": null,
+        "url": "https://images.example.com/millionx-demo-laptop-updated.jpg",
+        "altText": "ຮູບສິນຄ້າ MillionX ທີ່ແກ້ໄຂແລ້ວ",
+        "sortOrder": 0
+      }
+    }
+  }
+}
+
+tests {
+  test("ແກ້ໄຂຮູບເດີມໂດຍບໍ່ເພີ່ມແຖວໃໝ່", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    const image = res.getBody().data.updateProductImage.images.find(item => item.id === bru.getEnvVar("imageId"));
+    expect(image.altText).to.equal("ຮູບສິນຄ້າ MillionX ທີ່ແກ້ໄຂແລ້ວ");
+  });
+}

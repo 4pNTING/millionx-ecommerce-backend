@@ -1,0 +1,43 @@
+meta {
+  name: 18 Refresh Customer Token
+  type: http
+  seq: 18
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "query": "mutation RefreshCustomerToken($input: RefreshTokenInput!) { refreshCustomerToken(input: $input) { accountId customerId email phone token refreshToken } }",
+    "variables": {
+      "input": {
+        "refreshToken": "{{customerRefreshToken}}"
+      }
+    }
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+  if (body?.data?.refreshCustomerToken?.token) {
+    bru.setEnvVar("customerToken", body.data.refreshCustomerToken.token);
+    bru.setEnvVar("customerRefreshToken", body.data.refreshCustomerToken.refreshToken);
+  }
+}
+
+tests {
+  test("Customer refresh ໄດ້ token ຄູ່ໃໝ່", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.refreshCustomerToken.token).to.be.a("string");
+    expect(res.getBody().data.refreshCustomerToken.refreshToken).to.be.a("string");
+  });
+}

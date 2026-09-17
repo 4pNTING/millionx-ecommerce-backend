@@ -10,7 +10,7 @@ Backend ສຳລັບ MillionX E-commerce ສ້າງດ້ວຍ NestJS ແ�
 - gRPC ສຳລັບ Auth ແລະ Zone
 - TypeORM 0.3.28 (`synchronize: false`)
 - PostgreSQL 15: database `millionx_ecommerce`
-- Redis 7 ສຳລັບ cache ແລະ database fallback
+- Redis 7 ສຳລັບ cache ແລະ Auth Rate Limit; ຖ້າ Redis ລົ້ມ Rate Limit ຈະ fallback ໄປ in-memory counter
 - Docker Compose ສຳລັບ infrastructure
 
 ## Database Phase 1
@@ -29,6 +29,8 @@ Backend ສຳລັບ MillionX E-commerce ສ້າງດ້ວຍ NestJS ແ�
 - `addresses`
 
 `users` ໃຊ້ສະເພາະ Staff/Admin. Customer login ໃຊ້ `customer_accounts` ທີ່ເຊື່ອມກັບ `customers.id` ຜ່ານ `customerId`.
+
+ID ທຸກຕາຕະລາງເປັນ RFC 4122 UUID v4. ຖ້າ database ເກົ່າມີ UUID ທີ່ PostgreSQL ຮັບໄດ້ແຕ່ API validation ບໍ່ຮັບ, ໃຫ້ run `database/migrations/20260903_normalize_phase1_uuid_v4.sql`. Migration ຈະປ່ຽນສະເພາະ ID ທີ່ບໍ່ຖືກມາດຕະຖານ ແລະຮັກສາ Foreign Key ທັງໝົດ.
 
 ຖ້າ database ເກົ່າຍັງມີ `public.users` ແລະ `public.zones`, ໃຫ້ run `database/migrations/20260823_move_auth_zone_to_ecommerce.sql`. Migration ຈະຍ້າຍ table, enum type ແລະຂໍ້ມູນເດີມໂດຍບໍ່ລຶບຂໍ້ມູນ.
 
@@ -101,7 +103,43 @@ Password ຖືກ hash ດ້ວຍ bcrypt ກ່ອນບັນທຶກ.
 
 ## Bruno
 
-ເປີດ `api-client/bruno` ເປັນ Bruno Collection, ເລືອກ environment `Local` ແລະ run request `01` ຫາ `13` ຕາມລຳດັບ. ອ່ານລາຍລະອຽດໃນ `api-client/bruno/README.md`.
+ເປີດ `api-client/bruno` ເປັນ Bruno Collection, ເລືອກ environment `Local` ແລະ run request `01` ຫາ `18` ຕາມລຳດັບ. Request `19` ສຳລັບທົດສອບ Rate Limit. ອ່ານລາຍລະອຽດໃນ `api-client/bruno/README.md`.
+
+## Automated integration test
+
+ເມື່ອ Backend, PostgreSQL ແລະ Redis ເຮັດວຽກແລ້ວ:
+
+```bash
+npm run test:integration
+```
+
+Test ຈະໃຊ້ API ຈິງ, ສ້າງຂໍ້ມູນຊົ່ວຄາວທີ່ມີຊື່ບໍ່ຊ້ຳ ແລະ cleanup ສະເພາະ UUID
+ທີ່ Test ສ້າງ. ຄຳສັ່ງຈະປະຕິເສດການ run ເມື່ອ `NODE_ENV=production`.
+
+## Automated Redis outage test
+
+ເມື່ອ Full Docker stack ເຮັດວຽກແລ້ວ:
+
+```bash
+npm run test:redis-fallback
+```
+
+Test ຈະຢຸດ Redis ຊົ່ວຄາວ, ກວດວ່າ Category/Product ຍັງອ່ານຈາກ PostgreSQL,
+ກວດ in-memory Auth Rate Limit, ແລ້ວເປີດ Redis ພ້ອມ restart Backend ໃຫ້ອັດຕະໂນມັດ.
+Test ນີ້ໃຊ້ໄດ້ສະເພາະ Local ແລະບໍ່ແກ້ໄຂ application rows ໃນ database.
+ລາຍລະອຽດຢູ່ `test/fallback/README.md`.
+
+## Auth Rate Limit
+
+- Staff/Admin login: 5 ຄັ້ງຕໍ່ 60 ວິນາທີ.
+- Customer login: 5 ຄັ້ງຕໍ່ 60 ວິນາທີ.
+- Customer register: 3 ຄັ້ງຕໍ່ 3600 ວິນາທີ.
+- ນັບທັງ IP ແລະ username/email/phone ແບບ SHA-256; ບໍ່ເກັບ identifier ດິບໃນ Redis key.
+- Login ສຳເລັດຈະ reset counter ຂອງ account ແຕ່ຍັງຮັກສາ IP counter ເພື່ອປ້ອງກັນ abuse.
+
+ປັບຄ່າໄດ້ໃນ `.env` ດ້ວຍ `AUTH_LOGIN_RATE_LIMIT_MAX`,
+`AUTH_LOGIN_RATE_LIMIT_WINDOW_SECONDS`, `AUTH_REGISTER_RATE_LIMIT_MAX` ແລະ
+`AUTH_REGISTER_RATE_LIMIT_WINDOW_SECONDS`.
 
 ## Code formatting
 
@@ -120,10 +158,13 @@ VS Code ຈະແນະນຳ extension `Prettier - Code formatter` ແລະ fo
 ## ກວດ Phase 1
 
 ```bash
-psql "$DATABASE_URL" -f database/verify/phase1_verify.sql
+npm run db:verify:phase1
 ```
 
-ຫຼື run `database/verify/phase1_verify.sql` ໃນ Navicat. `phase1EcommerceTableCount` ຕ້ອງເທົ່າກັບ `10`.
+ຫຼື run `database/verify/phase1_verify.sql` ໃນ Navicat. ທຸກແຖວຕ້ອງເປັນ `PASS`.
+Script ຈະກວດ 10 tables, UUID v4, Primary/Foreign Key, Index, Category cycle, orphan rows,
+business constraints, bcrypt password, Admin account ແລະ Customer account linkage. ຖ້າຂໍ້ໃດ
+ບໍ່ຜ່ານ ຄຳສັ່ງຈະຈົບດ້ວຍ exit code `1`.
 
 ## ເອກະສານ
 

@@ -1,0 +1,38 @@
+meta {
+  name: 19 Rate Limit Staff Login
+  type: http
+  seq: 19
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "query": "mutation Login($input: LoginInput!) { login(input: $input) { _id username token } }",
+    "variables": {
+      "input": {
+        "username": "rate-limit-test",
+        "password": "wrong-password"
+      }
+    }
+  }
+}
+
+tests {
+  test("Login ຖືກປະຕິເສດ ຫຼື Rate Limit ເຮັດວຽກ", function () {
+    expect(res.getStatus()).to.equal(200);
+    const message = res.getBody()?.errors?.[0]?.message || "";
+    expect(
+      message === "Invalid username or password" ||
+        message.startsWith("Too many staff login attempts"),
+    ).to.equal(true);
+  });
+}

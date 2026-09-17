@@ -1,7 +1,8 @@
-import { Field, Float, InputType, ObjectType } from '@nestjs/graphql';
+import { Field, Float, InputType, Int, ObjectType } from '@nestjs/graphql';
 import {
   IsBoolean,
   IsEmail,
+  IsInt,
   IsNumber,
   IsOptional,
   IsString,
@@ -46,8 +47,52 @@ export class CustomerProfile {
   @Field(() => [CustomerAddress]) addresses: CustomerAddress[];
 }
 
+@ObjectType()
+export class CustomerListItem {
+  @Field() id: string;
+  @Field({ nullable: true }) firstName?: string;
+  @Field({ nullable: true }) lastName?: string;
+  @Field({ nullable: true }) email?: string;
+  @Field({ nullable: true }) phone?: string;
+  @Field() isActive: boolean;
+  @Field({ nullable: true }) accountId?: string;
+  @Field({ nullable: true }) accountIsActive?: boolean;
+  @Field({ nullable: true }) emailVerifiedAt?: Date;
+  @Field({ nullable: true }) phoneVerifiedAt?: Date;
+  @Field({ nullable: true }) lastLoginAt?: Date;
+  @Field(() => Int) addressCount: number;
+  @Field() createdAt: Date;
+  @Field() updatedAt: Date;
+}
+
+@ObjectType()
+export class CustomerPage {
+  @Field(() => [CustomerListItem]) items: CustomerListItem[];
+  @Field(() => Int) total: number;
+  @Field(() => Int) page: number;
+  @Field(() => Int) limit: number;
+}
+
 @InputType()
-export class UpsertCustomerProfileDto {
+export class CustomerFilterInput {
+  @Field({ nullable: true }) @IsOptional() @IsString() @MaxLength(320) keyword?: string;
+  @Field(() => Int, { nullable: true, defaultValue: 1 })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  page?: number;
+  @Field(() => Int, { nullable: true, defaultValue: 20 })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  limit?: number;
+  @Field({ nullable: true }) @IsOptional() @IsBoolean() isActive?: boolean;
+  @Field({ nullable: true }) @IsOptional() @IsBoolean() accountIsActive?: boolean;
+}
+
+@InputType()
+export class UpdateCustomerProfileInput {
   @Field({ nullable: true }) @IsOptional() @IsString() @MaxLength(120) firstName?: string;
   @Field({ nullable: true }) @IsOptional() @IsString() @MaxLength(120) lastName?: string;
   @Field({ nullable: true }) @IsOptional() @IsEmail() @MaxLength(320) email?: string;
@@ -55,7 +100,7 @@ export class UpsertCustomerProfileDto {
 }
 
 @InputType()
-export class CreateCustomerAddressDto {
+export class CreateCustomerAddressInput {
   @Field() @IsString() @MaxLength(80) label: string;
   @Field() @IsString() @MaxLength(200) recipientName: string;
   @Field() @IsString() @MaxLength(40) phone: string;
@@ -82,7 +127,7 @@ export class CreateCustomerAddressDto {
 }
 
 @InputType()
-export class UpdateCustomerAddressDto {
+export class UpdateCustomerAddressInput {
   @Field() @IsUUID() id: string;
   @Field({ nullable: true }) @IsOptional() @IsString() @MaxLength(80) label?: string;
   @Field({ nullable: true }) @IsOptional() @IsString() @MaxLength(200) recipientName?: string;

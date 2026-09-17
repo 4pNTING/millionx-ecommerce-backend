@@ -219,17 +219,20 @@ type Mutation {
   createCategory(input: CreateCategoryInput!): Category!
   updateCategory(input: UpdateCategoryInput!): Category!
   createProduct(input: CreateProductInput!): Product!
+  createProductBundle(input: CreateProductBundleInput!): Product!
   updateProduct(input: UpdateProductInput!): Product!
   createProductVariant(input: CreateProductVariantInput!): ProductVariant!
   setProductPrice(input: SetProductPriceInput!): Product!
   addProductImage(input: AddProductImageInput!): Product!
-  upsertCustomerProfile(input: UpsertCustomerProfileDto!): CustomerProfile!
-  createCustomerAddress(input: CreateCustomerAddressDto!): CustomerProfile!
-  updateCustomerAddress(input: UpdateCustomerAddressDto!): CustomerProfile!
+  updateProductImage(input: UpdateProductImageInput!): Product!
+  deleteProductImage(input: DeleteProductImageInput!): Product!
+  updateCustomerProfile(input: UpdateCustomerProfileInput!): CustomerProfile!
+  createCustomerAddress(input: CreateCustomerAddressInput!): CustomerProfile!
+  updateCustomerAddress(input: UpdateCustomerAddressInput!): CustomerProfile!
   setDefaultCustomerAddress(addressId: String!): CustomerProfile!
   deleteCustomerAddress(addressId: String!): Boolean!
   registerCustomer(input: RegisterCustomerInput!): CustomerAuthPayload!
-  customerLogin(input: CustomerLoginInput!): CustomerAuthPayload!
+  loginCustomer(input: CustomerLoginInput!): CustomerAuthPayload!
 }
 
 input LoginInput {
@@ -283,6 +286,38 @@ input CreateProductInput {
   brand: String
 }
 
+input CreateProductBundleInput {
+  categoryId: String!
+  name: String!
+  slug: String!
+  description: String
+  brand: String
+  variants: [ProductBundleVariantInput!]
+  images: [ProductBundleImageInput!]
+}
+
+input ProductBundleVariantInput {
+  sku: String!
+  barcode: String
+  name: String
+  attributesJson: String
+  prices: [ProductBundlePriceInput!]
+  images: [ProductBundleImageInput!]
+}
+
+input ProductBundlePriceInput {
+  currency: String!
+  amount: Float!
+  compareAtAmount: Float
+  startsAt: DateTime
+}
+
+input ProductBundleImageInput {
+  url: String!
+  altText: String
+  sortOrder: Int = 0
+}
+
 input UpdateProductInput {
   id: String!
   categoryId: String
@@ -291,6 +326,37 @@ input UpdateProductInput {
   description: String
   brand: String
   isActive: Boolean
+  variants: [UpdateProductVariantInput!]
+  images: [UpdateProductBundleImageInput!]
+  deleteImageIds: [String!]
+}
+
+input UpdateProductVariantInput {
+  id: String
+  sku: String!
+  barcode: String
+  name: String
+  attributesJson: String
+  isActive: Boolean
+  prices: [UpdateProductPriceInput!]
+}
+
+input UpdateProductPriceInput {
+  id: String
+  currency: String!
+  amount: Float!
+  compareAtAmount: Float
+  startsAt: DateTime
+  isActive: Boolean
+}
+
+input UpdateProductBundleImageInput {
+  id: String
+  variantId: String
+  variantSku: String
+  url: String
+  altText: String
+  sortOrder: Int
 }
 
 input CreateProductVariantInput {
@@ -317,14 +383,26 @@ input AddProductImageInput {
   sortOrder: Int = 0
 }
 
-input UpsertCustomerProfileDto {
+input UpdateProductImageInput {
+  id: String!
+  variantId: String
+  url: String
+  altText: String
+  sortOrder: Int
+}
+
+input DeleteProductImageInput {
+  id: String!
+}
+
+input UpdateCustomerProfileInput {
   firstName: String
   lastName: String
   email: String
   phone: String
 }
 
-input CreateCustomerAddressDto {
+input CreateCustomerAddressInput {
   label: String!
   recipientName: String!
   phone: String!
@@ -340,7 +418,7 @@ input CreateCustomerAddressDto {
   isDefault: Boolean = false
 }
 
-input UpdateCustomerAddressDto {
+input UpdateCustomerAddressInput {
   id: String!
   label: String
   recipientName: String

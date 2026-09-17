@@ -16,7 +16,7 @@ headers {
 
 body:json {
   {
-    "query": "mutation CustomerLogin($input: CustomerLoginInput!) { customerLogin(input: $input) { accountId customerId email phone token refreshToken } }",
+    "query": "mutation LoginCustomer($input: CustomerLoginInput!) { loginCustomer(input: $input) { accountId customerId email phone token refreshToken } }",
     "variables": {
       "input": {
         "identifier": "{{customerIdentifier}}",
@@ -28,9 +28,10 @@ body:json {
 
 script:post-response {
   const body = res.getBody();
-  if (body?.data?.customerLogin?.token) {
-    bru.setEnvVar("customerToken", body.data.customerLogin.token);
-    bru.setEnvVar("customerId", body.data.customerLogin.customerId);
+  if (body?.data?.loginCustomer?.token) {
+    bru.setEnvVar("customerToken", body.data.loginCustomer.token);
+    bru.setEnvVar("customerRefreshToken", body.data.loginCustomer.refreshToken);
+    bru.setEnvVar("customerId", body.data.loginCustomer.customerId);
   }
 }
 
@@ -38,6 +39,6 @@ tests {
   test("Customer login ໄດ້ access token", function () {
     expect(res.getStatus()).to.equal(200);
     expect(res.getBody().errors).to.equal(undefined);
-    expect(res.getBody().data.customerLogin.token).to.be.a("string");
+    expect(res.getBody().data.loginCustomer.token).to.be.a("string");
   });
 }

@@ -3,8 +3,8 @@ export class ProductPriceModel {
   variantId: string;
   currency: string;
   amount: string;
-  compareAtAmount?: string;
-  startsAt?: Date;
+  compareAtAmount?: string | null;
+  startsAt?: Date | null;
   endsAt?: Date;
   isActive: boolean;
   createdAt: Date;
@@ -16,8 +16,8 @@ export interface CatalogPriceModel {
   variantId: string;
   currency: string;
   amount: number;
-  compareAtAmount?: number;
-  startsAt?: Date;
+  compareAtAmount?: number | null;
+  startsAt?: Date | null;
   endsAt?: Date;
   isActive: boolean;
 }

@@ -11,6 +11,8 @@ import { CustomerAccountEntity } from '../../entities/customer-account.entity';
 import { CustomerEntity } from '../../entities/customer.entity';
 import { FindCustomerByIdentifierAction } from './findByIdentifier/findByIdentifier.action';
 import { FindCustomerByIdentifierValidation } from './findByIdentifier/findByIdentifier.validation';
+import { FindCustomerByAccountIdAction } from './findByAccountId/findByAccountId.action';
+import { FindCustomerByAccountIdValidation } from './findByAccountId/findByAccountId.validation';
 import { MarkCustomerLoginAction } from './markLogin/markLogin.action';
 import { MarkCustomerLoginValidation } from './markLogin/markLogin.validation';
 import { RegisterCustomerAction } from './registerCustomer/registerCustomer.action';
@@ -47,6 +49,14 @@ export class DatabaseCustomerAuthRepository implements ICustomerAuthRepository {
   async findByIdentifier(identifier: string): Promise<CustomerAccountLoginRecord | null> {
     const normalized = new FindCustomerByIdentifierValidation().execute(identifier);
     return new FindCustomerByIdentifierAction(
+      this.customerRepository,
+      this.accountRepository,
+    ).execute(normalized);
+  }
+
+  async findByAccountId(accountId: string): Promise<CustomerAccountLoginRecord | null> {
+    const normalized = new FindCustomerByAccountIdValidation().execute(accountId);
+    return new FindCustomerByAccountIdAction(
       this.customerRepository,
       this.accountRepository,
     ).execute(normalized);

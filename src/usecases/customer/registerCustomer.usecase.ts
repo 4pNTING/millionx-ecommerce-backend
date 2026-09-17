@@ -1,17 +1,16 @@
 import { BadRequestException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import * as jwt from 'jsonwebtoken';
 import {
   CustomerAuthResponse,
   RegisterCustomerRequest,
 } from '../../domain/models/customer-auth.model';
 import { ICustomerAuthRepository } from '../../domain/repositories/customer-auth.repository.interface';
+import { AuthTokenService } from '../auth/auth-token.service';
 
 export class RegisterCustomerUseCase {
   constructor(
     private readonly repository: ICustomerAuthRepository,
-    private readonly jwtSecret: string,
-    private readonly jwtExpiration: string,
+    private readonly tokenService: AuthTokenService,
   ) {}
 
   async execute(input: RegisterCustomerRequest): Promise<CustomerAuthResponse> {
@@ -34,15 +33,9 @@ export class RegisterCustomerUseCase {
     const payload = {
       id: identity.accountId,
       customerId: identity.customerId,
-      actorType: 'customer',
+      actorType: 'customer' as const,
       role: 'customer',
     };
-    return {
-      ...identity,
-      token: jwt.sign(payload, this.jwtSecret, {
-        expiresIn: this.jwtExpiration as jwt.SignOptions['expiresIn'],
-      }),
-      refreshToken: jwt.sign(payload, this.jwtSecret, { expiresIn: '7d' }),
-    };
+    return { ...identity, ...this.tokenService.issue(payload) };
   }
 }

@@ -1,0 +1,39 @@
+meta {
+  name: 15 Delete Product Image
+  type: http
+  seq: 15
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{staffToken}}
+}
+
+body:json {
+  {
+    "query": "mutation DeleteProductImage($input: DeleteProductImageInput!) { deleteProductImage(input: $input) { id name images { id } } }",
+    "variables": {
+      "input": {
+        "id": "{{imageId}}"
+      }
+    }
+  }
+}
+
+script:post-response {
+  if (res.getBody()?.data?.deleteProductImage) bru.setEnvVar("imageId", "not-set");
+}
+
+tests {
+  test("ລຶບຮູບສິນຄ້າສຳເລັດ", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(bru.getEnvVar("imageId")).to.equal("not-set");
+  });
+}

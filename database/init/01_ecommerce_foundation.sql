@@ -12,7 +12,7 @@ END $$;
 
 CREATE TABLE categories (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  "parentId" uuid REFERENCES categories(id) ON DELETE RESTRICT,
+  "parentId" uuid REFERENCES categories(id) ON UPDATE CASCADE ON DELETE RESTRICT,
   name varchar(150) NOT NULL,
   slug varchar(180) NOT NULL UNIQUE,
   description text,
@@ -25,7 +25,7 @@ CREATE TABLE categories (
 
 CREATE TABLE products (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  "categoryId" uuid NOT NULL REFERENCES categories(id) ON DELETE RESTRICT,
+  "categoryId" uuid NOT NULL REFERENCES categories(id) ON UPDATE CASCADE ON DELETE RESTRICT,
   name varchar(200) NOT NULL,
   slug varchar(220) NOT NULL UNIQUE,
   description text,
@@ -37,7 +37,7 @@ CREATE TABLE products (
 
 CREATE TABLE product_variants (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  "productId" uuid NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+  "productId" uuid NOT NULL REFERENCES products(id) ON UPDATE CASCADE ON DELETE CASCADE,
   sku varchar(100) NOT NULL UNIQUE,
   barcode varchar(100),
   name varchar(160),
@@ -51,7 +51,7 @@ CREATE UNIQUE INDEX uq_product_variants_barcode ON product_variants(barcode) WHE
 
 CREATE TABLE product_prices (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  "variantId" uuid NOT NULL REFERENCES product_variants(id) ON DELETE CASCADE,
+  "variantId" uuid NOT NULL REFERENCES product_variants(id) ON UPDATE CASCADE ON DELETE CASCADE,
   currency char(3) NOT NULL CHECK (currency=upper(currency)),
   amount numeric(14,2) NOT NULL CHECK (amount >= 0),
   "compareAtAmount" numeric(14,2) CHECK ("compareAtAmount" IS NULL OR "compareAtAmount" >= amount),
@@ -67,13 +67,13 @@ CREATE UNIQUE INDEX uq_open_variant_price ON product_prices("variantId",currency
 
 CREATE TABLE product_images (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  "productId" uuid NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+  "productId" uuid NOT NULL REFERENCES products(id) ON UPDATE CASCADE ON DELETE CASCADE,
   "variantId" uuid,
   url text NOT NULL,
   "altText" varchar(250),
   "sortOrder" integer NOT NULL DEFAULT 0 CHECK ("sortOrder" >= 0),
   "createdAt" timestamptz NOT NULL DEFAULT now(),
-  FOREIGN KEY ("variantId","productId") REFERENCES product_variants(id,"productId") ON DELETE CASCADE
+  FOREIGN KEY ("variantId","productId") REFERENCES product_variants(id,"productId") ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE customers (
@@ -92,7 +92,7 @@ CREATE UNIQUE INDEX uq_customers_phone ON customers(phone) WHERE phone IS NOT NU
 
 CREATE TABLE customer_accounts (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  "customerId" uuid NOT NULL UNIQUE REFERENCES customers(id) ON DELETE CASCADE,
+  "customerId" uuid NOT NULL UNIQUE REFERENCES customers(id) ON UPDATE CASCADE ON DELETE CASCADE,
   "passwordHash" varchar(255) NOT NULL,
   "isActive" boolean NOT NULL DEFAULT true,
   "emailVerifiedAt" timestamptz,
@@ -104,7 +104,7 @@ CREATE TABLE customer_accounts (
 
 CREATE TABLE addresses (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  "customerId" uuid NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
+  "customerId" uuid NOT NULL REFERENCES customers(id) ON UPDATE CASCADE ON DELETE CASCADE,
   label varchar(80) NOT NULL,
   "recipientName" varchar(200) NOT NULL,
   phone varchar(40) NOT NULL,

@@ -94,6 +94,37 @@ export class RedisService implements OnModuleDestroy {
   }
 
   /**
+   * เพิ่ม counter และกำหนด TTL แบบ atomic สำหรับ rate limiting.
+   * คืน null เมื่อ Redis ใช้งานไม่ได้ เพื่อให้ caller ใช้ memory fallback.
+   */
+  async incrementWithTtl(
+    key: string,
+    ttlSeconds: number,
+  ): Promise<{ count: number; ttlSeconds: number } | null> {
+    try {
+      if (!this.isConnected) return null;
+
+      const result = (await this.client.eval(
+        `local count = redis.call('INCR', KEYS[1])
+         if count == 1 then redis.call('EXPIRE', KEYS[1], ARGV[1]) end
+         local ttl = redis.call('TTL', KEYS[1])
+         return {count, ttl}`,
+        1,
+        key,
+        String(ttlSeconds),
+      )) as [number, number];
+
+      return {
+        count: Number(result[0]),
+        ttlSeconds: Math.max(1, Number(result[1])),
+      };
+    } catch (error) {
+      this.logger.warn(`Rate limit increment failed for key "${key}": ${(error as Error).message}`);
+      return null;
+    }
+  }
+
+  /**
    * ลบ cache หลาย key ตาม pattern (ใช้ SCAN ไม่ใช่ KEYS เพื่อ production-safety)
    * @example delByPattern('currency:*') → ลบ currency:list, currency:id:xxx ทั้งหมด
    */

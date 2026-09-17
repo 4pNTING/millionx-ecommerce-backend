@@ -4,8 +4,8 @@ export class ProductVariantModel {
   id: string;
   productId: string;
   sku: string;
-  barcode?: string;
-  name?: string;
+  barcode?: string | null;
+  name?: string | null;
   attributes: Record<string, unknown>;
   isActive: boolean;
   createdAt: Date;
@@ -16,8 +16,8 @@ export interface CatalogVariantModel {
   id: string;
   productId: string;
   sku: string;
-  barcode?: string;
-  name?: string;
+  barcode?: string | null;
+  name?: string | null;
   attributesJson: string;
   isActive: boolean;
   prices: CatalogPriceModel[];

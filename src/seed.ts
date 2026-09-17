@@ -33,7 +33,12 @@ async function seed() {
     const passwordHash = await bcrypt.hash(adminPassword, 12);
     await client.query(
       `INSERT INTO ecommerce.users (username,password,role,"isActive")
-       VALUES ($1,$2,'admin','active') ON CONFLICT (username) DO NOTHING`,
+       VALUES ($1,$2,'admin','active')
+       ON CONFLICT (username) DO UPDATE SET
+         password = EXCLUDED.password,
+         role = EXCLUDED.role,
+         "isActive" = EXCLUDED."isActive",
+         "updatedAt" = NOW()`,
       [adminUsername, passwordHash],
     );
 
@@ -68,19 +73,30 @@ async function seed() {
       .toLowerCase();
     const customerPassword = process.env.SEED_CUSTOMER_PASSWORD || 'Customer123!';
     const customerPasswordHash = await bcrypt.hash(customerPassword, 12);
+    const customer = await client.query<{ id: string }>(
+      `SELECT id FROM ecommerce.customers
+       WHERE lower(email) IN (lower($1), lower('demo.customer@example.com'))
+       ORDER BY (lower(email) = lower($1)) DESC
+       LIMIT 1`,
+      [customerEmail],
+    );
+    if (customer.rowCount === 0) {
+      throw new Error('Development customer was not created');
+    }
+    const customerId = customer.rows[0].id;
     await client.query(
       `UPDATE ecommerce.customers SET email = $1, "updatedAt" = now()
-       WHERE id = '60000000-0000-0000-0000-000000000001'`,
-      [customerEmail],
+       WHERE id = $2`,
+      [customerEmail, customerId],
     );
     await client.query(
       `INSERT INTO ecommerce.customer_accounts ("customerId","passwordHash")
-       VALUES ('60000000-0000-0000-0000-000000000001',$1)
+       VALUES ($1,$2)
        ON CONFLICT ("customerId") DO UPDATE SET
          "passwordHash" = EXCLUDED."passwordHash",
          "isActive" = true,
          "updatedAt" = now()`,
-      [customerPasswordHash],
+      [customerId, customerPasswordHash],
     );
     console.log(
       'Seed complete: staff admin, customer account, zones and E-commerce Phase 1 demo data.',

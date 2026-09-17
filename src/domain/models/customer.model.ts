@@ -33,6 +33,30 @@ export interface CustomerProfileModel extends CustomerModel {
   addresses: CustomerAddressModel[];
 }
 
+export interface CustomerListItemModel extends CustomerModel {
+  accountId?: string;
+  accountIsActive?: boolean;
+  emailVerifiedAt?: Date;
+  phoneVerifiedAt?: Date;
+  lastLoginAt?: Date;
+  addressCount: number;
+}
+
+export interface CustomerPageModel {
+  items: CustomerListItemModel[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface CustomerQuery {
+  keyword?: string;
+  page?: number;
+  limit?: number;
+  isActive?: boolean;
+  accountIsActive?: boolean;
+}
+
 export interface UpsertCustomerProfileRequest {
   firstName?: string;
   lastName?: string;

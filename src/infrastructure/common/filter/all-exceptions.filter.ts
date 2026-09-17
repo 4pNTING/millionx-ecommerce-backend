@@ -1,21 +1,23 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
-import { GqlArgumentsHost } from '@nestjs/graphql'; // 1. เพิ่มตัวนี้เข้ามา
+import { GraphQLError } from 'graphql';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
     // === ตรวจสอบว่าเป็น GraphQL หรือไม่ ===
     if (host.getType().toString() === 'graphql') {
-      const gqlHost = GqlArgumentsHost.create(host);
-
       // แกะข้อความ Error ออกมาทำความสะอาด
       let message = 'Internal server error';
+      let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+      let retryAfterSeconds: number | undefined;
       if (exception instanceof HttpException) {
+        statusCode = exception.getStatus();
         const resBody = exception.getResponse();
         if (typeof resBody === 'string') message = resBody;
         else if (typeof resBody === 'object' && resBody !== null) {
           const rawMessage = (resBody as any).message || JSON.stringify(resBody);
           message = Array.isArray(rawMessage) ? rawMessage[0] : rawMessage;
+          retryAfterSeconds = (resBody as any).retryAfterSeconds;
         }
       } else if (exception instanceof Error) {
         message = exception.message;
@@ -23,7 +25,18 @@ export class AllExceptionsFilter implements ExceptionFilter {
         message = exception;
       }
 
-      // ส่ง Error กลับไปในรูปแบบที่ GraphQL เข้าใจ (ห้ามใช้ response.status)
+      // GraphQL transport ຍັງໃຊ້ HTTP 200; status ຂອງ HttpException ຢູ່ໃນ extensions.
+      if (exception instanceof HttpException) {
+        return new GraphQLError(message, {
+          extensions: {
+            code:
+              statusCode === HttpStatus.TOO_MANY_REQUESTS ? 'TOO_MANY_REQUESTS' : 'HTTP_EXCEPTION',
+            statusCode,
+            ...(retryAfterSeconds ? { retryAfterSeconds } : {}),
+          },
+        });
+      }
+
       return new Error(message);
     }
 
@@ -33,6 +46,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = 'Internal server error';
+    let retryAfterSeconds: number | undefined;
 
     if (exception instanceof HttpException) {
       status = exception.getStatus();
@@ -42,6 +56,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       } else if (typeof resBody === 'object' && resBody !== null) {
         const rawMessage = (resBody as any).message || JSON.stringify(resBody);
         message = Array.isArray(rawMessage) ? rawMessage[0] : rawMessage;
+        retryAfterSeconds = (resBody as any).retryAfterSeconds;
       }
     } else if (exception instanceof Error) {
       message = exception.message;
@@ -64,8 +79,14 @@ export class AllExceptionsFilter implements ExceptionFilter {
       message = exception;
     }
 
+    if (status === HttpStatus.TOO_MANY_REQUESTS && retryAfterSeconds) {
+      response.setHeader('Retry-After', String(retryAfterSeconds));
+    }
+
     response.status(status).json({
-      message: message,
+      statusCode: status,
+      message,
+      ...(retryAfterSeconds ? { retryAfterSeconds } : {}),
     });
   }
 }

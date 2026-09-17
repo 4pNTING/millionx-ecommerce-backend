@@ -1,5 +1,8 @@
 import { Field, Float, InputType, Int, ObjectType } from '@nestjs/graphql';
+import { Type } from 'class-transformer';
 import {
+  ArrayMaxSize,
+  IsArray,
   IsBoolean,
   IsInt,
   IsNumber,
@@ -10,6 +13,8 @@ import {
   Max,
   MaxLength,
   Min,
+  MinLength,
+  ValidateNested,
 } from 'class-validator';
 
 @ObjectType()
@@ -101,17 +106,6 @@ export class CreateProductInput {
 }
 
 @InputType()
-export class UpdateProductInput {
-  @Field() @IsUUID() id: string;
-  @Field({ nullable: true }) @IsOptional() @IsUUID() categoryId?: string;
-  @Field({ nullable: true }) @IsOptional() @IsString() @MaxLength(200) name?: string;
-  @Field({ nullable: true }) @IsOptional() @IsString() @MaxLength(220) slug?: string;
-  @Field({ nullable: true }) @IsOptional() @IsString() description?: string;
-  @Field({ nullable: true }) @IsOptional() @IsString() @MaxLength(150) brand?: string;
-  @Field({ nullable: true }) @IsOptional() @IsBoolean() isActive?: boolean;
-}
-
-@InputType()
 export class CreateProductVariantInput {
   @Field() @IsUUID() productId: string;
   @Field() @IsString() @MaxLength(100) sku: string;
@@ -146,21 +140,180 @@ export class AddProductImageInput {
   sortOrder?: number;
 }
 
-// Backward Compatibility Legacy Types
-@InputType('CatalogProductFilterDto')
-export class CatalogProductFilterDto extends ProductFilterInput {}
+@InputType()
+export class UpdateProductImageInput {
+  @Field() @IsUUID() id: string;
+  @Field(() => String, { nullable: true }) @IsOptional() @IsUUID() variantId?: string | null;
+  @Field({ nullable: true }) @IsOptional() @IsString() @MinLength(1) url?: string;
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(250)
+  altText?: string | null;
+  @Field(() => Int, { nullable: true })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  sortOrder?: number;
+}
 
-@InputType('CreateCatalogProductDto')
-export class CreateCatalogProductDto extends CreateProductInput {}
+@InputType()
+export class UpdateProductPriceInput {
+  @Field({ nullable: true }) @IsOptional() @IsUUID() id?: string;
+  @Field() @Length(3, 3) currency: string;
+  @Field(() => Float) @IsNumber() @Min(0) amount: number;
+  @Field(() => Float, { nullable: true })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  compareAtAmount?: number | null;
+  @Field(() => Date, { nullable: true }) @IsOptional() startsAt?: Date | null;
+  @Field({ nullable: true }) @IsOptional() @IsBoolean() isActive?: boolean;
+}
 
-@InputType('UpdateCatalogProductDto')
-export class UpdateCatalogProductDto extends UpdateProductInput {}
+@InputType()
+export class UpdateProductVariantInput {
+  @Field({ nullable: true }) @IsOptional() @IsUUID() id?: string;
+  @Field() @IsString() @MaxLength(100) sku: string;
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  barcode?: string | null;
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(160)
+  name?: string | null;
+  @Field({ nullable: true }) @IsOptional() @IsString() attributesJson?: string;
+  @Field({ nullable: true }) @IsOptional() @IsBoolean() isActive?: boolean;
+  @Field(() => [UpdateProductPriceInput], { nullable: true })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(50)
+  @ValidateNested({ each: true })
+  @Type(() => UpdateProductPriceInput)
+  prices?: UpdateProductPriceInput[];
+}
 
-@InputType('CreateCatalogVariantDto')
-export class CreateCatalogVariantDto extends CreateProductVariantInput {}
+@InputType()
+export class UpdateProductBundleImageInput {
+  @Field({ nullable: true }) @IsOptional() @IsUUID() id?: string;
+  @Field(() => String, { nullable: true }) @IsOptional() @IsUUID() variantId?: string | null;
+  @Field({ nullable: true }) @IsOptional() @IsString() @MaxLength(100) variantSku?: string;
+  @Field({ nullable: true }) @IsOptional() @IsString() @MinLength(1) url?: string;
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(250)
+  altText?: string | null;
+  @Field(() => Int, { nullable: true })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  sortOrder?: number;
+}
 
-@InputType('SetCatalogProductPriceDto')
-export class SetCatalogProductPriceDto extends SetProductPriceInput {}
+@InputType()
+export class UpdateProductInput {
+  @Field() @IsUUID() id: string;
+  @Field({ nullable: true }) @IsOptional() @IsUUID() categoryId?: string;
+  @Field({ nullable: true }) @IsOptional() @IsString() @MaxLength(200) name?: string;
+  @Field({ nullable: true }) @IsOptional() @IsString() @MaxLength(220) slug?: string;
+  @Field({ nullable: true }) @IsOptional() @IsString() description?: string;
+  @Field({ nullable: true }) @IsOptional() @IsString() @MaxLength(150) brand?: string;
+  @Field({ nullable: true }) @IsOptional() @IsBoolean() isActive?: boolean;
+  @Field(() => [UpdateProductVariantInput], { nullable: true })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(100)
+  @ValidateNested({ each: true })
+  @Type(() => UpdateProductVariantInput)
+  variants?: UpdateProductVariantInput[];
+  @Field(() => [UpdateProductBundleImageInput], { nullable: true })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(100)
+  @ValidateNested({ each: true })
+  @Type(() => UpdateProductBundleImageInput)
+  images?: UpdateProductBundleImageInput[];
+  @Field(() => [String], { nullable: true })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(100)
+  @IsUUID('all', { each: true })
+  deleteImageIds?: string[];
+}
 
-@InputType('AddCatalogProductImageDto')
-export class AddCatalogProductImageDto extends AddProductImageInput {}
+@InputType()
+export class DeleteProductImageInput {
+  @Field() @IsUUID() id: string;
+}
+
+@InputType()
+export class ProductBundlePriceInput {
+  @Field() @Length(3, 3) currency: string;
+  @Field(() => Float) @IsNumber() @Min(0) amount: number;
+  @Field(() => Float, { nullable: true })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  compareAtAmount?: number;
+  @Field({ nullable: true }) @IsOptional() startsAt?: Date;
+}
+
+@InputType()
+export class ProductBundleImageInput {
+  @Field() @IsString() url: string;
+  @Field({ nullable: true }) @IsOptional() @IsString() @MaxLength(250) altText?: string;
+  @Field(() => Int, { nullable: true, defaultValue: 0 })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  sortOrder?: number;
+}
+
+@InputType()
+export class ProductBundleVariantInput {
+  @Field() @IsString() @MaxLength(100) sku: string;
+  @Field({ nullable: true }) @IsOptional() @IsString() @MaxLength(100) barcode?: string;
+  @Field({ nullable: true }) @IsOptional() @IsString() @MaxLength(160) name?: string;
+  @Field({ nullable: true }) @IsOptional() @IsString() attributesJson?: string;
+  @Field(() => [ProductBundlePriceInput], { nullable: true })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(50)
+  @ValidateNested({ each: true })
+  @Type(() => ProductBundlePriceInput)
+  prices?: ProductBundlePriceInput[];
+  @Field(() => [ProductBundleImageInput], { nullable: true })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(50)
+  @ValidateNested({ each: true })
+  @Type(() => ProductBundleImageInput)
+  images?: ProductBundleImageInput[];
+}
+
+@InputType()
+export class CreateProductBundleInput {
+  @Field() @IsUUID() categoryId: string;
+  @Field() @IsString() @MaxLength(200) name: string;
+  @Field() @IsString() @MaxLength(220) slug: string;
+  @Field({ nullable: true }) @IsOptional() @IsString() description?: string;
+  @Field({ nullable: true }) @IsOptional() @IsString() @MaxLength(150) brand?: string;
+  @Field(() => [ProductBundleVariantInput], { nullable: true })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(100)
+  @ValidateNested({ each: true })
+  @Type(() => ProductBundleVariantInput)
+  variants?: ProductBundleVariantInput[];
+  @Field(() => [ProductBundleImageInput], { nullable: true })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(100)
+  @ValidateNested({ each: true })
+  @Type(() => ProductBundleImageInput)
+  images?: ProductBundleImageInput[];
+}
