@@ -9,7 +9,8 @@
 5. Run request `01` ຫາ `18` ຕາມລຳດັບ. Request `19` ໃຊ້ທົດສອບ Rate Limit ແຍກຕ່າງຫາກ.
 
 > Request `01 Login` ຕ້ອງໃຊ້ `{{username}}` ແລະ
-> `{{password}}`. ຖ້າ Bruno ຍັງສະແດງ editor draft ເກົ່າ,
+> `{{password}}`; ມັນຈະເກັບ token ໃໝ່ໃຫ້ environment ອັດຕະໂນມັດ.
+> ຖ້າ Bruno ຍັງສະແດງ editor draft ເກົ່າ,
 > ໃຫ້ກັບໄປ Home ແລ້ວເປີດ Collection ໃໝ່
 > ຫຼື restart Bruno ເພື່ອລ້າງ editor draft ເກົ່າ.
 
@@ -37,6 +38,11 @@
 | 18    | Refresh Customer Token | rotate `customerToken` ແລະ `customerRefreshToken`                        |
 | 19    | Rate Limit Staff Login | ທົດສອບ username ຜິດ; run ຊ້ຳເພື່ອກວດກາ HTTP/GraphQL error 429            |
 
+`createProduct` ສ້າງຂໍ້ມູນ Product ຫຼັກເທົ່ານັ້ນ.
+Request `04` ໃຊ້ `createProductBundle` ເພື່ອສ້າງ Product, Variant,
+Price ແລະ Image ໃນ mutation/transaction ດຽວ. ນີ້ແມ່ນ API ທີ່ມີຢູ່
+ໃນ Backend ປັດຈຸບັນ.
+
 ## ທົດສອບ Rate Limit
 
 1. ລໍຖ້າ 60 ວິນາທີຈາກ Staff login ຄັ້ງຫຼ້າສຸດ ເພື່ອເລີ່ມ window ໃໝ່.
@@ -53,7 +59,8 @@ REST `POST /api/auth/login` ຕອບ HTTP 429 ໂດຍກົງ.
 - `baseUrl`: default `http://localhost:3001`
 - `username`/`password`: ຕ້ອງກົງກັບ `SEED_ADMIN_USERNAME`/`SEED_ADMIN_PASSWORD`
 - `customerIdentifier`/`customerPassword`: ຕ້ອງກົງກັບ seed ຫຼືຈະຖືກປ່ຽນໂດຍ request `09`
-- Access/Refresh Token ແລະ UUID ເລີ່ມຕົ້ນເປັນ `not-set`; ບໍ່ຄວນ commit JWT ທີ່ເຄີຍໃຊ້ແລ້ວ
+- Access/Refresh Token ເລີ່ມຕົ້ນເປັນ `not-set` ແລະຈະຖືກຕັ້ງຄ່າໃໝ່ຫຼັງ Login/Refresh;
+  ຢ່າ commit JWT ຫຼື token ທີ່ເຄີຍໃຊ້ແລ້ວ. UUID ທີ່ collection ສ້າງຂຶ້ນຈະຖືກເກັບໃນ environment.
 - Request `11 Update My Profile` ໃຊ້ເບີໂທ `+85620{{runId}}`
   ເພື່ອໃຫ້ກົງກັບ customer ທີ່ request `09` ສ້າງ ແລະ
   ບໍ່ຊ້ຳກັບ customer ອື່ນ.

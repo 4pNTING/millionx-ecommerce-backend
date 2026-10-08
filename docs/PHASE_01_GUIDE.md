@@ -374,6 +374,16 @@ npm run db:verify:phase1
 Verification gate ນີ້ເປັນ read-only ສຳລັບ application data ແລະ rollback temporary state
 ທັງໝົດຫຼັງກວດສຳເລັດ. ຖ້າ check ໃດບໍ່ຜ່ານ SQL ຈະ raise exception.
 
+## ສະຖານະກວດລ່າສຸດ — 2026-10-08
+
+- TypeScript static check: `tsc --noEmit --incremental false` ຜ່ານ.
+- Backend API ທີ່ `localhost:3001` ບໍ່ຕອບໃນຂະນະກວດ; ຈຶ່ງຍັງບໍ່ໄດ້ run Bruno ຫຼື integration test ກັບ API ຈິງ.
+- Database verification ຍັງຄ້າງ: environment ກວດສອບເຊື່ອມ localhost PostgreSQL ບໍ່ໄດ້ (`EPERM`). ຕ້ອງ run `npm run db:verify:phase1` ຈາກ terminal ໃນເຄື່ອງທີ່ເຊື່ອມ database ໄດ້.
+- `src/schema.gql` ທີ່ເຊັກອິນໄວ້ບໍ່ກົງກັບ resolver source ສຳລັບ `customers`, `refreshStaffToken`, `refreshCustomerToken`. ເມື່ອເປີດ Backend ດ້ວຍ `npm run start:dev`, GraphQL code-first ຈະສ້າງ schema ຈາກ resolvers; ຫຼັງຈາກນັ້ນຈຶ່ງທົດສອບ Bruno requests 16–18.
+- Phase 2 ຍັງເປັນ roadmap; Cart, Checkout ແລະ Wishlist ຍັງບໍ່ຢູ່ໃນ implementation ຂອງ Backend repo ນີ້.
+
+ດັ່ງນັ້ນ Phase 1 ມີ implementation ແລ້ວ ແຕ່ຍັງຕ້ອງ run database verification, integration test ແລະ Redis outage test ໃຫ້ຜ່ານກ່ອນຈຶ່ງຈະຖືວ່າປິດ Phase 1.
+
 ## ສ່ວນທີ່ຍັງບໍ່ມີໃນ Phase 1
 
 Inventory, Cart, Order, Payment, Promotion, Shipping ແລະ Notification ຈະເພີ່ມໃນ Phase ຕໍ່ໄປ.

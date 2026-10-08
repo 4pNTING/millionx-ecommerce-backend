@@ -44,6 +44,16 @@
 - Login/Register ມີ rate limit ແລະ automated integration test.
 - Category cycle ຖືກປ້ອງກັນ ແລະ Redis ລົ້ມແລ້ວ Category/Product ຍັງອ່ານໄດ້.
 
+### ສະຖານະກວດລ່າສຸດ — 2026-10-08
+
+- **Implementation:** ມີ source code ສຳລັບ Phase 1 ຕາມຂອບເຂດຂ້າງເທິງ.
+- **TypeScript:** `tsc --noEmit --incremental false` ຜ່ານ.
+- **Automated integration / Redis outage tests:** ມີ test scripts, ແຕ່ຍັງບໍ່ມີຜົນຢືນຢັນຈາກການ run ຮອບນີ້.
+- **Runtime/API:** `http://localhost:3001/api-gateway` ບໍ່ຕອບໃນຂະນະກວດ.
+- **Database:** ຍັງຢືນຢັນ `phase1_verify.sql` ກັບ database ປັດຈຸບັນບໍ່ໄດ້; environment ກວດສອບບໍ່ສາມາດເຊື່ອມ localhost PostgreSQL ໄດ້. ນີ້ບໍ່ແມ່ນຜົນວ່າຂໍ້ມູນໃນ database ຜິດ.
+- **GraphQL schema:** ໄຟລ໌ generated `src/schema.gql` ຍັງບໍ່ມີ `customers`, `refreshStaffToken` ແລະ `refreshCustomerToken` ທີ່ມີໃນ resolver source. ໃຫ້ເປີດ Backend ຈາກ source ເພື່ອ generate schema ໃໝ່ ແລະກວດ Bruno requests 16–18 ກັບ API ຈິງ.
+- **ສະຫຼຸບ:** ຖືວ່າ Phase 1 implementation ຄົບຕາມ source, ແຕ່ຍັງບໍ່ປິດ completion gate ຈົນກວ່າ database verification ແລະ automated tests ຈະຜ່ານ.
+
 ## Phase 2 — Shopping
 
 ຕາຕະລາງ: carts, cart_items, checkout_sessions, wishlists, wishlist_items.

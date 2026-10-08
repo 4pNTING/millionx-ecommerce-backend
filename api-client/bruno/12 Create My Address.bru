@@ -36,7 +36,7 @@ body:json {
 
 script:post-response {
   const addresses = res.getBody()?.data?.createCustomerAddress?.addresses || [];
-  const created = addresses.find((address) => address.label === "ຫ້ອງການ");
+  const created = addresses.filter((address) => address.label === "ຫ້ອງການ").at(-1);
   if (created?.id) {
     bru.setEnvVar("addressId", created.id);
   }
