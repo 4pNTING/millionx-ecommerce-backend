@@ -28,18 +28,12 @@ export class DatabaseCategoryRepository implements ICategoryRepository {
   ) {}
 
   async loadCategories(filter: CatalogCategoryQuery = {}): Promise<CatalogCategoryPageModel> {
-    const normalized = await new LoadCatalogCategoriesValidation(this.categoryEntity).execute(
-      filter,
-    );
-    const key = `catalog:categories:${JSON.stringify(normalized.cacheKey)}`;
+    await new LoadCatalogCategoriesValidation(this.categoryEntity).execute(filter);
+    const key = `catalog:categories:${JSON.stringify(filter)}`;
     const cached = await this.redisService.get<CatalogCategoryPageModel>(key);
     if (cached) return cached;
 
-    const result = await new LoadCatalogCategoriesAction(this.categoryEntity).execute(
-      normalized.filter,
-      normalized.page,
-      normalized.limit,
-    );
+    const result = await new LoadCatalogCategoriesAction(this.categoryEntity).execute(filter);
     await this.redisService.set(key, result, 300);
     return result;
   }

@@ -16,7 +16,10 @@ interface CustomerListRawRow {
 export class LoadCustomersAction {
   constructor(private readonly repository: Repository<CustomerEntity>) {}
 
-  async execute(filter: CustomerQuery, page: number, limit: number): Promise<CustomerPageModel> {
+  async execute(filter: CustomerQuery = {}): Promise<CustomerPageModel> {
+    const page = filter.page ?? 1;
+    const limit = filter.limit ?? 20;
+
     const query = this.repository
       .createQueryBuilder('customer')
       .leftJoin(CustomerAccountEntity, 'account', 'account.customerId = customer.id')
@@ -36,13 +39,14 @@ export class LoadCustomersAction {
       .orderBy('customer.createdAt', 'DESC')
       .addOrderBy('customer.id', 'ASC');
 
-    if (filter.keyword) {
+    const keyword = filter.keyword?.trim();
+    if (keyword) {
       query.andWhere(
         `(customer.firstName ILIKE :keyword
           OR customer.lastName ILIKE :keyword
           OR customer.email ILIKE :keyword
           OR customer.phone ILIKE :keyword)`,
-        { keyword: `%${filter.keyword}%` },
+        { keyword: `%${keyword}%` },
       );
     }
 

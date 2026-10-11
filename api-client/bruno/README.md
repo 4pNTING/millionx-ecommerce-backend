@@ -4,9 +4,9 @@
 
 1. ເປີດ folder `api-client/bruno` ເປັນ Collection ໃນ Bruno.
 2. ເລືອກ Environment `Local`.
-3. ກວດ `baseUrl`, username/password ໃຫ້ກົງກັບ `.env`.
-4. ເປີດ Backend ດ້ວຍ `npm run start:dev`.
-5. Run request `01` ຫາ `18` ຕາມລຳດັບ. Request `19` ໃຊ້ທົດສອບ Rate Limit ແຍກຕ່າງຫາກ.
+3. ກວດ `baseUrl`, username/password ໃຫ້ກົງກັບ `.env` (`admin` / `admin123`).
+4. ເປີດ Backend ດ້ວຍ Docker (`docker compose up -d`) ຫຼື `npm run start:dev`.
+5. Run request `01` ຫາ `18` ແລະ `20` ຫາ `23` ຕາມລຳດັບ. Request `19` ໃຊ້ທົດສອບ Rate Limit ແຍກຕ່າງຫາກ.
 
 > Request `01 Login` ຕ້ອງໃຊ້ `{{username}}` ແລະ
 > `{{password}}`; ມັນຈະເກັບ token ໃໝ່ໃຫ້ environment ອັດຕະໂນມັດ.
@@ -16,32 +16,40 @@
 
 ## Request flow
 
-| ລຳດັບ | Request                | ຜົນທີ່ເກັບໃນ Environment                                                 |
-| ----- | ---------------------- | ------------------------------------------------------------------------ |
-| 01    | Staff/Admin Login      | `staffToken`                                                             |
-| 02    | List Categories        | ອ່ານ Category ແບບ public                                                 |
-| 03    | Create Category        | `runId`, `categoryId`                                                    |
-| 04    | Create Product Bundle  | `productId`, `variantId`; Product/Variant/Price/Image ໃນ transaction ດຽວ |
-| 05    | Create Variant         | `variantId`                                                              |
-| 06    | Set Price              | ລາຄາ LAK                                                                 |
-| 07    | Add Product Image      | `imageId`; ເພີ່ມຮູບຂອງ Product/Variant                                   |
-| 08    | List Products          | ກວດ Product read model                                                   |
-| 09    | Register Customer      | `customerIdentifier`, `customerPassword`, `customerToken`, `customerId`  |
-| 10    | Customer Login         | `customerToken`, `customerId`                                            |
-| 11    | Update My Profile      | Profile ພາສາລາວ                                                          |
-| 12    | Create My Address      | `addressId`                                                              |
-| 13    | My Profile             | ກວດ Profile ແລະ Address                                                  |
-| 14    | Update Product Image   | ແກ້ `url`, `altText`, `sortOrder`, `variantId` ຕາມ `imageId`             |
-| 15    | Delete Product Image   | ລຶບແຖວຮູບຕາມ `imageId` ແລະ reset ຄ່າເປັນ `not-set`                       |
-| 16    | List Customers         | Admin/Manager ອ່ານ Customer, Account, ຈຳນວນ Address ແລະ Pagination       |
-| 17    | Refresh Staff Token    | rotate `staffToken` ແລະ `staffRefreshToken`                              |
-| 18    | Refresh Customer Token | rotate `customerToken` ແລະ `customerRefreshToken`                        |
-| 19    | Rate Limit Staff Login | ທົດສອບ username ຜິດ; run ຊ້ຳເພື່ອກວດກາ HTTP/GraphQL error 429            |
+| ລຳດັບ | Request                    | ຜົນທີ່ເກັບໃນ Environment                                                          |
+| ----- | -------------------------- | --------------------------------------------------------------------------------- |
+| 01    | Staff/Admin Login          | `staffToken`, `staffRefreshToken`                                                 |
+| 02    | List Categories            | ອ່ານ Category ແບບ public, ເກັບ `categoryId`                                       |
+| 03    | Create Category            | `runId`, `categoryId`                                                             |
+| 04    | Create Product Bundle      | `productId`, `variantId`; Product/Variant/Price/Image ໃນ transaction ດຽວ          |
+| 05    | Create Variant             | `variantId`                                                                       |
+| 06    | Set Price                  | ລາຄາ LAK                                                                          |
+| 07    | Add Product Image          | `imageId`; ເພີ່ມຮູບຂອງ Product/Variant                                            |
+| 08    | List Products              | ກວດ Product read model                                                            |
+| 09    | Register Customer          | `customerEmail`, `customerPhone` (020xxxxxxxx), `customerToken`, `customerId`     |
+| 10    | Customer Login (Phone)     | Login ດ້ວຍເບີໂທ (`02012345678` ຫຼື 020 ທີ່ຫາກໍ່ສະໝັກ) ໄດ້ token                   |
+| 10b   | Customer Login by Email    | Login ດ້ວຍ Gmail/Email (`demo.customer@example.com`) ໄດ້ token                    |
+| 11    | Update My Profile          | Profile ພາສາລາວ (ໃຊ້ `customerEmail`, `customerPhone`)                            |
+| 12    | Create My Address          | `addressId` (ໃຊ້ `customerPhone`)                                                 |
+| 13    | My Profile                 | ກວດ Profile ແລະ Address                                                           |
+| 14    | Update Product Image       | ແກ້ `url`, `altText`, `sortOrder`, `variantId` ຕາມ `imageId`                      |
+| 15    | Delete Product Image       | ລຶບແຖວຮູບຕາມ `imageId` ແລະ reset ຄ່າເປັນ `not-set`                                |
+| 16    | List Customers             | Admin/Manager ອ່ານ Customer, Account, ຈຳນວນ Address ແລະ Pagination                |
+| 17    | Refresh Staff Token        | rotate `staffToken` ແລະ `staffRefreshToken`                                       |
+| 18    | Refresh Customer Token     | rotate `customerToken` ແລະ `customerRefreshToken`                                 |
+| 19    | Rate Limit Staff Login     | ທົດສອບ username ຜິດ; run ຊ້ຳເພື່ອກວດກາ HTTP/GraphQL error 429                     |
+| 20    | List Zones                 | Staff ອ່ານລາຍການ Zone, ເກັບ `zoneId`                                              |
+| 21    | Create Zone                | ສ້າງ Zone ໃໝ່, ເກັບ `zoneId`                                                      |
+| 22    | Update Zone                | ແກ້ໄຂຊື່ Zone ຕາມ `zoneId`                                                        |
+| 23    | Delete Zone                | Soft delete Zone ຕາມ `zoneId` ແລະ reset ຄ່າເປັນ `not-set`                         |
 
-`createProduct` ສ້າງຂໍ້ມູນ Product ຫຼັກເທົ່ານັ້ນ.
-Request `04` ໃຊ້ `createProductBundle` ເພື່ອສ້າງ Product, Variant,
-Price ແລະ Image ໃນ mutation/transaction ດຽວ. ນີ້ແມ່ນ API ທີ່ມີຢູ່
-ໃນ Backend ປັດຈຸບັນ.
+## ລະບົບເບີໂທລະສັບ (Phone Normalization)
+
+- ໃນ Database ຕັດເຄື່ອງໝາຍ `+` ອອກໝົດ (ຕົວຢ່າງ: `8562012345678`).
+- ເວລາ Login ຫຼື Register:
+  - ປ້ອນ `02012345678` ລະບົບຈະ Normalize ເປັນ `8562012345678` ໃຫ້ອັດຕະໂນມັດ.
+  - ປ້ອນ `+8562012345678` ຫຼື `8562012345678` ກໍ່ເຂົ້າໄດ້ຄືກັນ.
+  - ຮອງຮັບທັງການ Login ດ້ວຍ **ເບີໂທລະສັບ** ແລະ **Email/Gmail**.
 
 ## ທົດສອບ Rate Limit
 
@@ -54,15 +62,13 @@ Price ແລະ Image ໃນ mutation/transaction ດຽວ. ນີ້ແມ່�
 GraphQL ຍັງຕອບ HTTP 200 ຕາມ GraphQL transport convention ແຕ່ error ມີ status 429.
 REST `POST /api/auth/login` ຕອບ HTTP 429 ໂດຍກົງ.
 
-## Environment
+## Environment `Local`
 
 - `baseUrl`: default `http://localhost:3001`
-- `username`/`password`: ຕ້ອງກົງກັບ `SEED_ADMIN_USERNAME`/`SEED_ADMIN_PASSWORD`
-- `customerIdentifier`/`customerPassword`: ຕ້ອງກົງກັບ seed ຫຼືຈະຖືກປ່ຽນໂດຍ request `09`
+- `username`/`password`: default `admin` / `admin123`
+- `customerIdentifier`: default `02012345678` (Demo customer)
+- `customerPhone`: default `02012345678`
+- `customerEmail`: default `demo.customer@example.com`
+- `customerPassword`: default `12345678`
 - Access/Refresh Token ເລີ່ມຕົ້ນເປັນ `not-set` ແລະຈະຖືກຕັ້ງຄ່າໃໝ່ຫຼັງ Login/Refresh;
   ຢ່າ commit JWT ຫຼື token ທີ່ເຄີຍໃຊ້ແລ້ວ. UUID ທີ່ collection ສ້າງຂຶ້ນຈະຖືກເກັບໃນ environment.
-- Request `11 Update My Profile` ໃຊ້ເບີໂທ `+85620{{runId}}`
-  ເພື່ອໃຫ້ກົງກັບ customer ທີ່ request `09` ສ້າງ ແລະ
-  ບໍ່ຊ້ຳກັບ customer ອື່ນ.
-
-ຖ້າເກີດ `EADDRINUSE` ທີ່ port `9898`, ສະແດງວ່າ Backend instance ເກົ່າຍັງເຮັດວຽກ. ໃຫ້ຢຸດ instance ເກົ່າດ້ວຍ `Ctrl+C` ກ່ອນ run ໃໝ່.

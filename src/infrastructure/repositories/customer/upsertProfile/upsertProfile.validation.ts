@@ -2,6 +2,7 @@ import { BadRequestException, ConflictException, NotFoundException } from '@nest
 import { Not, Repository } from 'typeorm';
 import { UpsertCustomerProfileRequest } from '../../../../domain/models/customer.model';
 import { CustomerEntity } from '../../../entities/customer.entity';
+import { normalizePhoneNumber } from '../../../common/phone.util';
 
 export interface ValidatedCustomerProfile {
   customer: CustomerEntity;
@@ -21,7 +22,7 @@ export class UpsertCustomerProfileValidation {
     const normalized: UpsertCustomerProfileRequest = { ...input };
     if (input.email !== undefined) normalized.email = input.email.trim().toLowerCase();
     if (input.phone !== undefined) {
-      normalized.phone = input.phone.trim();
+      normalized.phone = normalizePhoneNumber(input.phone);
       if (!normalized.phone) throw new BadRequestException('Phone cannot be empty');
     }
     if (!(normalized.email ?? customer.email) && !(normalized.phone ?? customer.phone)) {

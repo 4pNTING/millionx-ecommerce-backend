@@ -3,6 +3,7 @@ import { QueryRunner } from 'typeorm';
 import { RegisterCustomerRequest } from '../../../../domain/models/customer-auth.model';
 import { CustomerAccountEntity } from '../../../entities/customer-account.entity';
 import { CustomerEntity } from '../../../entities/customer.entity';
+import { normalizePhoneNumber } from '../../../common/phone.util';
 
 export interface ValidatedCustomerRegistration {
   email?: string;
@@ -15,7 +16,7 @@ export class RegisterCustomerValidation {
 
   async execute(input: RegisterCustomerRequest): Promise<ValidatedCustomerRegistration> {
     const email = input.email?.trim().toLowerCase() || undefined;
-    const phone = input.phone?.trim() || undefined;
+    const phone = input.phone ? normalizePhoneNumber(input.phone) || undefined : undefined;
     if (!email && !phone) throw new BadRequestException('Email or phone is required');
 
     const customers = this.session.manager.getRepository(CustomerEntity);

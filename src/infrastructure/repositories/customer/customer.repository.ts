@@ -43,12 +43,8 @@ export class DatabaseCustomerRepository implements ICustomerRepository {
   }
 
   async loadCustomers(filter: CustomerQuery = {}): Promise<CustomerPageModel> {
-    const normalized = new LoadCustomersValidation().execute(filter);
-    return new LoadCustomersAction(this.customerEntity).execute(
-      normalized.filter,
-      normalized.page,
-      normalized.limit,
-    );
+    new LoadCustomersValidation().execute(filter);
+    return new LoadCustomersAction(this.customerEntity).execute(filter);
   }
 
   async loadProfile(customerId: string): Promise<CustomerProfileModel> {

@@ -1,0 +1,44 @@
+meta {
+  name: 10b Customer Login by Email
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "query": "mutation LoginCustomer($input: CustomerLoginInput!) { loginCustomer(input: $input) { accountId customerId email phone token refreshToken } }",
+    "variables": {
+      "input": {
+        "identifier": "{{customerEmail}}",
+        "password": "{{customerPassword}}"
+      }
+    }
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+  if (body?.data?.loginCustomer?.token) {
+    bru.setEnvVar("customerToken", body.data.loginCustomer.token);
+    bru.setEnvVar("customerRefreshToken", body.data.loginCustomer.refreshToken);
+    bru.setEnvVar("customerId", body.data.loginCustomer.customerId);
+  }
+}
+
+tests {
+  test("Customer login ດ້ວຍ Email ໄດ້ access token", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.loginCustomer.token).to.be.a("string");
+  });
+}

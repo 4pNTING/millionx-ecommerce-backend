@@ -12,21 +12,21 @@ export class LoadCatalogProductsAction {
     private readonly mapper: CatalogProductMapper,
   ) {}
 
-  async execute(
-    filter: CatalogProductQuery,
-    page: number,
-    limit: number,
-    currency?: string,
-  ): Promise<CatalogProductPageModel> {
+  async execute(filter: CatalogProductQuery = {}): Promise<CatalogProductPageModel> {
+    const page = filter.page ?? 1;
+    const limit = filter.limit ?? 20;
+    const currency = filter.currency?.trim().toUpperCase();
+
     const query = this.repository.createQueryBuilder('product');
     if (!filter.includeInactive) query.andWhere('product.isActive = true');
     if (filter.categoryId) {
       query.andWhere('product.categoryId = :categoryId', { categoryId: filter.categoryId });
     }
-    if (filter.keyword?.trim()) {
+    const keyword = filter.keyword?.trim();
+    if (keyword) {
       query.andWhere(
         '(product.name ILIKE :keyword OR product.slug ILIKE :keyword OR product.brand ILIKE :keyword)',
-        { keyword: `%${filter.keyword.trim()}%` },
+        { keyword: `%${keyword}%` },
       );
     }
     query

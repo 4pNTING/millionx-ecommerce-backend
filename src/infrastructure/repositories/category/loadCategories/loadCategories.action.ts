@@ -8,11 +8,10 @@ import { CategoryEntity } from '../../../entities/category.entity';
 export class LoadCatalogCategoriesAction {
   constructor(private readonly repository: Repository<CategoryEntity>) {}
 
-  async execute(
-    filter: CatalogCategoryQuery,
-    page: number,
-    limit: number,
-  ): Promise<CatalogCategoryPageModel> {
+  async execute(filter: CatalogCategoryQuery = {}): Promise<CatalogCategoryPageModel> {
+    const page = filter.page ?? 1;
+    const limit = filter.limit ?? 20;
+
     const query = this.repository
       .createQueryBuilder('category')
       .orderBy('category.sortOrder', 'ASC')
@@ -24,10 +23,11 @@ export class LoadCatalogCategoriesAction {
       query.andWhere('category.parentId IS NULL');
     }
 
-    if (filter.keyword) {
+    const keyword = filter.keyword?.trim();
+    if (keyword) {
       query.andWhere(
         '(category.name ILIKE :keyword OR category.slug ILIKE :keyword OR category.description ILIKE :keyword)',
-        { keyword: `%${filter.keyword}%` },
+        { keyword: `%${keyword}%` },
       );
     }
 

@@ -72,15 +72,15 @@ export class DatabaseProductRepository implements IProductRepository {
   }
 
   async loadProducts(filter: CatalogProductQuery = {}): Promise<CatalogProductPageModel> {
-    const normalized = new LoadCatalogProductsValidation().execute(filter);
-    const key = `catalog:products:${JSON.stringify(normalized.cacheKey)}`;
+    new LoadCatalogProductsValidation().execute(filter);
+    const key = `catalog:products:${JSON.stringify(filter)}`;
     const cached = await this.redisService.get<CatalogProductPageModel>(key);
     if (cached) return cached;
 
     const result = await new LoadCatalogProductsAction(
       this.productEntity,
       this.productMapper,
-    ).execute(normalized.filter, normalized.page, normalized.limit, normalized.currency);
+    ).execute(filter);
     await this.redisService.set(key, result, 120);
     return result;
   }

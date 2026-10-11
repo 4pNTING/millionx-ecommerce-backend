@@ -16,8 +16,13 @@ headers {
 
 script:pre-request {
   const runId = Date.now().toString();
+  const phoneSuffix = Math.floor(10000000 + Math.random() * 90000000).toString();
+  const customerEmail = `customer-${runId}@example.com`;
+  const customerPhone = `020${phoneSuffix}`;
   bru.setEnvVar("runId", runId);
-  bru.setEnvVar("customerIdentifier", `customer-${runId}@example.com`);
+  bru.setEnvVar("customerEmail", customerEmail);
+  bru.setEnvVar("customerPhone", customerPhone);
+  bru.setEnvVar("customerIdentifier", customerPhone);
   bru.setEnvVar("customerPassword", "Customer123!");
 }
 
@@ -28,8 +33,8 @@ body:json {
       "input": {
         "firstName": "ສົມພອນ",
         "lastName": "ໄຊຍະວົງ",
-        "email": "{{customerIdentifier}}",
-        "phone": "+85620{{runId}}",
+        "email": "{{customerEmail}}",
+        "phone": "{{customerPhone}}",
         "password": "{{customerPassword}}"
       }
     }

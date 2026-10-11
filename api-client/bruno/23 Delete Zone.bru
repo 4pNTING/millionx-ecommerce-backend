@@ -1,0 +1,41 @@
+meta {
+  name: 23 Delete Zone
+  type: http
+  seq: 23
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{staffToken}}
+}
+
+body:json {
+  {
+    "query": "mutation DeleteZone($input: DeleteZoneDto!) { deleteZone(input: $input) { zone { _id } } }",
+    "variables": {
+      "input": {
+        "_id": "{{zoneId}}"
+      }
+    }
+  }
+}
+
+script:post-response {
+  if (res.getBody()?.data?.deleteZone?.zone?._id) {
+    bru.setEnvVar("zoneId", "not-set");
+  }
+}
+
+tests {
+  test("ລຶບ Zone ສຳເລັດ (Soft delete)", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(bru.getEnvVar("zoneId")).to.equal("not-set");
+  });
+}

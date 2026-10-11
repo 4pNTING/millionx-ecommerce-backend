@@ -1,0 +1,36 @@
+meta {
+  name: 22 Update Zone
+  type: http
+  seq: 22
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{staffToken}}
+}
+
+body:json {
+  {
+    "query": "mutation UpdateZone($input: UpdateZoneDto!) { updateZone(input: $input) { zone { _id name isActive } } }",
+    "variables": {
+      "input": {
+        "_id": "{{zoneId}}",
+        "name": "ເຂດທົດສອບ MillionX ທີ່ແກ້ໄຂແລ້ວ"
+      }
+    }
+  }
+}
+
+tests {
+  test("ແກ້ໄຂ Zone ສຳເລັດ", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.updateZone.zone.name).to.equal("ເຂດທົດສອບ MillionX ທີ່ແກ້ໄຂແລ້ວ");
+  });
+}

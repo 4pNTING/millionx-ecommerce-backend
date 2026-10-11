@@ -1,0 +1,46 @@
+meta {
+  name: 20 List Zones
+  type: http
+  seq: 20
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{staffToken}}
+}
+
+body:json {
+  {
+    "query": "query LoadZone($input: LoadZoneDto) { loadZone(input: $input) { zone { _id name isActive } count } }",
+    "variables": {
+      "input": {
+        "page": 1,
+        "limit": 10,
+        "isActive": "all"
+      }
+    }
+  }
+}
+
+script:post-response {
+  const zones = res.getBody()?.data?.loadZone?.zone;
+  const activeZone = zones?.find(z => z.isActive === "active") || zones?.[0];
+  if (activeZone?._id) {
+    bru.setEnvVar("zoneId", activeZone._id);
+  }
+}
+
+tests {
+  test("Staff ສາມາດດຶງລາຍການ Zone ໄດ້", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.loadZone.zone).to.be.an("array");
+    expect(res.getBody().data.loadZone.count).to.be.a("number");
+  });
+}

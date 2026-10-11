@@ -1,0 +1,47 @@
+meta {
+  name: 21 Create Zone
+  type: http
+  seq: 21
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{staffToken}}
+}
+
+script:pre-request {
+  bru.setEnvVar("runId", Date.now().toString());
+}
+
+body:json {
+  {
+    "query": "mutation CreateZone($input: CreateZoneDto!) { createZone(input: $input) { zone { _id name isActive } } }",
+    "variables": {
+      "input": {
+        "name": "ເຂດທົດສອບ MillionX {{runId}}",
+        "isActive": "active"
+      }
+    }
+  }
+}
+
+script:post-response {
+  const zone = res.getBody()?.data?.createZone?.zone;
+  if (zone?._id) {
+    bru.setEnvVar("zoneId", zone._id);
+  }
+}
+
+tests {
+  test("ສ້າງ Zone ແລະ ໄດ້ _id ກັບຄືນ", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.createZone.zone._id).to.be.a("string");
+  });
+}
