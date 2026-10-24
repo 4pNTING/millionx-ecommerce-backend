@@ -8,10 +8,10 @@ import { JwtAuthGuard } from '../../common/jwt-auth.guard';
 import { CategoryUsecasesProxyModule } from '../../usecases-proxy/category-usecases-proxy.module';
 import {
   Category,
-  CategoryFilterInput,
+  LoadCategoryDto,
   CategoryPage,
-  CreateCategoryInput,
-  UpdateCategoryInput,
+  CreateCategoryDto,
+  UpdateCategoryDto,
 } from './category.model';
 
 @Resolver(() => Category)
@@ -26,19 +26,19 @@ export class CategoryResolver {
   ) {}
 
   @Query(() => CategoryPage)
-  categories(@Args('filter', { nullable: true }) filter?: CategoryFilterInput) {
-    return this.loadCategoriesUseCase.execute(filter);
+  categories(@Args('input', { nullable: true }) input?: LoadCategoryDto) {
+    return this.loadCategoriesUseCase.execute(input);
   }
 
   @Mutation(() => Category)
   @UseGuards(JwtAuthGuard, CatalogWriteGuard)
-  createCategory(@Args('input') input: CreateCategoryInput) {
+  createCategory(@Args('input') input: CreateCategoryDto) {
     return this.createCategoryUseCase.execute(input);
   }
 
   @Mutation(() => Category)
   @UseGuards(JwtAuthGuard, CatalogWriteGuard)
-  updateCategory(@Args('input') input: UpdateCategoryInput) {
+  updateCategory(@Args('input') input: UpdateCategoryDto) {
     return this.updateCategoryUseCase.execute(input);
   }
 }

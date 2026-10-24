@@ -10,3 +10,4 @@ coverage
 .DS_Store
 api-client
 docs
+.database-backups

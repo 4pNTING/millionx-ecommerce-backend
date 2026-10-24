@@ -11,18 +11,18 @@ export class FindCustomerByAccountIdAction {
 
   async execute(accountId: string): Promise<CustomerAccountLoginRecord | null> {
     const account = await this.accountRepository.findOne({
-      where: { id: accountId, isActive: true },
+      where: { _id: accountId, isActive: true },
     });
     if (!account) return null;
 
     const customer = await this.customerRepository.findOne({
-      where: { id: account.customerId, isActive: true },
+      where: { _id: account.customerId, isActive: true },
     });
     if (!customer) return null;
 
     return {
-      accountId: account.id,
-      customerId: customer.id,
+      accountId: account._id,
+      customerId: customer._id,
       passwordHash: account.passwordHash,
       isActive: account.isActive,
       email: customer.email,

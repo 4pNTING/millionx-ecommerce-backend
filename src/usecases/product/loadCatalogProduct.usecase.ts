@@ -2,7 +2,7 @@ import { IProductRepository } from '../../domain/repositories/product.repository
 
 export class LoadCatalogProductUseCase {
   constructor(private readonly repository: IProductRepository) {}
-  execute(id?: string, slug?: string, currency?: string) {
-    return this.repository.loadProduct(id, slug, currency);
+  execute(_id?: string, slug?: string, currency?: string) {
+    return this.repository.loadProduct(_id, slug, currency);
   }
 }

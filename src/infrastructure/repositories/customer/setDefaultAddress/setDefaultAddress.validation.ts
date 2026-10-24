@@ -11,10 +11,10 @@ export class SetDefaultCustomerAddressValidation {
 
   async execute(customerId: string, addressId: string): Promise<AddressEntity> {
     const customer = await this.customerRepository.findOne({
-      where: { id: customerId, isActive: true },
+      where: { _id: customerId, isActive: true },
     });
     if (!customer) throw new NotFoundException('Customer profile not found. Create it first.');
-    const address = await this.addressRepository.findOne({ where: { id: addressId, customerId } });
+    const address = await this.addressRepository.findOne({ where: { _id: addressId, customerId } });
     if (!address) throw new NotFoundException('Customer address not found');
     return address;
   }

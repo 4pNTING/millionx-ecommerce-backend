@@ -11,10 +11,10 @@ export class AddCatalogProductImageValidation {
   ) {}
 
   async execute(input: AddCatalogProductImageRequest): Promise<void> {
-    const product = await this.productRepository.findOne({ where: { id: input.productId } });
+    const product = await this.productRepository.findOne({ where: { _id: input.productId } });
     if (!product) throw new NotFoundException('Product not found');
     if (!input.variantId) return;
-    const variant = await this.variantRepository.findOne({ where: { id: input.variantId } });
+    const variant = await this.variantRepository.findOne({ where: { _id: input.variantId } });
     if (!variant || variant.productId !== input.productId) {
       throw new BadRequestException('variantId does not belong to productId');
     }

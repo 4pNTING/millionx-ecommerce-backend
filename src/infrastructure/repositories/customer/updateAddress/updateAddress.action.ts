@@ -10,7 +10,7 @@ export class UpdateCustomerAddressAction {
     if (input.isDefault === true) {
       await CustomerAddressHelper.clearDefault(address.customerId, this.session.manager);
     }
-    const { id: _id, latitude, longitude, countryCode, ...rest } = input;
+    const { _id, latitude, longitude, countryCode, ...rest } = input;
     Object.assign(address, rest);
     if (countryCode) address.countryCode = countryCode.toUpperCase();
     if (latitude != null) address.latitude = latitude.toString();

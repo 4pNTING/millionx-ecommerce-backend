@@ -1,0 +1,187 @@
+{
+  "mode": "apply",
+  "database": "millionx_ecommerce",
+  "targetDirectProducts": 20,
+  "batchId": "975329dd-f139-4db8-91cc-8e1676aa501c",
+  "categoryCount": 21,
+  "addedProducts": 414,
+  "categories": [
+    {
+      "id": "05650065-6e85-4518-a9f0-b4b285f53d15",
+      "name": "ເຄື່ອງໃຊ້ໄຟຟ້າໃນເຮືອນ",
+      "before": 1,
+      "add": 19,
+      "after": 20
+    },
+    {
+      "id": "19f45447-7bff-4e2e-a8cb-0c78bf8c09d8",
+      "name": "Home Appliances",
+      "before": 0,
+      "add": 20,
+      "after": 20
+    },
+    {
+      "id": "35d73eb9-7ec3-4846-bf14-301f9c8f5f4f",
+      "name": "ເຄື່ອງໃຊ້ໄຟຟ້າໃນເຮືອນ",
+      "before": 0,
+      "add": 20,
+      "after": 20
+    },
+    {
+      "id": "4dedb47d-26f6-414f-9457-bc4515499fa8",
+      "name": "Home Appliances",
+      "before": 0,
+      "add": 20,
+      "after": 20
+    },
+    {
+      "id": "5c13a1ad-9c1e-423c-bba9-362d321af41f",
+      "name": "ຄອມພິວເຕີຕັ້ງໂຕະ",
+      "before": 0,
+      "add": 20,
+      "after": 20
+    },
+    {
+      "id": "5cf9527e-4b8f-4b54-a82c-7211affa0726",
+      "name": "Home Appliances",
+      "before": 0,
+      "add": 20,
+      "after": 20
+    },
+    {
+      "id": "5ebaada4-eb89-4aed-bf9a-0bb9ca3e272b",
+      "name": "ເຄື່ອງໃຊ້ໄຟຟ້າໃນເຮືອນ",
+      "before": 1,
+      "add": 19,
+      "after": 20
+    },
+    {
+      "id": "93a207e9-8a6a-4f0e-9ee1-068e63b6935e",
+      "name": "ເຄື່ອງໃຊ້ໄຟຟ້າໃນເຮືອນ",
+      "before": 1,
+      "add": 19,
+      "after": 20
+    },
+    {
+      "id": "940ef6f3-ba17-4b40-a829-af812ac8f148",
+      "name": "ເຄື່ອງໃຊ້ໄຟຟ້າໃນເຮືອນ",
+      "before": 1,
+      "add": 19,
+      "after": 20
+    },
+    {
+      "id": "97185773-0c7f-419d-a8c9-53a9064e027b",
+      "name": "ຄອມພິວເຕີ",
+      "before": 0,
+      "add": 20,
+      "after": 20
+    },
+    {
+      "id": "a73879cd-61a0-48db-aafa-962399daafd8",
+      "name": "ໂທລະສັບມືຖື",
+      "before": 0,
+      "add": 20,
+      "after": 20
+    },
+    {
+      "id": "a8ddf066-0244-49d4-93af-d894275f7790",
+      "name": "ເຄື່ອງເອເລັກໂຕຣນິກ",
+      "before": 0,
+      "add": 20,
+      "after": 20
+    },
+    {
+      "id": "af544d5a-6eba-4cfe-8265-3f7352a15bc1",
+      "name": "ເຄື່ອງໃຊ້ໄຟຟ້າໃນເຮືອນ",
+      "before": 0,
+      "add": 20,
+      "after": 20
+    },
+    {
+      "id": "bd249025-a49f-40e8-bba9-32661c232e6d",
+      "name": "ຫູຟັງ",
+      "before": 1,
+      "add": 19,
+      "after": 20
+    },
+    {
+      "id": "bfaddb09-6763-47e9-8a53-edd94c4c474a",
+      "name": "ເກີບ",
+      "before": 0,
+      "add": 20,
+      "after": 20
+    },
+    {
+      "id": "c1920782-b68b-4548-a52e-4cc7e3e7d5ef",
+      "name": "ເຄື່ອງນຸ່ງຜູ້ຊາຍ",
+      "before": 0,
+      "add": 20,
+      "after": 20
+    },
+    {
+      "id": "c20e348b-c383-4d81-9ff4-50ceae1d6a21",
+      "name": "Home Appliances",
+      "before": 0,
+      "add": 20,
+      "after": 20
+    },
+    {
+      "id": "cd0ffd16-4821-4222-a216-e3b9b18f6377",
+      "name": "ແຟຊັ່ນ",
+      "before": 0,
+      "add": 20,
+      "after": 20
+    },
+    {
+      "id": "e06440c7-b8e6-4db9-b3ca-1a1011a285f7",
+      "name": "ແລັບທັອບ",
+      "before": 1,
+      "add": 19,
+      "after": 20
+    },
+    {
+      "id": "e4967d05-08a2-49dd-b2ce-ab05fd0d570f",
+      "name": "ເຄື່ອງນຸ່ງຜູ້ຍິງ",
+      "before": 0,
+      "add": 20,
+      "after": 20
+    },
+    {
+      "id": "fc3a9c8a-d42d-444b-987a-533ebcd8de7f",
+      "name": "ເຄື່ອງໃຊ້ໄຟຟ້າໃນເຮືອນ",
+      "before": 0,
+      "add": 20,
+      "after": 20
+    }
+  ],
+  "originalCatalogRowsUnchanged": true,
+  "addedVariants": 414,
+  "addedPrices": 414,
+  "addedImages": 0,
+  "completedAt": "2026-10-23",
+  "verification": {
+    "endpoint": "http://localhost:3001/api-gateway",
+    "categoriesChecked": 21,
+    "totalProducts": 420,
+    "newProductsWithOneVariantAndLAKPrice": 414,
+    "paginationPerCategory": {
+      "limit": 12,
+      "page1": 12,
+      "page2": 8,
+      "distinctIds": 20
+    },
+    "computerWithDescendantsTotal": 60,
+    "repeatDryRunAdditionalProducts": 0,
+    "redisInvalidation": {
+      "pattern": "catalog:products:*",
+      "deletedKeys": 5,
+      "authenticationKeysUntouched": true
+    },
+    "preExistingVariantWithoutReturnedPrice": {
+      "productId": "98e5f99c-8afb-41af-b3b3-be8b76d54400",
+      "variantId": "04e6b31a-17fc-4fcb-83af-7b5beb89fcb3",
+      "changed": false
+    },
+    "browserUI": "Not verified; database and running GraphQL API verified."
+  }
+}

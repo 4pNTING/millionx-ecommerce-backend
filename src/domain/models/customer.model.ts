@@ -1,5 +1,7 @@
+import { ActiveStatus } from '../enums/enum';
+
 export class CustomerModel {
-  id: string;
+  _id: string;
   firstName?: string;
   lastName?: string;
   email?: string;
@@ -10,7 +12,7 @@ export class CustomerModel {
 }
 
 export interface CustomerAddressModel {
-  id: string;
+  _id: string;
   customerId: string;
   label: string;
   recipientName: string;
@@ -53,8 +55,8 @@ export interface CustomerQuery {
   keyword?: string;
   page?: number;
   limit?: number;
-  isActive?: boolean;
-  accountIsActive?: boolean;
+  isActive?: ActiveStatus;
+  accountIsActive?: ActiveStatus;
 }
 
 export interface UpsertCustomerProfileRequest {
@@ -81,5 +83,5 @@ export interface CreateCustomerAddressRequest {
 }
 
 export interface UpdateCustomerAddressRequest extends Partial<CreateCustomerAddressRequest> {
-  id: string;
+  _id: string;
 }

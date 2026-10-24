@@ -16,7 +16,7 @@ headers {
 
 body:json {
   {
-    "query": "mutation Login($input: LoginInput!) { login(input: $input) { _id username role isActive token refreshToken } }",
+    "query": "mutation Login($input: LoginDto!) { login(input: $input) { _id username role isActive token refreshToken } }",
     "variables": {
       "input": {
         "username": "{{username}}",

@@ -1,0 +1,51 @@
+meta {
+  name: 24 Social Login Google Customer
+  type: http
+  seq: 24
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "query": "mutation SocialLoginCustomer($input: SocialLoginCustomerDto!) { socialLoginCustomer(input: $input) { accountId customerId email phone token refreshToken } }",
+    "variables": {
+      "input": {
+        "provider": "GOOGLE",
+        "token": "mock-google-{{runId}}:customer-social-{{runId}}@example.com",
+        "firstName": "ສົມພອນ",
+        "lastName": "ກູເກິ້ນ"
+      }
+    }
+  }
+}
+
+script:pre-request {
+  bru.setEnvVar("runId", Date.now().toString());
+}
+
+script:post-response {
+  const body = res.getBody();
+  if (body?.data?.socialLoginCustomer?.token) {
+    bru.setEnvVar("customerToken", body.data.socialLoginCustomer.token);
+    bru.setEnvVar("customerRefreshToken", body.data.socialLoginCustomer.refreshToken);
+    bru.setEnvVar("customerId", body.data.socialLoginCustomer.customerId);
+  }
+}
+
+tests {
+  test("Social Login สำเร็จและได้ Token", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.socialLoginCustomer.token).to.be.a("string");
+    expect(res.getBody().data.socialLoginCustomer.customerId).to.be.a("string");
+  });
+}

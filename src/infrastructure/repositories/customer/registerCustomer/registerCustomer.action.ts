@@ -34,7 +34,9 @@ export class RegisterCustomerAction {
       });
     }
     customer = await customers.save(customer);
-    const account = await accounts.save(accounts.create({ customerId: customer.id, passwordHash }));
-    return { accountId: account.id, customer: { ...customer, addresses: [] } };
+    const account = await accounts.save(
+      accounts.create({ customerId: customer._id, passwordHash }),
+    );
+    return { accountId: account._id, customer: { ...customer, addresses: [] } };
   }
 }

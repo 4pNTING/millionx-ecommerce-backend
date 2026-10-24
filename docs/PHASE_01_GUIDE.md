@@ -1,5 +1,8 @@
 # Phase 1 — Foundation Guide
 
+> 22 ຕຸລາ 2026: Product filter ເພີ່ມ `includeDescendants` (default=false) ເພື່ອລວມສິນຄ້າຂອງໝວດລູກ.
+> ເບິ່ງ [Contract ສຳລັບ frontend, Bruno ແລະ tests](PRODUCT_CATEGORY_DESCENDANTS.md).
+
 Phase 1 ປະກອບດ້ວຍ Category, Product, Customer profile, Customer login ແລະ Address. Primary key ຂອງຕາຕະລາງ E-commerce ໃຊ້ RFC 4122 UUID v4.
 
 ສຳລັບ database ເກົ່າ ໃຫ້ run `database/migrations/20260903_normalize_phase1_uuid_v4.sql` ໜຶ່ງຄັ້ງ. Migration ຈະສ້າງ UUID v4 ໃໝ່ສະເພາະແຖວທີ່ ID ຜິດມາດຕະຖານ ແລະ update Foreign Key ທີ່ເຊື່ອມກັນໃຫ້ອັດຕະໂນມັດ.
@@ -10,7 +13,7 @@ Phase 1 ປະກອບດ້ວຍ Category, Product, Customer profile, Custome
 | ---------------- | ----------------------------- | ------------------------------------------------------- |
 | Staff/Auth       | `ecommerce.users`             | Login account ຂອງ Staff/Admin                           |
 | Zone             | `ecommerce.zones`             | ຂໍ້ມູນເຂດທີ່ໃຊ້ໃນລະບົບ                                  |
-| Category         | `ecommerce.categories`        | ໝວດໝູ່ຫຼາຍລະດັບ; `parentId` ເປັນ FK ກັບ `categories.id` |
+| Category         | `ecommerce.categories`        | ໝວດໝູ່ຫຼາຍລະດັບ; `parentId` ເປັນ FK ກັບ `categories._id` |
 | Product          | `ecommerce.products`          | ຂໍ້ມູນຫຼັກຂອງສິນຄ້າ                                     |
 | Variant          | `ecommerce.product_variants`  | SKU, Barcode ແລະຕົວເລືອກເຊັ່ນ RAM/ສີ                    |
 | Price            | `ecommerce.product_prices`    | ລາຄາຕາມ Variant ແລະ currency                            |
@@ -49,7 +52,7 @@ Reset ຈະລຶບຂໍ້ມູນ Phase 1 ທັງໝົດ ລວມທ�
 ໃຊ້ username/password ຈາກ `SEED_ADMIN_USERNAME` ແລະ `SEED_ADMIN_PASSWORD` ໃນ `.env`:
 
 ```graphql
-mutation Login($input: LoginInput!) {
+mutation Login($input: LoginDto!) {
   login(input: $input) {
     username
     role
@@ -69,12 +72,12 @@ Authorization: Bearer STAFF_TOKEN
 
 ```graphql
 query CommerceData {
-  categories(filter: { page: 1, limit: 10, includeInactive: true }) {
+  categories(input: { page: 1, limit: 10, isActive: all }) {
     total
     page
     limit
     items {
-      id
+      _id
       parentId
       name
       slug
@@ -83,10 +86,10 @@ query CommerceData {
     }
   }
 
-  products(filter: { currency: "LAK", page: 1, limit: 20 }) {
+  products(input: { currency: "LAK", page: 1, limit: 20 }) {
     total
     items {
-      id
+      _id
       name
       variants {
         sku
@@ -108,10 +111,10 @@ query CommerceData {
 `categories` accepts one `filter` object. The response is a page object, not an array.
 
 ```graphql
-query Categories($filter: CategoryFilterInput) {
-  categories(filter: $filter) {
+query Categories($input: LoadCategoryDto) {
+  categories(input: $input) {
     items {
-      id
+      _id
       parentId
       name
       slug
@@ -132,11 +135,10 @@ Example variables:
 
 ```json
 {
-  "filter": {
+  "input": {
     "parentId": null,
     "keyword": "phone",
-    "isActive": true,
-    "includeInactive": false,
+    "isActive": "active",
     "rootOnly": false,
     "fetchAll": false,
     "page": 1,
@@ -154,7 +156,7 @@ Category filter behavior:
 - Send `parentId` to list only the direct children of that category.
 - Send `rootOnly: true` to list only root categories.
 - Send `fetchAll: true` to disable `skip/take` and load the complete flat category tree in one SQL
-  request. The Frontend can build nested `children` from `id` and `parentId`; `page` and `limit` are
+  request. The Frontend can build nested `children` from `_id` and `parentId`; `page` and `limit` are
   ignored in this mode.
 
 ## ສ້າງ Category/Product data
@@ -162,12 +164,12 @@ Category filter behavior:
 หน้า Create Product ຄວນໃຊ້ `createProductBundle` ເພື່ອສ້າງ Product, Variant, Price ແລະ Image ໃນ PostgreSQL transaction ດຽວ. ຖ້າຂັ້ນຕອນໃດຜິດ ຂໍ້ມູນທັງໝົດຈະ rollback.
 
 ```graphql
-mutation CreateProductBundle($input: CreateProductBundleInput!) {
+mutation CreateProductBundle($input: CreateProductBundleDto!) {
   createProductBundle(input: $input) {
-    id
+    _id
     name
     variants {
-      id
+      _id
       sku
       prices {
         currency
@@ -176,7 +178,7 @@ mutation CreateProductBundle($input: CreateProductBundleInput!) {
       }
     }
     images {
-      id
+      _id
       url
     }
   }
@@ -193,11 +195,11 @@ mutation CreateProductBundle($input: CreateProductBundleInput!) {
 - ການສົ່ງ `variantId: null` ໃນ `updateProductImage` ຈະປ່ຽນຮູບໃຫ້ເປັນຮູບຂອງ Product ຫຼັກ.
 
 ```graphql
-mutation UpdateProductImage($input: UpdateProductImageInput!) {
+mutation UpdateProductImage($input: UpdateProductImageDto!) {
   updateProductImage(input: $input) {
-    id
+    _id
     images {
-      id
+      _id
       variantId
       url
       altText
@@ -206,11 +208,11 @@ mutation UpdateProductImage($input: UpdateProductImageInput!) {
   }
 }
 
-mutation DeleteProductImage($input: DeleteProductImageInput!) {
+mutation DeleteProductImage($input: DeleteProductImageDto!) {
   deleteProductImage(input: $input) {
-    id
+    _id
     images {
-      id
+      _id
     }
   }
 }
@@ -226,7 +228,7 @@ mutation CreateProductVariant($productId: String!) {
       attributesJson: "{\"ram\":\"16GB\",\"storage\":\"512GB\",\"color\":\"black\"}"
     }
   ) {
-    id
+    _id
     sku
     attributesJson
   }
@@ -239,21 +241,21 @@ mutation CreateProductVariant($productId: String!) {
 
 `updateProduct` ຮອງຮັບການແກ້ Product, Variant/Attributes, Price ແລະ Image/Alternative text
 ໃນ request ດຽວ. ຂໍ້ມູນທັງໝົດຖືກບັນທຶກໃນ transaction ດຽວ; ຖ້າສ່ວນໃດຜິດຈະ rollback ທັງຊຸດ.
-ການສົ່ງ `id` ຂອງ Variant, Price ຫຼື Image ຈະແກ້ແຖວເດີມ ໂດຍບໍ່ສ້າງແຖວຊ້ຳ.
+ການສົ່ງ `_id` ຂອງ Variant, Price ຫຼື Image ຈະແກ້ແຖວເດີມ ໂດຍບໍ່ສ້າງແຖວຊ້ຳ.
 ໃຊ້ `deleteImageIds` ເພື່ອລຶບຫຼາຍຮູບໃນ transaction ດຽວ. ຖ້າສ້າງ Variant ໃໝ່
 ແລະຮູບຂອງ Variant ພ້ອມກັນ ໃຫ້ສົ່ງ `variantSku` ໃນ Image; Backend ຈະສ້າງ Variant
 ແລ້ວຜູກ UUID ໃຫ້ຮູບອັດຕະໂນມັດ.
 
 ```graphql
-mutation UpdateProduct($input: UpdateProductInput!) {
+mutation UpdateProduct($input: UpdateProductDto!) {
   updateProduct(input: $input) {
-    id
+    _id
     variants {
-      id
+      _id
       attributesJson
     }
     images {
-      id
+      _id
       altText
     }
   }
@@ -263,17 +265,17 @@ mutation UpdateProduct($input: UpdateProductInput!) {
 ```json
 {
   "input": {
-    "id": "PRODUCT_UUID",
+    "_id": "PRODUCT_UUID",
     "variants": [
       {
-        "id": "VARIANT_UUID",
+        "_id": "VARIANT_UUID",
         "sku": "MX-LAPTOP-16-512-BLK",
         "attributesJson": "{\"ram\":\"16GB\",\"storage\":\"512GB\"}"
       }
     ],
     "images": [
       {
-        "id": "IMAGE_UUID",
+        "_id": "IMAGE_UUID",
         "altText": "ຮູບດ້ານໜ້າຂອງແລັບທັອບ"
       },
       {
@@ -309,7 +311,7 @@ mutation RegisterCustomer {
 ```
 
 ```graphql
-mutation CustomerLogin($input: CustomerLoginInput!) {
+mutation CustomerLogin($input: CustomerLoginDto!) {
   loginCustomer(input: $input) {
     customerId
     email

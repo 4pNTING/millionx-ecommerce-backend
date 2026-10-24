@@ -92,17 +92,17 @@ async function cleanupDatabase() {
   try {
     await client.query('BEGIN');
     if (state.productIds.length > 0) {
-      await client.query('DELETE FROM ecommerce.products WHERE id = ANY($1::uuid[])', [
+      await client.query('DELETE FROM ecommerce.products WHERE _id = ANY($1::uuid[])', [
         state.productIds,
       ]);
     }
     if (state.customerIds.length > 0) {
-      await client.query('DELETE FROM ecommerce.customers WHERE id = ANY($1::uuid[])', [
+      await client.query('DELETE FROM ecommerce.customers WHERE _id = ANY($1::uuid[])', [
         state.customerIds,
       ]);
     }
     for (const categoryId of [...state.categoryIds].reverse()) {
-      await client.query('DELETE FROM ecommerce.categories WHERE id = $1', [categoryId]);
+      await client.query('DELETE FROM ecommerce.categories WHERE _id = $1', [categoryId]);
     }
     await client.query('COMMIT');
   } catch (error) {
@@ -137,7 +137,7 @@ after(async () => {
 test('Phase 1 API is reachable', async () => {
   const result = await graphql(`
     query IntegrationReadiness {
-      categories(filter: { page: 1, limit: 1 }) {
+      categories(input: { page: 1, limit: 1 }) {
         total
         page
         limit
@@ -155,7 +155,7 @@ test('Phase 1 API is reachable', async () => {
 test('Staff login, refresh rotation and refresh-token isolation work', async () => {
   const loginResult = await graphql(
     `
-      mutation StaffLogin($input: LoginInput!) {
+      mutation StaffLogin($input: LoginDto!) {
         login(input: $input) {
           _id
           username
@@ -188,7 +188,7 @@ test('Staff login, refresh rotation and refresh-token isolation work', async () 
 
   const refreshResult = await graphql(
     `
-      mutation RefreshStaff($input: RefreshTokenInput!) {
+      mutation RefreshStaff($input: RefreshTokenDto!) {
         refreshStaffToken(input: $input) {
           token
           refreshToken
@@ -206,7 +206,7 @@ test('Staff login, refresh rotation and refresh-token isolation work', async () 
   const rejected = await graphql(
     `
       query RejectRefreshAsAccess {
-        customers(filter: { page: 1, limit: 1 }) {
+        customers(input: { page: 1, limit: 1 }) {
           total
         }
       }
@@ -221,9 +221,9 @@ test('Category CRUD, filter, pagination and cycle protection work', async () => 
   const rootSlug = `integration-root-${runId}`;
   const rootResult = await graphql(
     `
-      mutation CreateCategory($input: CreateCategoryInput!) {
+      mutation CreateCategory($input: CreateCategoryDto!) {
         createCategory(input: $input) {
-          id
+          _id
           parentId
           name
           slug
@@ -243,15 +243,15 @@ test('Category CRUD, filter, pagination and cycle protection work', async () => 
     state.staffToken,
   );
   const root = dataOrThrow(rootResult, 'createCategory');
-  assert.match(root.id, uuidPattern);
+  assert.match(root._id, uuidPattern);
   assert.equal(root.parentId, null);
-  state.categoryIds.push(root.id);
+  state.categoryIds.push(root._id);
 
   const childResult = await graphql(
     `
-      mutation CreateCategory($input: CreateCategoryInput!) {
+      mutation CreateCategory($input: CreateCategoryDto!) {
         createCategory(input: $input) {
-          id
+          _id
           parentId
           slug
         }
@@ -259,7 +259,7 @@ test('Category CRUD, filter, pagination and cycle protection work', async () => 
     `,
     {
       input: {
-        parentId: root.id,
+        parentId: root._id,
         name: `Integration Child ${runId}`,
         slug: `integration-child-${runId}`,
         sortOrder: 902,
@@ -268,15 +268,15 @@ test('Category CRUD, filter, pagination and cycle protection work', async () => 
     state.staffToken,
   );
   const child = dataOrThrow(childResult, 'createCategory');
-  assert.equal(child.parentId, root.id);
-  state.categoryIds.push(child.id);
+  assert.equal(child.parentId, root._id);
+  state.categoryIds.push(child._id);
 
   const listResult = await graphql(
     `
-      query Categories($filter: CategoryFilterInput) {
-        categories(filter: $filter) {
+      query Categories($input: LoadCategoryDto) {
+        categories(input: $input) {
           items {
-            id
+            _id
             parentId
             slug
           }
@@ -286,7 +286,7 @@ test('Category CRUD, filter, pagination and cycle protection work', async () => 
         }
       }
     `,
-    { filter: { keyword: runId, page: 1, limit: 1, includeInactive: true } },
+    { input: { keyword: runId, page: 1, limit: 1, isActive: 'all' } },
   );
   const page = dataOrThrow(listResult, 'categories');
   assert.equal(page.page, 1);
@@ -296,17 +296,17 @@ test('Category CRUD, filter, pagination and cycle protection work', async () => 
 
   const cycleResult = await graphql(
     `
-      mutation RejectCategoryCycle($input: UpdateCategoryInput!) {
+      mutation RejectCategoryCycle($input: UpdateCategoryDto!) {
         updateCategory(input: $input) {
-          id
+          _id
           parentId
         }
       }
     `,
-    { input: { id: root.id, parentId: child.id } },
+    { input: { _id: root._id, parentId: child._id } },
     state.staffToken,
   );
-  assert.match(cycleResult.body.errors?.[0]?.message || '', /cycle/i);
+  assert.match(cycleResult.body.errors?.[0]?.message || '', /cycle|descendant/i);
 });
 
 test('Product bundle create/update and transaction rollback work', async () => {
@@ -314,27 +314,27 @@ test('Product bundle create/update and transaction rollback work', async () => {
   const sku = `MX-INT-${runId}`;
   const productResult = await graphql(
     `
-      mutation CreateProductBundle($input: CreateProductBundleInput!) {
+      mutation CreateProductBundle($input: CreateProductBundleDto!) {
         createProductBundle(input: $input) {
-          id
+          _id
           categoryId
           name
           slug
           brand
           variants {
-            id
+            _id
             sku
             name
             attributesJson
             prices {
-              id
+              _id
               currency
               amount
               compareAtAmount
             }
           }
           images {
-            id
+            _id
             url
             altText
             sortOrder
@@ -369,34 +369,34 @@ test('Product bundle create/update and transaction rollback work', async () => {
     state.staffToken,
   );
   const product = dataOrThrow(productResult, 'createProductBundle');
-  assert.match(product.id, uuidPattern);
+  assert.match(product._id, uuidPattern);
   assert.equal(product.variants.length, 1);
   assert.equal(product.variants[0].prices.length, 1);
   assert.equal(product.images.length, 1);
-  state.productIds.push(product.id);
+  state.productIds.push(product._id);
 
   const variant = product.variants[0];
   const price = variant.prices[0];
   const image = product.images[0];
   const updateResult = await graphql(
     `
-      mutation UpdateProduct($input: UpdateProductInput!) {
+      mutation UpdateProduct($input: UpdateProductDto!) {
         updateProduct(input: $input) {
-          id
+          _id
           name
           variants {
-            id
+            _id
             sku
             name
             attributesJson
             prices {
-              id
+              _id
               amount
               compareAtAmount
             }
           }
           images {
-            id
+            _id
             altText
             sortOrder
           }
@@ -405,17 +405,17 @@ test('Product bundle create/update and transaction rollback work', async () => {
     `,
     {
       input: {
-        id: product.id,
+        _id: product._id,
         name: `Integration Product Updated ${runId}`,
         variants: [
           {
-            id: variant.id,
+            _id: variant._id,
             sku,
             name: 'RAM 32GB',
             attributesJson: '{"ram":"32GB","color":"black"}',
             prices: [
               {
-                id: price.id,
+                _id: price._id,
                 currency: 'LAK',
                 amount: 1100000,
                 compareAtAmount: 1300000,
@@ -425,7 +425,7 @@ test('Product bundle create/update and transaction rollback work', async () => {
         ],
         images: [
           {
-            id: image.id,
+            _id: image._id,
             altText: 'Integration image after update',
             sortOrder: 2,
           },
@@ -444,9 +444,9 @@ test('Product bundle create/update and transaction rollback work', async () => {
   const rollbackSlug = `integration-rollback-${runId}`;
   const invalidResult = await graphql(
     `
-      mutation RejectInvalidProduct($input: CreateProductBundleInput!) {
+      mutation RejectInvalidProduct($input: CreateProductBundleDto!) {
         createProductBundle(input: $input) {
-          id
+          _id
         }
       }
     `,
@@ -469,17 +469,17 @@ test('Product bundle create/update and transaction rollback work', async () => {
 
   const rollbackRead = await graphql(
     `
-      query RolledBackProduct($filter: ProductFilterInput) {
-        products(filter: $filter) {
+      query RolledBackProduct($input: LoadProductDto) {
+        products(input: $input) {
           total
           items {
-            id
+            _id
             slug
           }
         }
       }
     `,
-    { filter: { keyword: rollbackSlug, page: 1, limit: 10, includeInactive: true } },
+    { input: { keyword: rollbackSlug, page: 1, limit: 10, isActive: 'all' } },
   );
   assert.equal(dataOrThrow(rollbackRead, 'products').total, 0);
 });
@@ -487,7 +487,7 @@ test('Product bundle create/update and transaction rollback work', async () => {
 test('Customer register/login/profile/address and Admin customer list work', async () => {
   const registerResult = await graphql(
     `
-      mutation RegisterCustomer($input: RegisterCustomerInput!) {
+      mutation RegisterCustomer($input: RegisterCustomerDto!) {
         registerCustomer(input: $input) {
           accountId
           customerId
@@ -513,7 +513,7 @@ test('Customer register/login/profile/address and Admin customer list work', asy
 
   const loginResult = await graphql(
     `
-      mutation LoginCustomer($input: CustomerLoginInput!) {
+      mutation LoginCustomer($input: CustomerLoginDto!) {
         loginCustomer(input: $input) {
           customerId
           token
@@ -530,7 +530,7 @@ test('Customer register/login/profile/address and Admin customer list work', asy
 
   const refreshResult = await graphql(
     `
-      mutation RefreshCustomer($input: RefreshTokenInput!) {
+      mutation RefreshCustomer($input: RefreshTokenDto!) {
         refreshCustomerToken(input: $input) {
           token
           refreshToken
@@ -548,9 +548,9 @@ test('Customer register/login/profile/address and Admin customer list work', asy
 
   const profileResult = await graphql(
     `
-      mutation UpdateProfile($input: UpdateCustomerProfileInput!) {
+      mutation UpdateProfile($input: UpdateCustomerProfileDto!) {
         updateCustomerProfile(input: $input) {
-          id
+          _id
           firstName
           lastName
           email
@@ -561,16 +561,16 @@ test('Customer register/login/profile/address and Admin customer list work', asy
     state.customerToken,
   );
   const profile = dataOrThrow(profileResult, 'updateCustomerProfile');
-  assert.equal(profile.id, registered.customerId);
+  assert.equal(profile._id, registered.customerId);
   assert.equal(profile.firstName, 'ທົດສອບແກ້ໄຂ');
 
   const addressResult = await graphql(
     `
-      mutation CreateAddress($input: CreateCustomerAddressInput!) {
+      mutation CreateAddress($input: CreateCustomerAddressDto!) {
         createCustomerAddress(input: $input) {
-          id
+          _id
           addresses {
-            id
+            _id
             label
             province
             countryCode
@@ -596,14 +596,14 @@ test('Customer register/login/profile/address and Admin customer list work', asy
   const addressProfile = dataOrThrow(addressResult, 'createCustomerAddress');
   assert.equal(addressProfile.addresses.length, 1);
   assert.equal(addressProfile.addresses[0].isDefault, true);
-  const addressId = addressProfile.addresses[0].id;
+  const addressId = addressProfile.addresses[0]._id;
 
   const adminListResult = await graphql(
     `
-      query CustomerList($filter: CustomerFilterInput) {
-        customers(filter: $filter) {
+      query CustomerList($input: LoadCustomerDto) {
+        customers(input: $input) {
           items {
-            id
+            _id
             email
             accountId
             addressCount
@@ -614,12 +614,12 @@ test('Customer register/login/profile/address and Admin customer list work', asy
         }
       }
     `,
-    { filter: { keyword: customerEmail, page: 1, limit: 10 } },
+    { input: { keyword: customerEmail, page: 1, limit: 10 } },
     state.staffToken,
   );
   const customerPage = dataOrThrow(adminListResult, 'customers');
   assert.equal(customerPage.total, 1);
-  assert.equal(customerPage.items[0].id, registered.customerId);
+  assert.equal(customerPage.items[0]._id, registered.customerId);
   assert.equal(customerPage.items[0].addressCount, 1);
 
   const deleteResult = await graphql(
@@ -645,7 +645,7 @@ test('Staff login, Customer login/register and REST return rate-limit metadata',
   for (let attempt = 1; attempt <= 6; attempt += 1) {
     staffResult = await graphql(
       `
-        mutation RateLimitedStaff($input: LoginInput!) {
+        mutation RateLimitedStaff($input: LoginDto!) {
           login(input: $input) {
             username
           }
@@ -674,7 +674,7 @@ test('Staff login, Customer login/register and REST return rate-limit metadata',
   for (let attempt = 1; attempt <= 6; attempt += 1) {
     customerResult = await graphql(
       `
-        mutation RateLimitedCustomer($input: CustomerLoginInput!) {
+        mutation RateLimitedCustomer($input: CustomerLoginDto!) {
           loginCustomer(input: $input) {
             customerId
           }
@@ -694,7 +694,7 @@ test('Staff login, Customer login/register and REST return rate-limit metadata',
   for (let attempt = 1; attempt <= 4; attempt += 1) {
     registerResult = await graphql(
       `
-        mutation RateLimitedRegister($input: RegisterCustomerInput!) {
+        mutation RateLimitedRegister($input: RegisterCustomerDto!) {
           registerCustomer(input: $input) {
             customerId
           }

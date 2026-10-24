@@ -93,16 +93,16 @@ async function waitForApi(timeoutMs = 90_000) {
 async function loadCatalog() {
   return graphql(`
     query RedisFallbackProbe {
-      categories(filter: { page: 1, limit: 5 }) {
+      categories(input: { page: 1, limit: 5 }) {
         total
         items {
-          id
+          _id
         }
       }
-      products(filter: { page: 1, limit: 5 }) {
+      products(input: { page: 1, limit: 5 }) {
         total
         items {
-          id
+          _id
         }
       }
     }
@@ -117,11 +117,11 @@ function catalogSnapshot(result) {
   return {
     categories: {
       total: result.body.data.categories.total,
-      ids: result.body.data.categories.items.map((item) => item.id),
+      ids: result.body.data.categories.items.map((item) => item._id),
     },
     products: {
       total: result.body.data.products.total,
-      ids: result.body.data.products.items.map((item) => item.id),
+      ids: result.body.data.products.items.map((item) => item._id),
     },
   };
 }
@@ -166,8 +166,8 @@ async function assertCatalogCacheCreated() {
   try {
     await redis.ping();
     const keys = await scanKeys(redis, 'catalog:*');
-    assert.ok(keys.some((key) => key.startsWith('catalog:categories:')));
-    assert.ok(keys.some((key) => key.startsWith('catalog:products:')));
+    assert.ok(keys.some((key) => key.startsWith('catalog:v2:categories:')));
+    assert.ok(keys.some((key) => key.startsWith('catalog:v2:products:')));
   } finally {
     redis.disconnect();
   }
@@ -183,7 +183,7 @@ async function assertMemoryRateLimitWorks() {
   for (let attempt = 1; attempt <= loginLimit + 1; attempt += 1) {
     result = await graphql(
       `
-        mutation RedisOutageRateLimit($input: LoginInput!) {
+        mutation RedisOutageRateLimit($input: LoginDto!) {
           login(input: $input) {
             username
           }

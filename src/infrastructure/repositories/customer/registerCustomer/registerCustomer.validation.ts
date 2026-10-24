@@ -23,13 +23,13 @@ export class RegisterCustomerValidation {
     const accounts = this.session.manager.getRepository(CustomerAccountEntity);
     const emailCustomer = email ? await customers.findOne({ where: { email } }) : null;
     const phoneCustomer = phone ? await customers.findOne({ where: { phone } }) : null;
-    if (emailCustomer && phoneCustomer && emailCustomer.id !== phoneCustomer.id) {
+    if (emailCustomer && phoneCustomer && emailCustomer._id !== phoneCustomer._id) {
       throw new ConflictException('Email and phone belong to different customers');
     }
 
     const customer = emailCustomer ?? phoneCustomer;
     if (customer) {
-      const existingAccount = await accounts.findOne({ where: { customerId: customer.id } });
+      const existingAccount = await accounts.findOne({ where: { customerId: customer._id } });
       if (existingAccount) throw new ConflictException('Customer account already exists');
     }
     return { email, phone, customer };

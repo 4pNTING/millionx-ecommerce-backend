@@ -18,12 +18,12 @@ export class CatalogProductMapper {
     currency?: string,
   ): Promise<CatalogProductModel[]> {
     if (!products.length) return [];
-    const productIds = products.map((product) => product.id);
+    const productIds = products.map((product) => product._id);
     const variants = await this.variantRepository.find({
       where: { productId: In(productIds), isActive: true },
       order: { createdAt: 'ASC' },
     });
-    const variantIds = variants.map((variant) => variant.id);
+    const variantIds = variants.map((variant) => variant._id);
     const prices = variantIds.length
       ? await this.priceRepository
           .createQueryBuilder('price')
@@ -42,14 +42,14 @@ export class CatalogProductMapper {
     return products.map((product) => ({
       ...product,
       variants: variants
-        .filter((variant) => variant.productId === product.id)
+        .filter((variant) => variant.productId === product._id)
         .map((variant) =>
           this.mapVariant(
             variant,
-            prices.filter((price) => price.variantId === variant.id),
+            prices.filter((price) => price.variantId === variant._id),
           ),
         ),
-      images: images.filter((image) => image.productId === product.id),
+      images: images.filter((image) => image.productId === product._id),
     }));
   }
 

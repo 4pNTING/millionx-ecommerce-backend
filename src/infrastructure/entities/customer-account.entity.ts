@@ -10,7 +10,7 @@ import { CustomerAccountModel } from '../../domain/models/customer-account.model
 @Entity('customer_accounts')
 export class CustomerAccountEntity implements CustomerAccountModel {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  _id: string;
 
   @Column('uuid', { unique: true })
   customerId: string;

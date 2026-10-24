@@ -16,9 +16,10 @@ headers {
 
 body:json {
   {
-    "query": "query Products($filter: ProductFilterInput) { products(filter: $filter) { total page limit items { id categoryId name slug description brand isActive variants { id sku name attributesJson prices { id currency amount compareAtAmount } } images { id url altText sortOrder } } } }",
+    "query": "query Products($input: LoadProductDto) { products(input: $input) { total page limit items { _id categoryId name slug description brand isActive variants { _id sku name attributesJson prices { _id currency amount compareAtAmount } } images { _id url altText sortOrder } } } }",
     "variables": {
-      "filter": {
+      "input": {
+        "includeDescendants": false,
         "currency": "LAK",
         "page": 1,
         "limit": 20

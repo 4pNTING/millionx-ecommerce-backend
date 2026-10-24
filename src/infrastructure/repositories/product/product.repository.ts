@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ActiveStatus } from '../../../domain/enums/enum';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, QueryRunner, Repository } from 'typeorm';
 import {
@@ -73,25 +74,34 @@ export class DatabaseProductRepository implements IProductRepository {
 
   async loadProducts(filter: CatalogProductQuery = {}): Promise<CatalogProductPageModel> {
     new LoadCatalogProductsValidation().execute(filter);
-    const key = `catalog:products:${JSON.stringify(filter)}`;
+    const normalizedFilter: CatalogProductQuery = {
+      categoryId: filter.categoryId || undefined,
+      includeDescendants: Boolean(filter.categoryId && filter.includeDescendants),
+      keyword: filter.keyword?.trim() || undefined,
+      currency: filter.currency?.trim().toUpperCase() || undefined,
+      page: filter.page ?? 1,
+      limit: filter.limit ?? 20,
+      isActive: filter.isActive ?? ActiveStatus.active,
+    };
+    const key = `catalog:v2:products:${JSON.stringify(normalizedFilter)}`;
     const cached = await this.redisService.get<CatalogProductPageModel>(key);
     if (cached) return cached;
 
     const result = await new LoadCatalogProductsAction(
       this.productEntity,
       this.productMapper,
-    ).execute(filter);
+    ).execute(normalizedFilter);
     await this.redisService.set(key, result, 120);
     return result;
   }
 
-  async loadProduct(id?: string, slug?: string, currency?: string): Promise<CatalogProductModel> {
+  async loadProduct(_id?: string, slug?: string, currency?: string): Promise<CatalogProductModel> {
     const validated = await new LoadCatalogProductValidation(this.productEntity).execute(
-      id,
+      _id,
       slug,
       currency,
     );
-    const key = `catalog:product:${id ?? slug}:${validated.currency ?? 'all'}`;
+    const key = `catalog:v2:product:${_id ?? slug}:${validated.currency ?? 'all'}`;
     const cached = await this.redisService.get<CatalogProductModel>(key);
     if (cached) return cached;
 
@@ -216,7 +226,7 @@ export class DatabaseProductRepository implements IProductRepository {
   }
 
   private async hydrateProductById(productId: string): Promise<CatalogProductModel> {
-    const product = await this.productEntity.findOneOrFail({ where: { id: productId } });
+    const product = await this.productEntity.findOneOrFail({ where: { _id: productId } });
     return (await this.productMapper.hydrateProducts([product]))[0];
   }
 

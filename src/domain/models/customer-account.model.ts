@@ -1,5 +1,5 @@
 export class CustomerAccountModel {
-  id: string;
+  _id: string;
   customerId: string;
   passwordHash: string;
   isActive: boolean;

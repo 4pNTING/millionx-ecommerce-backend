@@ -4,7 +4,10 @@ import {
   CatalogProductQuery,
 } from '../../../../domain/models/product.model';
 import { ProductEntity } from '../../../entities/product.entity';
+import { CategoryEntity } from '../../../entities/category.entity';
+import { categorySubtreeQuery } from '../../category/category-subtree.query';
 import { CatalogProductMapper } from '../catalog-product.mapper';
+import { activeStatusValue } from '../../../common/active-status.filter';
 
 export class LoadCatalogProductsAction {
   constructor(
@@ -18,9 +21,22 @@ export class LoadCatalogProductsAction {
     const currency = filter.currency?.trim().toUpperCase();
 
     const query = this.repository.createQueryBuilder('product');
-    if (!filter.includeInactive) query.andWhere('product.isActive = true');
+    const isActive = activeStatusValue(filter.isActive);
+    if (isActive !== undefined) query.andWhere('product.isActive = :isActive', { isActive });
     if (filter.categoryId) {
-      query.andWhere('product.categoryId = :categoryId', { categoryId: filter.categoryId });
+      if (filter.includeDescendants) {
+        query
+          .addCommonTableExpression(
+            categorySubtreeQuery(this.repository.manager.getRepository(CategoryEntity)),
+            'category_subtree',
+            { recursive: true },
+          )
+          .andWhere('product.categoryId IN (SELECT _id FROM "category_subtree")', {
+            subtreeRootId: filter.categoryId,
+          });
+      } else {
+        query.andWhere('product.categoryId = :categoryId', { categoryId: filter.categoryId });
+      }
     }
     const keyword = filter.keyword?.trim();
     if (keyword) {
@@ -31,6 +47,7 @@ export class LoadCatalogProductsAction {
     }
     query
       .orderBy('product.createdAt', 'DESC')
+      .addOrderBy('product._id', 'DESC')
       .skip((page - 1) * limit)
       .take(limit);
     const [products, total] = await query.getManyAndCount();

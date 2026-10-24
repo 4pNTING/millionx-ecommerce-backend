@@ -17,10 +17,10 @@ headers {
 
 body:json {
   {
-    "query": "mutation UpdateProductImage($input: UpdateProductImageInput!) { updateProductImage(input: $input) { id name images { id productId variantId url altText sortOrder } } }",
+    "query": "mutation UpdateProductImage($input: UpdateProductImageDto!) { updateProductImage(input: $input) { _id name images { _id productId variantId url altText sortOrder } } }",
     "variables": {
       "input": {
-        "id": "{{imageId}}",
+        "_id": "{{imageId}}",
         "variantId": null,
         "url": "https://images.example.com/millionx-demo-laptop-updated.jpg",
         "altText": "ຮູບສິນຄ້າ MillionX ທີ່ແກ້ໄຂແລ້ວ",
@@ -34,7 +34,7 @@ tests {
   test("ແກ້ໄຂຮູບເດີມໂດຍບໍ່ເພີ່ມແຖວໃໝ່", function () {
     expect(res.getStatus()).to.equal(200);
     expect(res.getBody().errors).to.equal(undefined);
-    const image = res.getBody().data.updateProductImage.images.find(item => item.id === bru.getEnvVar("imageId"));
+    const image = res.getBody().data.updateProductImage.images.find(item => item._id === bru.getEnvVar("imageId"));
     expect(image.altText).to.equal("ຮູບສິນຄ້າ MillionX ທີ່ແກ້ໄຂແລ້ວ");
   });
 }

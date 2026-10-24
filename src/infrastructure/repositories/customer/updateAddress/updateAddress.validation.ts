@@ -12,10 +12,10 @@ export class UpdateCustomerAddressValidation {
 
   async execute(customerId: string, input: UpdateCustomerAddressRequest) {
     const customer = await this.customerRepository.findOne({
-      where: { id: customerId, isActive: true },
+      where: { _id: customerId, isActive: true },
     });
     if (!customer) throw new NotFoundException('Customer profile not found. Create it first.');
-    const address = await this.addressRepository.findOne({ where: { id: input.id, customerId } });
+    const address = await this.addressRepository.findOne({ where: { _id: input._id, customerId } });
     if (!address) throw new NotFoundException('Customer address not found');
     if (input.isDefault === false && address.isDefault) {
       throw new BadRequestException(

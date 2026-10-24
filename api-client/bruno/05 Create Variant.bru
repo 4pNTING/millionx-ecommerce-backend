@@ -17,7 +17,7 @@ headers {
 
 body:json {
   {
-    "query": "mutation CreateProductVariant($input: CreateProductVariantInput!) { createProductVariant(input: $input) { id productId sku barcode name attributesJson isActive } }",
+    "query": "mutation CreateProductVariant($input: CreateProductVariantDto!) { createProductVariant(input: $input) { _id productId sku barcode name attributesJson isActive } }",
     "variables": {
       "input": {
         "productId": "{{productId}}",
@@ -32,8 +32,8 @@ body:json {
 
 script:post-response {
   const body = res.getBody();
-  if (body?.data?.createProductVariant?.id) {
-    bru.setEnvVar("variantId", body.data.createProductVariant.id);
+  if (body?.data?.createProductVariant?._id) {
+    bru.setEnvVar("variantId", body.data.createProductVariant._id);
   }
 }
 
@@ -41,6 +41,6 @@ tests {
   test("ສ້າງ Variant ແລະ ເກັບ variantId", function () {
     expect(res.getStatus()).to.equal(200);
     expect(res.getBody().errors).to.equal(undefined);
-    expect(res.getBody().data.createProductVariant.id).to.be.a("string");
+    expect(res.getBody().data.createProductVariant._id).to.be.a("string");
   });
 }

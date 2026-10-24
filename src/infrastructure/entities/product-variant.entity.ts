@@ -10,7 +10,7 @@ import { ProductVariantModel } from '../../domain/models/product-variant.model';
 @Entity('product_variants')
 export class ProductVariantEntity implements ProductVariantModel {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  _id: string;
 
   @Column('uuid')
   productId: string;

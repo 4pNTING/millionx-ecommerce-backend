@@ -1,5 +1,7 @@
+import { ActiveStatus } from '../enums/enum';
+
 export class CategoryModel {
-  id: string;
+  _id: string;
   parentId?: string;
   name: string;
   slug: string;
@@ -24,8 +26,7 @@ export interface CatalogCategoryQuery {
   keyword?: string;
   page?: number;
   limit?: number;
-  isActive?: boolean;
-  includeInactive?: boolean;
+  isActive?: ActiveStatus;
   rootOnly?: boolean;
   fetchAll?: boolean;
 }
@@ -39,6 +40,6 @@ export interface CreateCatalogCategoryRequest {
 }
 
 export interface UpdateCatalogCategoryRequest extends Partial<CreateCatalogCategoryRequest> {
-  id: string;
+  _id: string;
   isActive?: boolean;
 }

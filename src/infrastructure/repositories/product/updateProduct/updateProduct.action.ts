@@ -23,9 +23,9 @@ export class UpdateCatalogProductAction {
 
     for (const variantInput of variants) {
       const { prices = [], ...variantFields } = variantInput;
-      const variant = variantInput.id
-        ? await variantRepository.findOneOrFail({ where: { id: variantInput.id } })
-        : variantRepository.create({ productId: product.id });
+      const variant = variantInput._id
+        ? await variantRepository.findOneOrFail({ where: { _id: variantInput._id } })
+        : variantRepository.create({ productId: product._id });
 
       variant.sku = variantFields.sku.trim();
       if (Object.prototype.hasOwnProperty.call(variantFields, 'barcode')) {
@@ -39,12 +39,12 @@ export class UpdateCatalogProductAction {
       }
       if (variantFields.isActive !== undefined) variant.isActive = variantFields.isActive;
       const savedVariant = await variantRepository.save(variant);
-      variantIdsBySku.set(savedVariant.sku, savedVariant.id);
+      variantIdsBySku.set(savedVariant.sku, savedVariant._id);
 
       for (const priceInput of prices) {
-        const price = priceInput.id
-          ? await priceRepository.findOneOrFail({ where: { id: priceInput.id } })
-          : priceRepository.create({ variantId: savedVariant.id });
+        const price = priceInput._id
+          ? await priceRepository.findOneOrFail({ where: { _id: priceInput._id } })
+          : priceRepository.create({ variantId: savedVariant._id });
         price.currency = priceInput.currency.trim().toUpperCase();
         price.amount = String(priceInput.amount);
         price.compareAtAmount =
@@ -56,9 +56,9 @@ export class UpdateCatalogProductAction {
     }
 
     for (const imageInput of images) {
-      const image = imageInput.id
-        ? await imageRepository.findOneOrFail({ where: { id: imageInput.id } })
-        : imageRepository.create({ productId: product.id });
+      const image = imageInput._id
+        ? await imageRepository.findOneOrFail({ where: { _id: imageInput._id } })
+        : imageRepository.create({ productId: product._id });
       if (Object.prototype.hasOwnProperty.call(imageInput, 'variantId')) {
         image.variantId = imageInput.variantId ?? null;
       }
@@ -68,9 +68,9 @@ export class UpdateCatalogProductAction {
 
         if (!variantId) {
           const variant = await variantRepository.findOneOrFail({
-            where: { productId: product.id, sku: variantSku },
+            where: { productId: product._id, sku: variantSku },
           });
-          variantId = variant.id;
+          variantId = variant._id;
         }
         image.variantId = variantId;
       }

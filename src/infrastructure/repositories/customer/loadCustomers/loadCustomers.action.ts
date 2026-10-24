@@ -3,6 +3,8 @@ import { CustomerPageModel, CustomerQuery } from '../../../../domain/models/cust
 import { AddressEntity } from '../../../entities/address.entity';
 import { CustomerAccountEntity } from '../../../entities/customer-account.entity';
 import { CustomerEntity } from '../../../entities/customer.entity';
+import { ActiveStatus } from '../../../../domain/enums/enum';
+import { activeStatusValue } from '../../../common/active-status.filter';
 
 interface CustomerListRawRow {
   accountId?: string | null;
@@ -22,8 +24,8 @@ export class LoadCustomersAction {
 
     const query = this.repository
       .createQueryBuilder('customer')
-      .leftJoin(CustomerAccountEntity, 'account', 'account.customerId = customer.id')
-      .addSelect('account.id', 'accountId')
+      .leftJoin(CustomerAccountEntity, 'account', 'account.customerId = customer._id')
+      .addSelect('account._id', 'accountId')
       .addSelect('account.isActive', 'accountIsActive')
       .addSelect('account.emailVerifiedAt', 'emailVerifiedAt')
       .addSelect('account.phoneVerifiedAt', 'phoneVerifiedAt')
@@ -31,13 +33,13 @@ export class LoadCustomersAction {
       .addSelect(
         (subQuery) =>
           subQuery
-            .select('COUNT(address.id)', 'count')
+            .select('COUNT(address._id)', 'count')
             .from(AddressEntity, 'address')
-            .where('address.customerId = customer.id'),
+            .where('address.customerId = customer._id'),
         'addressCount',
       )
       .orderBy('customer.createdAt', 'DESC')
-      .addOrderBy('customer.id', 'ASC');
+      .addOrderBy('customer._id', 'ASC');
 
     const keyword = filter.keyword?.trim();
     if (keyword) {
@@ -50,13 +52,15 @@ export class LoadCustomersAction {
       );
     }
 
-    if (filter.isActive !== undefined) {
-      query.andWhere('customer.isActive = :isActive', { isActive: filter.isActive });
+    const isActive = activeStatusValue(filter.isActive, ActiveStatus.all);
+    if (isActive !== undefined) {
+      query.andWhere('customer.isActive = :isActive', { isActive });
     }
 
-    if (filter.accountIsActive !== undefined) {
+    const accountIsActive = activeStatusValue(filter.accountIsActive, ActiveStatus.all);
+    if (accountIsActive !== undefined) {
       query.andWhere('account.isActive = :accountIsActive', {
-        accountIsActive: filter.accountIsActive,
+        accountIsActive,
       });
     }
 

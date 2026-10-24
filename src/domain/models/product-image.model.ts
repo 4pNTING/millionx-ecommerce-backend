@@ -1,5 +1,5 @@
 export class ProductImageModel {
-  id: string;
+  _id: string;
   productId: string;
   variantId?: string | null;
   url: string;
@@ -9,7 +9,7 @@ export class ProductImageModel {
 }
 
 export interface CatalogImageModel {
-  id: string;
+  _id: string;
   productId: string;
   variantId?: string | null;
   url: string;
@@ -26,7 +26,7 @@ export interface AddCatalogProductImageRequest {
 }
 
 export interface UpdateCatalogProductImageRequest {
-  id: string;
+  _id: string;
   variantId?: string | null;
   url?: string;
   altText?: string | null;
@@ -34,5 +34,5 @@ export interface UpdateCatalogProductImageRequest {
 }
 
 export interface DeleteCatalogProductImageRequest {
-  id: string;
+  _id: string;
 }

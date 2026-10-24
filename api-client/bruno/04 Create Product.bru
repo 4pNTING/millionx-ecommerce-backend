@@ -17,7 +17,7 @@ headers {
 
 body:json {
   {
-    "query": "mutation CreateProductBundle($input: CreateProductBundleInput!) { createProductBundle(input: $input) { id categoryId name slug description brand isActive variants { id sku prices { id currency amount compareAtAmount } } images { id url sortOrder } } }",
+    "query": "mutation CreateProductBundle($input: CreateProductBundleDto!) { createProductBundle(input: $input) { _id categoryId name slug description brand isActive variants { _id sku prices { _id currency amount compareAtAmount } } images { _id url sortOrder } } }",
     "variables": {
       "input": {
         "categoryId": "{{categoryId}}",
@@ -53,10 +53,12 @@ body:json {
 
 script:post-response {
   const body = res.getBody();
-  if (body?.data?.createProductBundle?.id) {
-    bru.setEnvVar("productId", body.data.createProductBundle.id);
-    const variantId = body.data.createProductBundle.variants?.[0]?.id;
+  if (body?.data?.createProductBundle?._id) {
+    bru.setEnvVar("productId", body.data.createProductBundle._id);
+    const variantId = body.data.createProductBundle.variants?.[0]?._id;
     if (variantId) bru.setEnvVar("variantId", variantId);
+    const priceId = body.data.createProductBundle.variants?.[0]?.prices?.[0]?._id;
+    if (priceId) bru.setEnvVar("priceId", priceId);
   }
 }
 
@@ -64,7 +66,7 @@ tests {
   test("ສ້າງ Product bundle ໃນ transaction ດຽວ", function () {
     expect(res.getStatus()).to.equal(200);
     expect(res.getBody().errors).to.equal(undefined);
-    expect(res.getBody().data.createProductBundle.id).to.be.a("string");
+    expect(res.getBody().data.createProductBundle._id).to.be.a("string");
     expect(res.getBody().data.createProductBundle.variants).to.have.lengthOf(1);
     expect(res.getBody().data.createProductBundle.variants[0].prices).to.have.lengthOf(1);
   });

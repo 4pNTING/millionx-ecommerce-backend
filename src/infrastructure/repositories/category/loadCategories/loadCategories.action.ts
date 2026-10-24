@@ -4,6 +4,7 @@ import {
   CatalogCategoryQuery,
 } from '../../../../domain/models/category.model';
 import { CategoryEntity } from '../../../entities/category.entity';
+import { activeStatusValue } from '../../../common/active-status.filter';
 
 export class LoadCatalogCategoriesAction {
   constructor(private readonly repository: Repository<CategoryEntity>) {}
@@ -31,10 +32,9 @@ export class LoadCatalogCategoriesAction {
       );
     }
 
-    if (filter.isActive !== undefined) {
-      query.andWhere('category.isActive = :isActive', { isActive: filter.isActive });
-    } else if (!filter.includeInactive) {
-      query.andWhere('category.isActive = true');
+    const isActive = activeStatusValue(filter.isActive);
+    if (isActive !== undefined) {
+      query.andWhere('category.isActive = :isActive', { isActive });
     }
 
     if (!filter.fetchAll) {

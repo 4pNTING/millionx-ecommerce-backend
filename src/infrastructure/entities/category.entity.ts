@@ -10,7 +10,7 @@ import { CategoryModel } from '../../domain/models/category.model';
 @Entity('categories')
 export class CategoryEntity implements CategoryModel {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  _id: string;
 
   @Column('uuid', { nullable: true })
   parentId?: string;

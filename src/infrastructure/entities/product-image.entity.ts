@@ -4,7 +4,7 @@ import { ProductImageModel } from '../../domain/models/product-image.model';
 @Entity('product_images')
 export class ProductImageEntity implements ProductImageModel {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  _id: string;
 
   @Column('uuid')
   productId: string;

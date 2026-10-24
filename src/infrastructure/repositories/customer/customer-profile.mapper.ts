@@ -12,14 +12,14 @@ export class CustomerProfileMapper {
 
   async hydrate(customer: CustomerEntity): Promise<CustomerProfileModel> {
     const addresses = await this.addressRepository.find({
-      where: { customerId: customer.id },
+      where: { customerId: customer._id },
       order: { isDefault: 'DESC', createdAt: 'ASC' },
     });
     return { ...customer, addresses: addresses.map((address) => this.mapAddress(address)) };
   }
 
   async profileByCustomerId(customerId: string): Promise<CustomerProfileModel> {
-    const customer = await this.customerRepository.findOne({ where: { id: customerId } });
+    const customer = await this.customerRepository.findOne({ where: { _id: customerId } });
     if (!customer) throw new NotFoundException('Customer profile not found');
     return this.hydrate(customer);
   }

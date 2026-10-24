@@ -2,11 +2,13 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { CatalogCategoryQuery } from '../../../../domain/models/category.model';
 import { CategoryEntity } from '../../../entities/category.entity';
+import { activeStatusValue } from '../../../common/active-status.filter';
 
 export class LoadCatalogCategoriesValidation {
   constructor(private readonly repository: Repository<CategoryEntity>) {}
 
   async execute(filter: CatalogCategoryQuery = {}): Promise<void> {
+    activeStatusValue(filter.isActive);
     const page = filter.page;
     const limit = filter.limit;
 
@@ -16,7 +18,7 @@ export class LoadCatalogCategoriesValidation {
     }
 
     if (filter.parentId) {
-      const parent = await this.repository.findOne({ where: { id: filter.parentId } });
+      const parent = await this.repository.findOne({ where: { _id: filter.parentId } });
       if (!parent) throw new NotFoundException('Parent category not found');
     }
   }

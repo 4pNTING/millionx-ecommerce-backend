@@ -23,12 +23,12 @@ export class FindCustomerByIdentifierAction {
       .getOne();
     if (!customer) return null;
     const account = await this.accountRepository.findOne({
-      where: { customerId: customer.id, isActive: true },
+      where: { customerId: customer._id, isActive: true },
     });
     if (!account) return null;
     return {
-      accountId: account.id,
-      customerId: customer.id,
+      accountId: account._id,
+      customerId: customer._id,
       passwordHash: account.passwordHash,
       isActive: account.isActive,
       email: customer.email,

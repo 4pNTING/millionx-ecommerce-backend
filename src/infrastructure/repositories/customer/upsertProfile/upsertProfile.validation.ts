@@ -16,7 +16,7 @@ export class UpsertCustomerProfileValidation {
     customerId: string,
     input: UpsertCustomerProfileRequest,
   ): Promise<ValidatedCustomerProfile> {
-    const customer = await this.repository.findOne({ where: { id: customerId, isActive: true } });
+    const customer = await this.repository.findOne({ where: { _id: customerId, isActive: true } });
     if (!customer) throw new NotFoundException('Customer profile not found. Create it first.');
 
     const normalized: UpsertCustomerProfileRequest = { ...input };
@@ -30,13 +30,13 @@ export class UpsertCustomerProfileValidation {
     }
     if (normalized.email) {
       const duplicate = await this.repository.findOne({
-        where: { email: normalized.email, id: Not(customerId) },
+        where: { email: normalized.email, _id: Not(customerId) },
       });
       if (duplicate) throw new ConflictException('Customer email already exists');
     }
     if (normalized.phone) {
       const duplicate = await this.repository.findOne({
-        where: { phone: normalized.phone, id: Not(customerId) },
+        where: { phone: normalized.phone, _id: Not(customerId) },
       });
       if (duplicate) throw new ConflictException('Customer phone already exists');
     }

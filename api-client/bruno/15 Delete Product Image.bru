@@ -17,10 +17,10 @@ headers {
 
 body:json {
   {
-    "query": "mutation DeleteProductImage($input: DeleteProductImageInput!) { deleteProductImage(input: $input) { id name images { id } } }",
+    "query": "mutation DeleteProductImage($input: DeleteProductImageDto!) { deleteProductImage(input: $input) { _id name images { _id } } }",
     "variables": {
       "input": {
-        "id": "{{imageId}}"
+        "_id": "{{imageId}}"
       }
     }
   }

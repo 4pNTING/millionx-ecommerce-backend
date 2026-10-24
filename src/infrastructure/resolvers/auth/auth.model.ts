@@ -3,7 +3,7 @@ import { IsNotEmpty, IsString } from 'class-validator';
 import { ActiveStatus } from '../../../domain/enums/enum';
 
 @InputType()
-export class LoginInput {
+export class LoginDto {
   @Field()
   @IsString()
   @IsNotEmpty()
@@ -16,7 +16,7 @@ export class LoginInput {
 }
 
 @InputType()
-export class RefreshTokenInput {
+export class RefreshTokenDto {
   @Field()
   @IsString()
   @IsNotEmpty()

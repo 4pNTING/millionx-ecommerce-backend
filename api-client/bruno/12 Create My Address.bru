@@ -17,7 +17,7 @@ headers {
 
 body:json {
   {
-    "query": "mutation CreateCustomerAddress($input: CreateCustomerAddressInput!) { createCustomerAddress(input: $input) { id firstName lastName addresses { id label recipientName phone addressLine1 village district province countryCode isDefault } } }",
+    "query": "mutation CreateCustomerAddress($input: CreateCustomerAddressDto!) { createCustomerAddress(input: $input) { _id firstName lastName addresses { _id label recipientName phone addressLine1 village district province countryCode isDefault } } }",
     "variables": {
       "input": {
         "label": "ຫ້ອງການ",
@@ -37,8 +37,8 @@ body:json {
 script:post-response {
   const addresses = res.getBody()?.data?.createCustomerAddress?.addresses || [];
   const created = addresses.filter((address) => address.label === "ຫ້ອງການ").at(-1);
-  if (created?.id) {
-    bru.setEnvVar("addressId", created.id);
+  if (created?._id) {
+    bru.setEnvVar("addressId", created._id);
   }
 }
 

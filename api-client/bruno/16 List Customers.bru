@@ -17,9 +17,9 @@ headers {
 
 body:json {
   {
-    "query": "query Customers($filter: CustomerFilterInput) { customers(filter: $filter) { items { id firstName lastName email phone isActive accountId accountIsActive emailVerifiedAt phoneVerifiedAt lastLoginAt addressCount createdAt updatedAt } total page limit } }",
+    "query": "query Customers($input: LoadCustomerDto) { customers(input: $input) { items { _id firstName lastName email phone isActive accountId accountIsActive emailVerifiedAt phoneVerifiedAt lastLoginAt addressCount createdAt updatedAt } total page limit } }",
     "variables": {
-      "filter": {
+      "input": {
         "page": 1,
         "limit": 20
       }

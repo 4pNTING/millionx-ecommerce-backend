@@ -17,7 +17,7 @@ headers {
 
 body:json {
   {
-    "query": "mutation AddProductImage($input: AddProductImageInput!) { addProductImage(input: $input) { id name images { id url altText sortOrder } } }",
+    "query": "mutation AddProductImage($input: AddProductImageDto!) { addProductImage(input: $input) { _id name images { _id url altText sortOrder } } }",
     "variables": {
       "input": {
         "productId": "{{productId}}",
@@ -33,7 +33,7 @@ body:json {
 script:post-response {
   const images = res.getBody()?.data?.addProductImage?.images ?? [];
   const image = images.filter(item => item.altText === "ຮູບແລັບທັອບທົດສອບ MillionX").at(-1);
-  if (image?.id) bru.setEnvVar("imageId", image.id);
+  if (image?._id) bru.setEnvVar("imageId", image._id);
 }
 
 tests {

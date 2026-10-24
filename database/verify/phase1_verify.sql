@@ -49,6 +49,7 @@ WITH expected(table_name) AS (
     ('product_images'),
     ('customers'),
     ('customer_accounts'),
+    ('customer_social_accounts'),
     ('addresses')
 ), missing AS (
   SELECT e.table_name
@@ -64,16 +65,16 @@ SELECT
   'Required tables',
   count(*) = 0,
   COALESCE(string_agg(table_name, ', ' ORDER BY table_name), 'all present'),
-  '10 required tables present',
+  '11 required tables present',
   'Missing table names are shown in actual'
 FROM missing;
 
 INSERT INTO phase1_verification
 SELECT
   'Phase 1 table count',
-  count(*) = 10,
+  count(*) = 11,
   count(*)::text,
-  '10',
+  '11',
   'The ecommerce schema must contain exactly the Phase 1 tables before Phase 2 starts'
 FROM information_schema.tables
 WHERE table_schema = 'ecommerce'
@@ -105,14 +106,15 @@ WITH expected(table_name, column_name) AS (
   VALUES
     ('users', '_id'),
     ('zones', '_id'),
-    ('categories', 'id'),
-    ('products', 'id'),
-    ('product_variants', 'id'),
-    ('product_prices', 'id'),
-    ('product_images', 'id'),
-    ('customers', 'id'),
-    ('customer_accounts', 'id'),
-    ('addresses', 'id')
+    ('categories', '_id'),
+    ('products', '_id'),
+    ('product_variants', '_id'),
+    ('product_prices', '_id'),
+    ('product_images', '_id'),
+    ('customers', '_id'),
+    ('customer_accounts', '_id'),
+    ('customer_social_accounts', '_id'),
+    ('addresses', '_id')
 ), invalid AS (
   SELECT e.table_name || '.' || e.column_name AS column_name
   FROM expected e
@@ -128,25 +130,26 @@ SELECT
   'UUID primary-key column types',
   count(*) = 0,
   COALESCE(string_agg(column_name, ', ' ORDER BY column_name), 'all UUID'),
-  '10 UUID columns',
+  '11 UUID columns',
   'Invalid or missing columns are shown in actual'
 FROM invalid;
 
 WITH phase1_ids AS (
-  SELECT 'users' AS table_name, _id AS id FROM ecommerce.users
+  SELECT 'users' AS table_name, _id AS _id FROM ecommerce.users
   UNION ALL SELECT 'zones', _id FROM ecommerce.zones
-  UNION ALL SELECT 'categories', id FROM ecommerce.categories
-  UNION ALL SELECT 'products', id FROM ecommerce.products
-  UNION ALL SELECT 'product_variants', id FROM ecommerce.product_variants
-  UNION ALL SELECT 'product_prices', id FROM ecommerce.product_prices
-  UNION ALL SELECT 'product_images', id FROM ecommerce.product_images
-  UNION ALL SELECT 'customers', id FROM ecommerce.customers
-  UNION ALL SELECT 'customer_accounts', id FROM ecommerce.customer_accounts
-  UNION ALL SELECT 'addresses', id FROM ecommerce.addresses
+  UNION ALL SELECT 'categories', _id FROM ecommerce.categories
+  UNION ALL SELECT 'products', _id FROM ecommerce.products
+  UNION ALL SELECT 'product_variants', _id FROM ecommerce.product_variants
+  UNION ALL SELECT 'product_prices', _id FROM ecommerce.product_prices
+  UNION ALL SELECT 'product_images', _id FROM ecommerce.product_images
+  UNION ALL SELECT 'customers', _id FROM ecommerce.customers
+  UNION ALL SELECT 'customer_accounts', _id FROM ecommerce.customer_accounts
+  UNION ALL SELECT 'customer_social_accounts', _id FROM ecommerce.customer_social_accounts
+  UNION ALL SELECT 'addresses', _id FROM ecommerce.addresses
 ), invalid AS (
   SELECT table_name, count(*) AS invalid_count
   FROM phase1_ids
-  WHERE id::text !~* '^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
+  WHERE _id::text !~* '^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
   GROUP BY table_name
 )
 INSERT INTO phase1_verification
@@ -169,6 +172,7 @@ WITH expected(table_name) AS (
     ('product_images'),
     ('customers'),
     ('customer_accounts'),
+    ('customer_social_accounts'),
     ('addresses')
 ), missing AS (
   SELECT e.table_name
@@ -185,7 +189,7 @@ SELECT
   'Primary keys',
   count(*) = 0,
   COALESCE(string_agg(table_name, ', ' ORDER BY table_name), 'all present'),
-  '10 primary keys',
+  '11 primary keys',
   'Tables without a primary key are shown in actual'
 FROM missing;
 
@@ -198,6 +202,7 @@ WITH expected(child_table, parent_table) AS (
     ('product_images', 'products'),
     ('product_images', 'product_variants'),
     ('customer_accounts', 'customers'),
+    ('customer_social_accounts', 'customers'),
     ('addresses', 'customers')
 ), actual AS (
   SELECT
@@ -224,7 +229,7 @@ SELECT
   'Foreign-key relationships',
   count(*) = 0,
   COALESCE(string_agg(relationship, ', ' ORDER BY relationship), 'all present'),
-  '8 required relationships',
+  '9 required relationships',
   'Missing relationships are shown in actual'
 FROM missing;
 
@@ -240,6 +245,7 @@ WITH expected(index_name) AS (
     ('idx_images_variant'),
     ('idx_addresses_customer'),
     ('idx_customer_accounts_active'),
+    ('idx_customer_social_customer_id'),
     ('uq_product_variants_barcode'),
     ('uq_open_variant_price'),
     ('uq_customers_email_ci'),
@@ -258,7 +264,7 @@ SELECT
   'Required indexes',
   count(*) = 0,
   COALESCE(string_agg(index_name, ', ' ORDER BY index_name), 'all present'),
-  '15 required indexes',
+  '16 required indexes',
   'Missing indexes are shown in actual'
 FROM missing;
 
@@ -285,15 +291,15 @@ SELECT
   'Prevents parentId cycles';
 
 WITH RECURSIVE category_walk AS (
-  SELECT id, "parentId", ARRAY[id] AS path, false AS has_cycle
+  SELECT _id, "parentId", ARRAY[_id] AS path, false AS has_cycle
   FROM ecommerce.categories
   UNION ALL
-  SELECT w.id, parent."parentId", w.path || parent.id, parent.id = ANY(w.path)
+  SELECT w._id, parent."parentId", w.path || parent._id, parent._id = ANY(w.path)
   FROM category_walk w
-  JOIN ecommerce.categories parent ON parent.id = w."parentId"
+  JOIN ecommerce.categories parent ON parent._id = w."parentId"
   WHERE NOT w.has_cycle
 ), cycles AS (
-  SELECT count(DISTINCT id) AS invalid_count
+  SELECT count(DISTINCT _id) AS invalid_count
   FROM category_walk
   WHERE has_cycle
 )
@@ -308,13 +314,13 @@ FROM cycles;
 
 WITH orphan_counts AS (
   SELECT
-    (SELECT count(*) FROM ecommerce.products p LEFT JOIN ecommerce.categories c ON c.id = p."categoryId" WHERE c.id IS NULL) +
-    (SELECT count(*) FROM ecommerce.product_variants v LEFT JOIN ecommerce.products p ON p.id = v."productId" WHERE p.id IS NULL) +
-    (SELECT count(*) FROM ecommerce.product_prices pp LEFT JOIN ecommerce.product_variants v ON v.id = pp."variantId" WHERE v.id IS NULL) +
-    (SELECT count(*) FROM ecommerce.product_images pi LEFT JOIN ecommerce.products p ON p.id = pi."productId" WHERE p.id IS NULL) +
-    (SELECT count(*) FROM ecommerce.product_images pi LEFT JOIN ecommerce.product_variants v ON v.id = pi."variantId" AND v."productId" = pi."productId" WHERE pi."variantId" IS NOT NULL AND v.id IS NULL) +
-    (SELECT count(*) FROM ecommerce.customer_accounts ca LEFT JOIN ecommerce.customers c ON c.id = ca."customerId" WHERE c.id IS NULL) +
-    (SELECT count(*) FROM ecommerce.addresses a LEFT JOIN ecommerce.customers c ON c.id = a."customerId" WHERE c.id IS NULL)
+    (SELECT count(*) FROM ecommerce.products p LEFT JOIN ecommerce.categories c ON c._id = p."categoryId" WHERE c._id IS NULL) +
+    (SELECT count(*) FROM ecommerce.product_variants v LEFT JOIN ecommerce.products p ON p._id = v."productId" WHERE p._id IS NULL) +
+    (SELECT count(*) FROM ecommerce.product_prices pp LEFT JOIN ecommerce.product_variants v ON v._id = pp."variantId" WHERE v._id IS NULL) +
+    (SELECT count(*) FROM ecommerce.product_images pi LEFT JOIN ecommerce.products p ON p._id = pi."productId" WHERE p._id IS NULL) +
+    (SELECT count(*) FROM ecommerce.product_images pi LEFT JOIN ecommerce.product_variants v ON v._id = pi."variantId" AND v."productId" = pi."productId" WHERE pi."variantId" IS NOT NULL AND v._id IS NULL) +
+    (SELECT count(*) FROM ecommerce.customer_accounts ca LEFT JOIN ecommerce.customers c ON c._id = ca."customerId" WHERE c._id IS NULL) +
+    (SELECT count(*) FROM ecommerce.addresses a LEFT JOIN ecommerce.customers c ON c._id = a."customerId" WHERE c._id IS NULL)
     AS invalid_count
 )
 INSERT INTO phase1_verification
@@ -328,7 +334,7 @@ FROM orphan_counts;
 
 WITH invalid_data AS (
   SELECT
-    (SELECT count(*) FROM ecommerce.categories WHERE "sortOrder" < 0 OR "parentId" = id) +
+    (SELECT count(*) FROM ecommerce.categories WHERE "sortOrder" < 0 OR "parentId" = _id) +
     (SELECT count(*) FROM ecommerce.product_variants WHERE jsonb_typeof(attributes) <> 'object') +
     (SELECT count(*) FROM ecommerce.product_prices WHERE amount < 0 OR ("compareAtAmount" IS NOT NULL AND "compareAtAmount" < amount) OR ("startsAt" IS NOT NULL AND "endsAt" IS NOT NULL AND "endsAt" <= "startsAt") OR currency <> upper(currency)) +
     (SELECT count(*) FROM ecommerce.product_images WHERE "sortOrder" < 0 OR btrim(url) = '') +
@@ -400,8 +406,8 @@ SELECT
   '0 customers without account',
   'Phase 1 registered customers require one customer_accounts row'
 FROM ecommerce.customers c
-LEFT JOIN ecommerce.customer_accounts ca ON ca."customerId" = c.id
-WHERE ca.id IS NULL;
+LEFT JOIN ecommerce.customer_accounts ca ON ca."customerId" = c._id
+WHERE ca._id IS NULL;
 
 SELECT
   CASE WHEN passed THEN 'PASS' ELSE 'FAIL' END AS status,
@@ -415,6 +421,7 @@ ORDER BY passed, check_name;
 SELECT 'addresses' AS table_name, count(*) AS row_count FROM ecommerce.addresses
 UNION ALL SELECT 'categories', count(*) FROM ecommerce.categories
 UNION ALL SELECT 'customer_accounts', count(*) FROM ecommerce.customer_accounts
+UNION ALL SELECT 'customer_social_accounts', count(*) FROM ecommerce.customer_social_accounts
 UNION ALL SELECT 'customers', count(*) FROM ecommerce.customers
 UNION ALL SELECT 'product_images', count(*) FROM ecommerce.product_images
 UNION ALL SELECT 'product_prices', count(*) FROM ecommerce.product_prices
@@ -435,18 +442,18 @@ FROM ecommerce.users
 ORDER BY "createdAt";
 
 SELECT
-  c.id,
+  c._id,
   c.email,
   c.phone,
   c."isActive",
-  ca.id AS "accountId",
+  ca._id AS "accountId",
   ca."isActive" AS "accountIsActive",
   ca."lastLoginAt",
-  count(a.id)::integer AS "addressCount"
+  count(a._id)::integer AS "addressCount"
 FROM ecommerce.customers c
-LEFT JOIN ecommerce.customer_accounts ca ON ca."customerId" = c.id
-LEFT JOIN ecommerce.addresses a ON a."customerId" = c.id
-GROUP BY c.id, ca.id
+LEFT JOIN ecommerce.customer_accounts ca ON ca."customerId" = c._id
+LEFT JOIN ecommerce.addresses a ON a."customerId" = c._id
+GROUP BY c._id, ca._id
 ORDER BY c."createdAt";
 
 SELECT *

@@ -1,0 +1,49 @@
+meta {
+  name: 27 Update Product
+  type: http
+  seq: 27
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{staffToken}}
+}
+
+body:json {
+  {
+    "query": "mutation UpdateProduct($input: UpdateProductDto!) { updateProduct(input: $input) { _id name isActive variants { _id sku prices { _id currency amount isActive } } } }",
+    "variables": {
+      "input": {
+        "_id": "{{productId}}",
+        "isActive": true,
+        "variants": [
+          {
+            "_id": "{{variantId}}",
+            "sku": "MX-UPDATED-SKU-{{runId}}",
+            "prices": [
+              {
+                "_id": "{{priceId}}",
+                "currency": "LAK",
+                "amount": 100000
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
+
+tests {
+  test("ສາມາດແກ້ໄຂສິນຄ້າດ້ວຍ _id ທຸກລະດັບ", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.updateProduct._id).to.be.a("string");
+  });
+}

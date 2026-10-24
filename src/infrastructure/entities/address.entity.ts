@@ -10,7 +10,7 @@ import { AddressModel } from '../../domain/models/address.model';
 @Entity('addresses')
 export class AddressEntity implements AddressModel {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  _id: string;
 
   @Column('uuid')
   customerId: string;

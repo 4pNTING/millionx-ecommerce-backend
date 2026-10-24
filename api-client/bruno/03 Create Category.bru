@@ -17,7 +17,7 @@ headers {
 
 body:json {
   {
-    "query": "mutation CreateCategory($input: CreateCategoryInput!) { createCategory(input: $input) { id parentId name slug description sortOrder isActive } }",
+    "query": "mutation CreateCategory($input: CreateCategoryDto!) { createCategory(input: $input) { _id parentId name slug description sortOrder isActive } }",
     "variables": {
       "input": {
         "name": "ເຄື່ອງໃຊ້ໄຟຟ້າໃນເຮືອນ",
@@ -35,8 +35,8 @@ script:pre-request {
 
 script:post-response {
   const body = res.getBody();
-  if (body?.data?.createCategory?.id) {
-    bru.setEnvVar("categoryId", body.data.createCategory.id);
+  if (body?.data?.createCategory?._id) {
+    bru.setEnvVar("categoryId", body.data.createCategory._id);
   }
 }
 
@@ -44,6 +44,6 @@ tests {
   test("ສ້າງໝວດໝູ່ ແລະ ໄດ້ UUID ກັບຄືນ", function () {
     expect(res.getStatus()).to.equal(200);
     expect(res.getBody().errors).to.equal(undefined);
-    expect(res.getBody().data.createCategory.id).to.be.a("string");
+    expect(res.getBody().data.createCategory._id).to.be.a("string");
   });
 }

@@ -1,5 +1,10 @@
 # MillionX Backend Architecture
 
+> Contract 2026-10-25: entity properties and physical SQL PK columns use `_id`.
+> Existing SQL databases require the non-destructive primary-column migration.
+> List DTOs extend `LoadPageDto` for pagination,
+> keyword and status validation. See [migration guide](ID_DTO_MIGRATION.md).
+
 ໂຄງການໃຊ້ແນວທາງ Domain + Use Cases + Infrastructure ແບບດຽວກັບ `backend-default`. Resolver ບໍ່ query TypeORM ໂດຍກົງ.
 
 ```text
@@ -104,7 +109,7 @@ import { ProductModel } from '../../domain/models/product.model';
 @Entity('products')
 export class ProductEntity implements ProductModel {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  _id: string;
 
   @Column({ length: 200 })
   name: string;

@@ -21,7 +21,7 @@ body:json {
     "variables": {
       "input": {
         "_id": "{{zoneId}}",
-        "name": "ເຂດທົດສອບ MillionX ທີ່ແກ້ໄຂແລ້ວ"
+        "name": "ເຂດທົດສອບ MillionX ທີ່ແກ້ໄຂແລ້ວ {{runId}}"
       }
     }
   }
@@ -31,6 +31,6 @@ tests {
   test("ແກ້ໄຂ Zone ສຳເລັດ", function () {
     expect(res.getStatus()).to.equal(200);
     expect(res.getBody().errors).to.equal(undefined);
-    expect(res.getBody().data.updateZone.zone.name).to.equal("ເຂດທົດສອບ MillionX ທີ່ແກ້ໄຂແລ້ວ");
+    expect(res.getBody().data.updateZone.zone.name).to.include("ເຂດທົດສອບ MillionX ທີ່ແກ້ໄຂແລ້ວ");
   });
 }

@@ -48,6 +48,7 @@ import { ProductImageEntity } from './infrastructure/entities/product-image.enti
 import { ProductPriceEntity } from './infrastructure/entities/product-price.entity';
 import { ProductVariantEntity } from './infrastructure/entities/product-variant.entity';
 import { CustomerAccountEntity } from './infrastructure/entities/customer-account.entity';
+import { CustomerSocialAccountEntity } from './infrastructure/entities/customer-social-account.entity';
 
 @Module({
   imports: [
@@ -111,6 +112,7 @@ import { CustomerAccountEntity } from './infrastructure/entities/customer-accoun
           // Customer
           CustomerEntity,
           CustomerAccountEntity,
+          CustomerSocialAccountEntity,
           AddressEntity,
         ],
         autoLoadEntities: true,

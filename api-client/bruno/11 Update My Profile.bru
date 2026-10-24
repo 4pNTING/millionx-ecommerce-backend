@@ -17,7 +17,7 @@ headers {
 
 body:json {
   {
-    "query": "mutation UpdateCustomerProfile($input: UpdateCustomerProfileInput!) { updateCustomerProfile(input: $input) { id firstName lastName email phone isActive } }",
+    "query": "mutation UpdateCustomerProfile($input: UpdateCustomerProfileDto!) { updateCustomerProfile(input: $input) { _id firstName lastName email phone isActive } }",
     "variables": {
       "input": {
         "firstName": "ສົມພອນ",

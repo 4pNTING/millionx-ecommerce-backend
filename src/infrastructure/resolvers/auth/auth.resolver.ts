@@ -4,7 +4,7 @@ import { AuthUsecasesProxyModule } from '../../usecases-proxy/auth-usecases-prox
 import { LoginUseCase } from '../../../usecases/auth/login.usecase';
 import { RefreshStaffTokenUseCase } from '../../../usecases/auth/refreshStaffToken.usecase';
 import { LoginResponse } from '../../../domain/models/user.model';
-import { LoginInput, LoginPayload, RefreshTokenInput } from './auth.model';
+import { LoginDto, LoginPayload, RefreshTokenDto } from './auth.model';
 import { AuthRateLimitService } from '../../common/auth-rate-limit.service';
 
 interface GraphqlRequestContext {
@@ -26,7 +26,7 @@ export class AuthResolver {
 
   @Mutation(() => LoginPayload)
   async login(
-    @Args('input') input: LoginInput,
+    @Args('input') input: LoginDto,
     @Context() context: GraphqlRequestContext,
   ): Promise<LoginResponse> {
     const ip = this.authRateLimitService.clientIp(context.req);
@@ -38,7 +38,7 @@ export class AuthResolver {
   }
 
   @Mutation(() => LoginPayload)
-  refreshStaffToken(@Args('input') input: RefreshTokenInput): Promise<LoginResponse> {
+  refreshStaffToken(@Args('input') input: RefreshTokenDto): Promise<LoginResponse> {
     return this.refreshStaffTokenUseCase.execute(input.refreshToken);
   }
 }

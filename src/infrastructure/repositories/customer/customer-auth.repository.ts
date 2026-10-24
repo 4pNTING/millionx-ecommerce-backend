@@ -17,6 +17,9 @@ import { MarkCustomerLoginAction } from './markLogin/markLogin.action';
 import { MarkCustomerLoginValidation } from './markLogin/markLogin.validation';
 import { RegisterCustomerAction } from './registerCustomer/registerCustomer.action';
 import { RegisterCustomerValidation } from './registerCustomer/registerCustomer.validation';
+import { SocialLoginCustomerAction } from './socialLogin/socialLogin.action';
+import { SocialLoginCustomerValidation } from './socialLogin/socialLogin.validation';
+import { VerifiedSocialProfile } from '../../../domain/models/customer-auth.model';
 
 @Injectable()
 export class DatabaseCustomerAuthRepository implements ICustomerAuthRepository {
@@ -67,6 +70,16 @@ export class DatabaseCustomerAuthRepository implements ICustomerAuthRepository {
       accountId,
     );
     await new MarkCustomerLoginAction(this.accountRepository).execute(account);
+  }
+
+  async socialLogin(
+    profile: VerifiedSocialProfile,
+    fallback?: { firstName?: string; lastName?: string },
+  ): Promise<RegisteredCustomerAccount> {
+    new SocialLoginCustomerValidation().execute(profile);
+    return await this.runTransaction(async (session) => {
+      return new SocialLoginCustomerAction(session).execute(profile, fallback);
+    });
   }
 
   private async runTransaction<T>(work: (session: QueryRunner) => Promise<T>): Promise<T> {

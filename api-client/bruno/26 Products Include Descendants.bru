@@ -1,0 +1,48 @@
+meta {
+  name: 26 Products Include Descendants
+  type: http
+  seq: 26
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "query": "query ProductsIncludeDescendants($input: LoadProductDto) { products(input: $input) { total page limit items { _id categoryId name slug variants { _id sku prices { currency amount } } } } }",
+    "variables": {
+      "input": {
+        "categoryId": "{{categoryId}}",
+        "includeDescendants": true,
+        "currency": "LAK",
+        "page": 1,
+        "limit": 12
+      }
+    }
+  }
+}
+
+tests {
+  test("ດຶງສິນຄ້າຂອງໝວດທີ່ເລືອກ ແລະ ລູກຫຼານໃນ request ດຽວ", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    const page = res.getBody().data.products;
+    expect(page.items).to.be.an("array");
+    expect(page.page).to.equal(1);
+    expect(page.limit).to.equal(12);
+    expect(page.total).to.be.at.least(page.items.length);
+  });
+}
+
+docs {
+  ຕັ້ງ categoryId ໃນ Environment ໃຫ້ເປັນ UUID ຂອງໝວດແມ່ທີ່ຕ້ອງການທົດສອບ.
+  includeDescendants=true ລວມຕົວໝວດເອງ ແລະ ລູກຫຼານທຸກລະດັບ.
+  ປ່ຽນເປັນ false ເພື່ອປຽບທຽບສະເພາະໝວດເດີມ. ບໍ່ແກ້ໄຂຂໍ້ມູນ.
+}

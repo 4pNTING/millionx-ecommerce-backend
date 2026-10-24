@@ -19,6 +19,7 @@ import { DatabaseProductRepository } from './product/product.repository';
 // Customer
 import { CustomerEntity } from '../entities/customer.entity';
 import { CustomerAccountEntity } from '../entities/customer-account.entity';
+import { CustomerSocialAccountEntity } from '../entities/customer-social-account.entity';
 import { AddressEntity } from '../entities/address.entity';
 import { DatabaseCustomerRepository } from './customer/customer.repository';
 import { DatabaseCustomerAuthRepository } from './customer/customer-auth.repository';
@@ -38,6 +39,7 @@ import { DatabaseCustomerAuthRepository } from './customer/customer-auth.reposit
       // Customer
       CustomerEntity,
       CustomerAccountEntity,
+      CustomerSocialAccountEntity,
       AddressEntity,
     ]),
   ],

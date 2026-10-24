@@ -13,7 +13,7 @@ export class CreateCatalogVariantValidation {
   async execute(
     input: CreateCatalogVariantRequest,
   ): Promise<{ attributes: Record<string, unknown> }> {
-    const product = await this.productRepository.findOne({ where: { id: input.productId } });
+    const product = await this.productRepository.findOne({ where: { _id: input.productId } });
     if (!product) throw new NotFoundException('Product not found');
     const duplicate = await this.variantRepository.findOne({ where: { sku: input.sku } });
     if (duplicate) throw new ConflictException('Variant SKU already exists');

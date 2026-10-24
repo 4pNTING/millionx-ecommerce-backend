@@ -16,7 +16,7 @@ headers {
 
 body:json {
   {
-    "query": "mutation RefreshCustomerToken($input: RefreshTokenInput!) { refreshCustomerToken(input: $input) { accountId customerId email phone token refreshToken } }",
+    "query": "mutation RefreshCustomerToken($input: RefreshTokenDto!) { refreshCustomerToken(input: $input) { accountId customerId email phone token refreshToken } }",
     "variables": {
       "input": {
         "refreshToken": "{{customerRefreshToken}}"

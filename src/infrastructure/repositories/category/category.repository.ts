@@ -29,7 +29,7 @@ export class DatabaseCategoryRepository implements ICategoryRepository {
 
   async loadCategories(filter: CatalogCategoryQuery = {}): Promise<CatalogCategoryPageModel> {
     await new LoadCatalogCategoriesValidation(this.categoryEntity).execute(filter);
-    const key = `catalog:categories:${JSON.stringify(filter)}`;
+    const key = `catalog:v2:categories:${JSON.stringify(filter)}`;
     const cached = await this.redisService.get<CatalogCategoryPageModel>(key);
     if (cached) return cached;
 

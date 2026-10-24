@@ -10,7 +10,7 @@ import { ProductModel } from '../../domain/models/product.model';
 @Entity('products')
 export class ProductEntity implements ProductModel {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  _id: string;
 
   @Column('uuid')
   categoryId: string;

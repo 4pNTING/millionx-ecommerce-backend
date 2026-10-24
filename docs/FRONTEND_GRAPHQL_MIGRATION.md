@@ -1,5 +1,9 @@
 # Frontend GraphQL Migration
 
+> Latest contract (2026-10-25): see [ID/DTO migration](ID_DTO_MIGRATION.md) for
+> `_id`, `input`, `...Dto`, and `ActiveStatus`. The Catalog-prefix mapping below remains valid;
+> clients must apply the newer identifier/DTO changes too.
+
 GraphQL API ແຍກ Category ແລະ Product ອອກຈາກຊື່ legacy `Catalog`. ການປ່ຽນນີ້ເປັນ breaking change: Frontend ຕ້ອງປ່ຽນ operation, response path ແລະ generated types ພ້ອມກັນ.
 
 ## Operation mapping
@@ -21,35 +25,35 @@ GraphQL API ແຍກ Category ແລະ Product ອອກຈາກຊື່ leg
 
 ## Type and input mapping
 
-| Old type/input              | New type/input               |
-| --------------------------- | ---------------------------- |
-| `CatalogCategory`           | `Category`                   |
-| `CatalogCategoryPage`       | `CategoryPage`               |
-| `CatalogCategoryFilterDto`  | `CategoryFilterInput`        |
-| `CreateCatalogCategoryDto`  | `CreateCategoryInput`        |
-| `UpdateCatalogCategoryDto`  | `UpdateCategoryInput`        |
-| `CatalogProduct`            | `Product`                    |
-| `CatalogProductPage`        | `ProductPage`                |
-| `CatalogProductFilterDto`   | `ProductFilterInput`         |
-| `CatalogVariant`            | `ProductVariant`             |
-| `CatalogPrice`              | `ProductPrice`               |
-| `CatalogImage`              | `ProductImage`               |
-| `CreateCatalogProductDto`   | `CreateProductInput`         |
-| `UpdateCatalogProductDto`   | `UpdateProductInput`         |
-| `CreateCatalogVariantDto`   | `CreateProductVariantInput`  |
-| `SetCatalogProductPriceDto` | `SetProductPriceInput`       |
-| `AddCatalogProductImageDto` | `AddProductImageInput`       |
-| `UpsertCustomerProfileDto`  | `UpdateCustomerProfileInput` |
-| `CreateCustomerAddressDto`  | `CreateCustomerAddressInput` |
-| `UpdateCustomerAddressDto`  | `UpdateCustomerAddressInput` |
+| Old type/input              | New type/input             |
+| --------------------------- | -------------------------- |
+| `CatalogCategory`           | `Category`                 |
+| `CatalogCategoryPage`       | `CategoryPage`             |
+| `CatalogCategoryFilterDto`  | `LoadCategoryDto`          |
+| `CreateCatalogCategoryDto`  | `CreateCategoryDto`        |
+| `UpdateCatalogCategoryDto`  | `UpdateCategoryDto`        |
+| `CatalogProduct`            | `Product`                  |
+| `CatalogProductPage`        | `ProductPage`              |
+| `CatalogProductFilterDto`   | `LoadProductDto`           |
+| `CatalogVariant`            | `ProductVariant`           |
+| `CatalogPrice`              | `ProductPrice`             |
+| `CatalogImage`              | `ProductImage`             |
+| `CreateCatalogProductDto`   | `CreateProductDto`         |
+| `UpdateCatalogProductDto`   | `UpdateProductDto`         |
+| `CreateCatalogVariantDto`   | `CreateProductVariantDto`  |
+| `SetCatalogProductPriceDto` | `SetProductPriceDto`       |
+| `AddCatalogProductImageDto` | `AddProductImageDto`       |
+| `UpsertCustomerProfileDto`  | `UpdateCustomerProfileDto` |
+| `CreateCustomerAddressDto`  | `CreateCustomerAddressDto` |
+| `UpdateCustomerAddressDto`  | `UpdateCustomerAddressDto` |
 
 ## Category query
 
 ```graphql
-query Categories($filter: CategoryFilterInput) {
-  categories(filter: $filter) {
+query Categories($input: LoadCategoryDto) {
+  categories(input: $input) {
     items {
-      id
+      _id
       parentId
       name
       slug
@@ -73,15 +77,15 @@ const total = response.data.categories.total;
 ## Product query
 
 ```graphql
-query Products($filter: ProductFilterInput) {
-  products(filter: $filter) {
+query Products($input: LoadProductDto) {
+  products(input: $input) {
     items {
-      id
+      _id
       categoryId
       name
       slug
       variants {
-        id
+        _id
         sku
         prices {
           currency
@@ -89,7 +93,7 @@ query Products($filter: ProductFilterInput) {
         }
       }
       images {
-        id
+        _id
         url
       }
     }

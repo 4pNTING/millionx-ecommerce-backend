@@ -35,3 +35,33 @@ export interface CustomerAuthResponse {
   token: string;
   refreshToken: string;
 }
+
+export enum SocialProvider {
+  GOOGLE = 'GOOGLE',
+  FACEBOOK = 'FACEBOOK',
+}
+
+export interface SocialLoginCustomerRequest {
+  provider: SocialProvider;
+  token: string;
+  firstName?: string;
+  lastName?: string;
+}
+
+export interface VerifiedSocialProfile {
+  provider: SocialProvider;
+  providerId: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+}
+
+export interface CustomerSocialAccountModel {
+  _id: string;
+  customerId: string;
+  provider: SocialProvider;
+  providerId: string;
+  email?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}

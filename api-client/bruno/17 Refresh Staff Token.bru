@@ -16,7 +16,7 @@ headers {
 
 body:json {
   {
-    "query": "mutation RefreshStaffToken($input: RefreshTokenInput!) { refreshStaffToken(input: $input) { _id username role isActive token refreshToken } }",
+    "query": "mutation RefreshStaffToken($input: RefreshTokenDto!) { refreshStaffToken(input: $input) { _id username role isActive token refreshToken } }",
     "variables": {
       "input": {
         "refreshToken": "{{staffRefreshToken}}"

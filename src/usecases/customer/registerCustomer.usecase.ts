@@ -21,7 +21,7 @@ export class RegisterCustomerUseCase {
     const registered = await this.repository.register(input, passwordHash);
     return this.issueTokens({
       accountId: registered.accountId,
-      customerId: registered.customer.id,
+      customerId: registered.customer._id,
       email: registered.customer.email,
       phone: registered.customer.phone,
     });

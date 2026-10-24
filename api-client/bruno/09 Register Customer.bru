@@ -28,7 +28,7 @@ script:pre-request {
 
 body:json {
   {
-    "query": "mutation RegisterCustomer($input: RegisterCustomerInput!) { registerCustomer(input: $input) { accountId customerId email phone token refreshToken } }",
+    "query": "mutation RegisterCustomer($input: RegisterCustomerDto!) { registerCustomer(input: $input) { accountId customerId email phone token refreshToken } }",
     "variables": {
       "input": {
         "firstName": "ສົມພອນ",

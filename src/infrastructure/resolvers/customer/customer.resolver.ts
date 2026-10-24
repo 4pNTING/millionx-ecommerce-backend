@@ -12,12 +12,12 @@ import { SetDefaultCustomerAddressUseCase } from '../../../usecases/customer/set
 import { DeleteCustomerAddressUseCase } from '../../../usecases/customer/deleteCustomerAddress.usecase';
 import { LoadCustomersUseCase } from '../../../usecases/customer/loadCustomers.usecase';
 import {
-  CreateCustomerAddressInput,
-  CustomerFilterInput,
+  CreateCustomerAddressDto,
+  LoadCustomerDto,
   CustomerPage,
   CustomerProfile,
-  UpdateCustomerAddressInput,
-  UpdateCustomerProfileInput,
+  UpdateCustomerAddressDto,
+  UpdateCustomerProfileDto,
 } from './customer.model';
 
 interface AuthenticatedContext {
@@ -45,8 +45,8 @@ export class CustomerResolver {
 
   @Query(() => CustomerPage)
   @UseGuards(JwtAuthGuard, StaffCustomerReadGuard)
-  customers(@Args('filter', { nullable: true }) filter?: CustomerFilterInput) {
-    return this.loadCustomersUseCase.execute(filter);
+  customers(@Args('input', { nullable: true }) input?: LoadCustomerDto) {
+    return this.loadCustomersUseCase.execute(input);
   }
 
   @Query(() => CustomerProfile)
@@ -59,7 +59,7 @@ export class CustomerResolver {
   @UseGuards(JwtAuthGuard, CustomerAccountGuard)
   updateCustomerProfile(
     @Context() context: AuthenticatedContext,
-    @Args('input') input: UpdateCustomerProfileInput,
+    @Args('input') input: UpdateCustomerProfileDto,
   ) {
     return this.upsertProfileUseCase.execute(context.req.user.customerId, input);
   }
@@ -68,7 +68,7 @@ export class CustomerResolver {
   @UseGuards(JwtAuthGuard, CustomerAccountGuard)
   createCustomerAddress(
     @Context() context: AuthenticatedContext,
-    @Args('input') input: CreateCustomerAddressInput,
+    @Args('input') input: CreateCustomerAddressDto,
   ) {
     return this.createAddressUseCase.execute(context.req.user.customerId, input);
   }
@@ -77,7 +77,7 @@ export class CustomerResolver {
   @UseGuards(JwtAuthGuard, CustomerAccountGuard)
   updateCustomerAddress(
     @Context() context: AuthenticatedContext,
-    @Args('input') input: UpdateCustomerAddressInput,
+    @Args('input') input: UpdateCustomerAddressDto,
   ) {
     return this.updateAddressUseCase.execute(context.req.user.customerId, input);
   }

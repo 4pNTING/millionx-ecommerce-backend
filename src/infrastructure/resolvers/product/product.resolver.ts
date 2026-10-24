@@ -14,18 +14,18 @@ import { CatalogWriteGuard } from '../../common/catalog-write.guard';
 import { JwtAuthGuard } from '../../common/jwt-auth.guard';
 import { ProductUsecasesProxyModule } from '../../usecases-proxy/product-usecases-proxy.module';
 import {
-  AddProductImageInput,
-  CreateProductInput,
-  CreateProductBundleInput,
-  CreateProductVariantInput,
-  DeleteProductImageInput,
+  AddProductImageDto,
+  CreateProductDto,
+  CreateProductBundleDto,
+  CreateProductVariantDto,
+  DeleteProductImageDto,
   Product,
-  ProductFilterInput,
+  LoadProductDto,
   ProductPage,
   ProductVariant,
-  SetProductPriceInput,
-  UpdateProductInput,
-  UpdateProductImageInput,
+  SetProductPriceDto,
+  UpdateProductDto,
+  UpdateProductImageDto,
 } from './product.model';
 
 @Resolver(() => Product)
@@ -54,64 +54,64 @@ export class ProductResolver {
   ) {}
 
   @Query(() => ProductPage)
-  products(@Args('filter', { nullable: true }) filter?: ProductFilterInput) {
-    return this.loadProductsUseCase.execute(filter);
+  products(@Args('input', { nullable: true }) input?: LoadProductDto) {
+    return this.loadProductsUseCase.execute(input);
   }
 
   @Query(() => Product)
   product(
-    @Args('id', { nullable: true }) id?: string,
+    @Args('_id', { nullable: true }) _id?: string,
     @Args('slug', { nullable: true }) slug?: string,
     @Args('currency', { nullable: true }) currency?: string,
   ) {
-    return this.loadProductUseCase.execute(id, slug, currency);
+    return this.loadProductUseCase.execute(_id, slug, currency);
   }
 
   @Mutation(() => Product)
   @UseGuards(JwtAuthGuard, CatalogWriteGuard)
-  createProduct(@Args('input') input: CreateProductInput) {
+  createProduct(@Args('input') input: CreateProductDto) {
     return this.createProductUseCase.execute(input);
   }
 
   @Mutation(() => Product)
   @UseGuards(JwtAuthGuard, CatalogWriteGuard)
-  createProductBundle(@Args('input') input: CreateProductBundleInput) {
+  createProductBundle(@Args('input') input: CreateProductBundleDto) {
     return this.createProductBundleUseCase.execute(input);
   }
 
   @Mutation(() => Product)
   @UseGuards(JwtAuthGuard, CatalogWriteGuard)
-  updateProduct(@Args('input') input: UpdateProductInput) {
+  updateProduct(@Args('input') input: UpdateProductDto) {
     return this.updateProductUseCase.execute(input);
   }
 
   @Mutation(() => ProductVariant)
   @UseGuards(JwtAuthGuard, CatalogWriteGuard)
-  createProductVariant(@Args('input') input: CreateProductVariantInput) {
+  createProductVariant(@Args('input') input: CreateProductVariantDto) {
     return this.createVariantUseCase.execute(input);
   }
 
   @Mutation(() => Product)
   @UseGuards(JwtAuthGuard, CatalogWriteGuard)
-  setProductPrice(@Args('input') input: SetProductPriceInput) {
+  setProductPrice(@Args('input') input: SetProductPriceDto) {
     return this.setPriceUseCase.execute(input);
   }
 
   @Mutation(() => Product)
   @UseGuards(JwtAuthGuard, CatalogWriteGuard)
-  addProductImage(@Args('input') input: AddProductImageInput) {
+  addProductImage(@Args('input') input: AddProductImageDto) {
     return this.addImageUseCase.execute(input);
   }
 
   @Mutation(() => Product)
   @UseGuards(JwtAuthGuard, CatalogWriteGuard)
-  updateProductImage(@Args('input') input: UpdateProductImageInput) {
+  updateProductImage(@Args('input') input: UpdateProductImageDto) {
     return this.updateImageUseCase.execute(input);
   }
 
   @Mutation(() => Product)
   @UseGuards(JwtAuthGuard, CatalogWriteGuard)
-  deleteProductImage(@Args('input') input: DeleteProductImageInput) {
+  deleteProductImage(@Args('input') input: DeleteProductImageDto) {
     return this.deleteImageUseCase.execute(input);
   }
 }

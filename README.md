@@ -1,5 +1,12 @@
 # MillionX E-commerce Backend
 
+> API contract update (2026-10-25): entity primary fields are `_id`, list arguments are `input`
+> with `LoadCategoryDto`, `LoadProductDto`, `LoadCustomerDto`, and list statuses use
+> `ActiveStatus`. See [migration guide](docs/ID_DTO_MIGRATION.md) before updating clients.
+
+> PostgreSQL PK columns also use `_id`; existing databases require the
+> [physical-column migration](docs/SQL_PRIMARY_KEY_MIGRATION.md), not a reset or seed run.
+
 Backend ສຳລັບ MillionX E-commerce ສ້າງດ້ວຍ NestJS ແລະ ໂຄງສ້າງແບບດຽວກັບ `backend-default`. ລະບົບແຍກ Staff/Admin ອອກຈາກ Customer ຢ່າງຊັດເຈນ.
 
 ## Technology stack
@@ -28,7 +35,7 @@ Backend ສຳລັບ MillionX E-commerce ສ້າງດ້ວຍ NestJS ແ�
 - `customer_accounts`
 - `addresses`
 
-`users` ໃຊ້ສະເພາະ Staff/Admin. Customer login ໃຊ້ `customer_accounts` ທີ່ເຊື່ອມກັບ `customers.id` ຜ່ານ `customerId`.
+`users` ໃຊ້ສະເພາະ Staff/Admin. Customer login ໃຊ້ `customer_accounts` ທີ່ເຊື່ອມກັບ `customers._id` ຜ່ານ `customerId`.
 
 ID ທຸກຕາຕະລາງເປັນ RFC 4122 UUID v4. ຖ້າ database ເກົ່າມີ UUID ທີ່ PostgreSQL ຮັບໄດ້ແຕ່ API validation ບໍ່ຮັບ, ໃຫ້ run `database/migrations/20260903_normalize_phase1_uuid_v4.sql`. Migration ຈະປ່ຽນສະເພາະ ID ທີ່ບໍ່ຖືກມາດຕະຖານ ແລະຮັກສາ Foreign Key ທັງໝົດ.
 

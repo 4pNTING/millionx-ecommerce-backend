@@ -17,7 +17,7 @@ headers {
 
 body:json {
   {
-    "query": "mutation SetProductPrice($input: SetProductPriceInput!) { setProductPrice(input: $input) { id name variants { id sku prices { id currency amount compareAtAmount isActive } } } }",
+    "query": "mutation SetProductPrice($input: SetProductPriceDto!) { setProductPrice(input: $input) { _id name variants { _id sku prices { _id currency amount compareAtAmount isActive } } } }",
     "variables": {
       "input": {
         "variantId": "{{variantId}}",
@@ -29,10 +29,19 @@ body:json {
   }
 }
 
+script:post-response {
+  const variants = res.getBody()?.data?.setProductPrice?.variants || [];
+  const currentVariant = variants.find(v => v._id === bru.getEnvVar("variantId"));
+  const price = currentVariant?.prices?.find(p => p.currency === "LAK");
+  if (price?._id) {
+    bru.setEnvVar("priceId", price._id);
+  }
+}
+
 tests {
   test("ກຳນົດລາຄາ LAK ໃຫ້ Variant ສຳເລັດ", function () {
     expect(res.getStatus()).to.equal(200);
     expect(res.getBody().errors).to.equal(undefined);
-    expect(res.getBody().data.setProductPrice.id).to.be.a("string");
+    expect(res.getBody().data.setProductPrice._id).to.be.a("string");
   });
 }

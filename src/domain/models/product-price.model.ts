@@ -1,5 +1,5 @@
 export class ProductPriceModel {
-  id: string;
+  _id: string;
   variantId: string;
   currency: string;
   amount: string;
@@ -12,7 +12,7 @@ export class ProductPriceModel {
 }
 
 export interface CatalogPriceModel {
-  id: string;
+  _id: string;
   variantId: string;
   currency: string;
   amount: number;

@@ -73,8 +73,8 @@ async function seed() {
       .toLowerCase();
     const customerPassword = process.env.SEED_CUSTOMER_PASSWORD || 'Customer123!';
     const customerPasswordHash = await bcrypt.hash(customerPassword, 12);
-    const customer = await client.query<{ id: string }>(
-      `SELECT id FROM ecommerce.customers
+    const customer = await client.query<{ _id: string }>(
+      `SELECT _id FROM ecommerce.customers
        WHERE lower(email) IN (lower($1), lower('demo.customer@example.com'))
        ORDER BY (lower(email) = lower($1)) DESC
        LIMIT 1`,
@@ -83,10 +83,10 @@ async function seed() {
     if (customer.rowCount === 0) {
       throw new Error('Development customer was not created');
     }
-    const customerId = customer.rows[0].id;
+    const customerId = customer.rows[0]._id;
     await client.query(
       `UPDATE ecommerce.customers SET email = $1, "updatedAt" = now()
-       WHERE id = $2`,
+       WHERE _id = $2`,
       [customerEmail, customerId],
     );
     await client.query(

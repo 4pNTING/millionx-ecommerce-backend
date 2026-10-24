@@ -8,7 +8,7 @@ export class CreateCatalogCategoryValidation {
 
   async execute(input: CreateCatalogCategoryRequest): Promise<void> {
     if (input.parentId) {
-      const parent = await this.repository.findOne({ where: { id: input.parentId } });
+      const parent = await this.repository.findOne({ where: { _id: input.parentId } });
       if (!parent) throw new NotFoundException('Parent category not found');
     }
     const duplicate = await this.repository.findOne({ where: { slug: input.slug } });

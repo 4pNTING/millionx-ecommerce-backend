@@ -17,15 +17,15 @@ export class UpdateCatalogProductValidation {
   ) {}
 
   async execute(input: UpdateCatalogProductRequest): Promise<ProductEntity> {
-    const product = await this.productRepository.findOne({ where: { id: input.id } });
+    const product = await this.productRepository.findOne({ where: { _id: input._id } });
     if (!product) throw new NotFoundException('Product not found');
     if (input.categoryId) {
-      const category = await this.categoryRepository.findOne({ where: { id: input.categoryId } });
+      const category = await this.categoryRepository.findOne({ where: { _id: input.categoryId } });
       if (!category) throw new NotFoundException('Category not found');
     }
     if (input.slug) {
       const duplicate = await this.productRepository.findOne({
-        where: { slug: input.slug, id: Not(input.id) },
+        where: { slug: input.slug, _id: Not(input._id) },
       });
       if (duplicate) throw new ConflictException('Product slug already exists');
     }
@@ -40,15 +40,15 @@ export class UpdateCatalogProductValidation {
       payloadSkus.add(sku);
 
       let variant: ProductVariantEntity | null = null;
-      if (variantInput.id) {
-        variant = await this.variantRepository.findOne({ where: { id: variantInput.id } });
-        if (!variant || variant.productId !== product.id) {
+      if (variantInput._id) {
+        variant = await this.variantRepository.findOne({ where: { _id: variantInput._id } });
+        if (!variant || variant.productId !== product._id) {
           throw new BadRequestException('Variant does not belong to product');
         }
       }
 
       const duplicateSku = await this.variantRepository.findOne({
-        where: variantInput.id ? { sku, id: Not(variantInput.id) } : { sku },
+        where: variantInput._id ? { sku, _id: Not(variantInput._id) } : { sku },
       });
       if (duplicateSku) throw new ConflictException(`Variant SKU already exists: ${sku}`);
 
@@ -66,12 +66,12 @@ export class UpdateCatalogProductValidation {
         if (priceInput.compareAtAmount != null && priceInput.compareAtAmount < priceInput.amount) {
           throw new BadRequestException('compareAtAmount must be greater than or equal to amount');
         }
-        if (priceInput.id) {
+        if (priceInput._id) {
           if (!variant) {
             throw new BadRequestException('A new variant cannot update an existing price');
           }
-          const price = await this.priceRepository.findOne({ where: { id: priceInput.id } });
-          if (!price || price.variantId !== variant.id) {
+          const price = await this.priceRepository.findOne({ where: { _id: priceInput._id } });
+          if (!price || price.variantId !== variant._id) {
             throw new BadRequestException('Price does not belong to variant');
           }
         }
@@ -82,9 +82,9 @@ export class UpdateCatalogProductValidation {
       if (imageInput.variantId && imageInput.variantSku) {
         throw new BadRequestException('Use either image variantId or variantSku, not both');
       }
-      if (imageInput.id) {
-        const image = await this.imageRepository.findOne({ where: { id: imageInput.id } });
-        if (!image || image.productId !== product.id) {
+      if (imageInput._id) {
+        const image = await this.imageRepository.findOne({ where: { _id: imageInput._id } });
+        if (!image || image.productId !== product._id) {
           throw new BadRequestException('Product image does not belong to product');
         }
       } else if (!imageInput.url?.trim()) {
@@ -95,9 +95,9 @@ export class UpdateCatalogProductValidation {
       }
       if (imageInput.variantId) {
         const variant = await this.variantRepository.findOne({
-          where: { id: imageInput.variantId },
+          where: { _id: imageInput.variantId },
         });
-        if (!variant || variant.productId !== product.id) {
+        if (!variant || variant.productId !== product._id) {
           throw new BadRequestException('Image variantId does not belong to product');
         }
       }
@@ -110,7 +110,7 @@ export class UpdateCatalogProductValidation {
         if (!variantSku) throw new BadRequestException('Image variantSku cannot be empty');
         if (!isVariantInPayload) {
           const variant = await this.variantRepository.findOne({
-            where: { productId: product.id, sku: variantSku },
+            where: { productId: product._id, sku: variantSku },
           });
           if (!variant)
             throw new BadRequestException('Image variantSku does not belong to product');
@@ -119,7 +119,7 @@ export class UpdateCatalogProductValidation {
     }
 
     const updatedImageIds = new Set(
-      (input.images ?? []).flatMap((imageInput) => (imageInput.id ? [imageInput.id] : [])),
+      (input.images ?? []).flatMap((imageInput) => (imageInput._id ? [imageInput._id] : [])),
     );
     const deletedImageIds = new Set<string>();
 
@@ -131,8 +131,8 @@ export class UpdateCatalogProductValidation {
         throw new BadRequestException('A product image cannot be updated and deleted together');
       }
 
-      const image = await this.imageRepository.findOne({ where: { id: imageId } });
-      if (!image || image.productId !== product.id) {
+      const image = await this.imageRepository.findOne({ where: { _id: imageId } });
+      if (!image || image.productId !== product._id) {
         throw new BadRequestException('Product image does not belong to product');
       }
       deletedImageIds.add(imageId);

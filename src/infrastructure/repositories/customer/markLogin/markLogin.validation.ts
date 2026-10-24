@@ -7,7 +7,7 @@ export class MarkCustomerLoginValidation {
 
   async execute(accountId: string): Promise<CustomerAccountEntity> {
     if (!accountId) throw new BadRequestException('Customer account id is required');
-    const account = await this.repository.findOne({ where: { id: accountId, isActive: true } });
+    const account = await this.repository.findOne({ where: { _id: accountId, isActive: true } });
     if (!account) throw new NotFoundException('Active customer account not found');
     return account;
   }

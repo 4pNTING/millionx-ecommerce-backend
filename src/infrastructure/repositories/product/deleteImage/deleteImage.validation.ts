@@ -7,7 +7,7 @@ export class DeleteCatalogProductImageValidation {
   constructor(private readonly imageRepository: Repository<ProductImageEntity>) {}
 
   async execute(input: DeleteCatalogProductImageRequest): Promise<ProductImageEntity> {
-    const image = await this.imageRepository.findOne({ where: { id: input.id } });
+    const image = await this.imageRepository.findOne({ where: { _id: input._id } });
     if (!image) throw new NotFoundException('Product image not found');
     return image;
   }

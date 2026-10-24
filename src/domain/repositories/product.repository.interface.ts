@@ -16,7 +16,7 @@ import {
 
 export interface IProductRepository {
   loadProducts(query?: CatalogProductQuery): Promise<CatalogProductPageModel>;
-  loadProduct(id?: string, slug?: string, currency?: string): Promise<CatalogProductModel>;
+  loadProduct(_id?: string, slug?: string, currency?: string): Promise<CatalogProductModel>;
   createProduct(input: CreateCatalogProductRequest): Promise<CatalogProductModel>;
   createProductBundle(input: CreateCatalogProductBundleRequest): Promise<CatalogProductModel>;
   updateProduct(input: UpdateCatalogProductRequest): Promise<CatalogProductModel>;

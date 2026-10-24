@@ -11,7 +11,7 @@ export class CreateCatalogProductValidation {
   ) {}
 
   async execute(input: CreateCatalogProductRequest): Promise<void> {
-    const category = await this.categoryRepository.findOne({ where: { id: input.categoryId } });
+    const category = await this.categoryRepository.findOne({ where: { _id: input.categoryId } });
     if (!category) throw new NotFoundException('Category not found');
     const duplicate = await this.productRepository.findOne({ where: { slug: input.slug } });
     if (duplicate) throw new ConflictException('Product slug already exists');

@@ -1,9 +1,10 @@
+import { ActiveStatus } from '../enums/enum';
 import { AddCatalogProductImageRequest, CatalogImageModel } from './product-image.model';
 import { SetCatalogProductPriceRequest } from './product-price.model';
 import { CatalogVariantModel, CreateCatalogVariantRequest } from './product-variant.model';
 
 export class ProductModel {
-  id: string;
+  _id: string;
   categoryId: string;
   name: string;
   slug: string;
@@ -28,11 +29,12 @@ export interface CatalogProductPageModel {
 
 export interface CatalogProductQuery {
   categoryId?: string;
+  includeDescendants?: boolean;
   keyword?: string;
   currency?: string;
   page?: number;
   limit?: number;
-  includeInactive?: boolean;
+  isActive?: ActiveStatus;
 }
 
 export interface CreateCatalogProductRequest {
@@ -67,7 +69,7 @@ export interface CreateCatalogProductBundleRequest extends CreateCatalogProductR
 }
 
 export interface UpdateCatalogProductPriceRequest {
-  id?: string;
+  _id?: string;
   currency: string;
   amount: number;
   compareAtAmount?: number | null;
@@ -76,7 +78,7 @@ export interface UpdateCatalogProductPriceRequest {
 }
 
 export interface UpdateCatalogProductVariantRequest {
-  id?: string;
+  _id?: string;
   sku: string;
   barcode?: string | null;
   name?: string | null;
@@ -86,7 +88,7 @@ export interface UpdateCatalogProductVariantRequest {
 }
 
 export interface UpdateCatalogProductImageRequest {
-  id?: string;
+  _id?: string;
   variantId?: string | null;
   variantSku?: string;
   url?: string;
@@ -95,7 +97,7 @@ export interface UpdateCatalogProductImageRequest {
 }
 
 export interface UpdateCatalogProductRequest extends Partial<CreateCatalogProductRequest> {
-  id: string;
+  _id: string;
   isActive?: boolean;
   variants?: UpdateCatalogProductVariantRequest[];
   images?: UpdateCatalogProductImageRequest[];

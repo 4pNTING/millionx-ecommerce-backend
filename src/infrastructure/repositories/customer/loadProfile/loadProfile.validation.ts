@@ -6,7 +6,7 @@ export class LoadCustomerProfileValidation {
   constructor(private readonly repository: Repository<CustomerEntity>) {}
 
   async execute(customerId: string): Promise<CustomerEntity> {
-    const customer = await this.repository.findOne({ where: { id: customerId, isActive: true } });
+    const customer = await this.repository.findOne({ where: { _id: customerId, isActive: true } });
     if (!customer) throw new NotFoundException('Customer profile not found. Create it first.');
     return customer;
   }

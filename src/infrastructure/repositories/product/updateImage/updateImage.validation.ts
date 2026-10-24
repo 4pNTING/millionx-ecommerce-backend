@@ -11,7 +11,7 @@ export class UpdateCatalogProductImageValidation {
   ) {}
 
   async execute(input: UpdateCatalogProductImageRequest): Promise<ProductImageEntity> {
-    const image = await this.imageRepository.findOne({ where: { id: input.id } });
+    const image = await this.imageRepository.findOne({ where: { _id: input._id } });
     if (!image) throw new NotFoundException('Product image not found');
 
     const mutableFields: (keyof UpdateCatalogProductImageRequest)[] = [
@@ -29,7 +29,7 @@ export class UpdateCatalogProductImageValidation {
     }
 
     if (input.variantId) {
-      const variant = await this.variantRepository.findOne({ where: { id: input.variantId } });
+      const variant = await this.variantRepository.findOne({ where: { _id: input.variantId } });
       if (!variant || variant.productId !== image.productId) {
         throw new BadRequestException('variantId does not belong to product image productId');
       }

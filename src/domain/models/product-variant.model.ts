@@ -1,7 +1,7 @@
 import { CatalogPriceModel } from './product-price.model';
 
 export class ProductVariantModel {
-  id: string;
+  _id: string;
   productId: string;
   sku: string;
   barcode?: string | null;
@@ -13,7 +13,7 @@ export class ProductVariantModel {
 }
 
 export interface CatalogVariantModel {
-  id: string;
+  _id: string;
   productId: string;
   sku: string;
   barcode?: string | null;

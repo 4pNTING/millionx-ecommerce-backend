@@ -27,7 +27,7 @@ async function migrate() {
   await client.connect();
   try {
     const sql = fs.readFileSync(
-      path.join(process.cwd(), 'database/migrations/20260823_phase1_customer_accounts.sql'),
+      path.join(process.cwd(), 'database/maintenance/ensure_customer_accounts.sql'),
       'utf8',
     );
     await client.query(sql);

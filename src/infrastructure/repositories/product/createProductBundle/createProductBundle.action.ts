@@ -34,7 +34,7 @@ export class CreateCatalogProductBundleAction {
 
     for (const variantInput of input.variants ?? []) {
       const { prices = [], images = [], ...variantFields } = variantInput;
-      const createVariantInput = { ...variantFields, productId: product.id };
+      const createVariantInput = { ...variantFields, productId: product._id };
       const validatedVariant = await new CreateCatalogVariantValidation(
         productRepository,
         variantRepository,
@@ -45,7 +45,7 @@ export class CreateCatalogProductBundleAction {
       );
 
       for (const priceInput of prices) {
-        const setPriceInput = { ...priceInput, variantId: variant.id };
+        const setPriceInput = { ...priceInput, variantId: variant._id };
         const validatedPrice = await new SetCatalogProductPriceValidation(
           variantRepository,
         ).execute(setPriceInput);
@@ -55,14 +55,14 @@ export class CreateCatalogProductBundleAction {
       for (const imageInput of images) {
         await this.addImage({
           ...imageInput,
-          productId: product.id,
-          variantId: variant.id,
+          productId: product._id,
+          variantId: variant._id,
         });
       }
     }
 
     for (const imageInput of input.images ?? []) {
-      await this.addImage({ ...imageInput, productId: product.id });
+      await this.addImage({ ...imageInput, productId: product._id });
     }
 
     return product;

@@ -10,7 +10,7 @@ import { CustomerModel } from '../../domain/models/customer.model';
 @Entity('customers')
 export class CustomerEntity implements CustomerModel {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  _id: string;
 
   @Column({ length: 120, nullable: true })
   firstName?: string;
