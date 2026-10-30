@@ -2,6 +2,11 @@
 
 ## Architecture decision
 
+### Deferred note — Category Icon / Image (2026-10-28)
+
+บันทึกข้อเสนอไว้ทำภายหลัง: [Category media backlog](CATEGORY_MEDIA_BACKLOG_NOTE.md)
+สถานะยังไม่เริ่มพัฒนา การบันทึกนี้ไม่เพิ่ม API/คอลัมน์หรือเปลี่ยนข้อมูลปัจจุบัน
+
 ເລີ່ມດ້ວຍ NestJS Modular Monolith, PostgreSQL schema `ecommerce`, TypeORM migration, GraphQL ແລະ Redis. ແຍກເປັນ Microservices ເມື່ອມີ deployment, scaling, team ownership ຫຼື security boundary ທີ່ຊັດເຈນ.
 
 ## Phase 1 — Foundation
