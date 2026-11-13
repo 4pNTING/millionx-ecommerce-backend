@@ -1,8 +1,5 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
-import {
-  SocialProvider,
-  VerifiedSocialProfile,
-} from '../../domain/models/customer-auth.model';
+import { SocialProvider, VerifiedSocialProfile } from '../../domain/models/customer-auth.model';
 
 @Injectable()
 export class SocialAuthService {

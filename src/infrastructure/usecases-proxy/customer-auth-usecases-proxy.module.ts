@@ -9,7 +9,11 @@ import { SocialAuthService } from '../common/social-auth.service';
 import { DatabaseCustomerAuthRepository } from '../repositories/customer/customer-auth.repository';
 import { RepositoriesModule } from '../repositories/repositories.module';
 
-@Module({ imports: [RepositoriesModule], providers: [SocialAuthService], exports: [SocialAuthService] })
+@Module({
+  imports: [RepositoriesModule],
+  providers: [SocialAuthService],
+  exports: [SocialAuthService],
+})
 export class CustomerAuthUsecasesProxyModule {
   static REGISTER_CUSTOMER_PROXY = 'RegisterCustomerProxy';
   static LOGIN_CUSTOMER_PROXY = 'LoginCustomerProxy';

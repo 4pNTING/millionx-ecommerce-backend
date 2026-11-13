@@ -14,6 +14,7 @@ import { JwtStrategy } from './infrastructure/common/jwt.strategy';
 import { CatalogWriteGuard } from './infrastructure/common/catalog-write.guard';
 import { CustomerAccountGuard } from './infrastructure/common/customer-account.guard';
 import { StaffCustomerReadGuard } from './infrastructure/common/staff-customer-read.guard';
+import { OptionalJwtAuthGuard } from './infrastructure/common/optional-jwt-auth.guard';
 import { RepositoriesModule } from './infrastructure/repositories/repositories.module';
 
 // Use-case modules
@@ -23,6 +24,9 @@ import { CategoryUsecasesProxyModule } from './infrastructure/usecases-proxy/cat
 import { ProductUsecasesProxyModule } from './infrastructure/usecases-proxy/product-usecases-proxy.module';
 import { CustomerUsecasesProxyModule } from './infrastructure/usecases-proxy/customer-usecases-proxy.module';
 import { CustomerAuthUsecasesProxyModule } from './infrastructure/usecases-proxy/customer-auth-usecases-proxy.module';
+import { CartUsecasesProxyModule } from './infrastructure/usecases-proxy/cart-usecases-proxy.module';
+import { CheckoutUsecasesProxyModule } from './infrastructure/usecases-proxy/checkout-usecases-proxy.module';
+import { WishlistUsecasesProxyModule } from './infrastructure/usecases-proxy/wishlist-usecases-proxy.module';
 
 // Controllers
 import { AuthController } from './infrastructure/controllers/auth/auth.controller';
@@ -36,6 +40,9 @@ import { CategoryResolver } from './infrastructure/resolvers/category/category.r
 import { ProductResolver } from './infrastructure/resolvers/product/product.resolver';
 import { CustomerResolver } from './infrastructure/resolvers/customer/customer.resolver';
 import { CustomerAuthResolver } from './infrastructure/resolvers/customer/customer-auth.resolver';
+import { CartResolver } from './infrastructure/resolvers/cart/cart.resolver';
+import { CheckoutResolver } from './infrastructure/resolvers/checkout/checkout.resolver';
+import { WishlistResolver } from './infrastructure/resolvers/wishlist/wishlist.resolver';
 
 // Entities
 import { UserEntity } from './infrastructure/entities/user.entity';
@@ -49,6 +56,11 @@ import { ProductPriceEntity } from './infrastructure/entities/product-price.enti
 import { ProductVariantEntity } from './infrastructure/entities/product-variant.entity';
 import { CustomerAccountEntity } from './infrastructure/entities/customer-account.entity';
 import { CustomerSocialAccountEntity } from './infrastructure/entities/customer-social-account.entity';
+import { CartEntity } from './infrastructure/entities/cart.entity';
+import { CartItemEntity } from './infrastructure/entities/cart-item.entity';
+import { CheckoutSessionEntity } from './infrastructure/entities/checkout-session.entity';
+import { WishlistEntity } from './infrastructure/entities/wishlist.entity';
+import { WishlistItemEntity } from './infrastructure/entities/wishlist-item.entity';
 
 @Module({
   imports: [
@@ -114,6 +126,12 @@ import { CustomerSocialAccountEntity } from './infrastructure/entities/customer-
           CustomerAccountEntity,
           CustomerSocialAccountEntity,
           AddressEntity,
+          // Shopping (Phase 2)
+          CartEntity,
+          CartItemEntity,
+          CheckoutSessionEntity,
+          WishlistEntity,
+          WishlistItemEntity,
         ],
         autoLoadEntities: true,
         synchronize: false,
@@ -128,6 +146,9 @@ import { CustomerSocialAccountEntity } from './infrastructure/entities/customer-
     ProductUsecasesProxyModule.register(),
     CustomerUsecasesProxyModule.register(),
     CustomerAuthUsecasesProxyModule.register(),
+    CartUsecasesProxyModule.register(),
+    CheckoutUsecasesProxyModule.register(),
+    WishlistUsecasesProxyModule.register(),
   ],
   controllers: [AuthController, ZoneController, ProductImageUploadController],
   providers: [
@@ -138,10 +159,14 @@ import { CustomerSocialAccountEntity } from './infrastructure/entities/customer-
     ProductResolver,
     CustomerResolver,
     CustomerAuthResolver,
+    CartResolver,
+    CheckoutResolver,
+    WishlistResolver,
     JwtStrategy,
     CatalogWriteGuard,
     CustomerAccountGuard,
     StaffCustomerReadGuard,
+    OptionalJwtAuthGuard,
   ],
 })
 export class AppModule {}

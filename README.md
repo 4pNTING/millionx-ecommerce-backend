@@ -20,9 +20,11 @@ Backend ສຳລັບ MillionX E-commerce ສ້າງດ້ວຍ NestJS ແ�
 - Redis 7 ສຳລັບ cache ແລະ Auth Rate Limit; ຖ້າ Redis ລົ້ມ Rate Limit ຈະ fallback ໄປ in-memory counter
 - Docker Compose ສຳລັບ infrastructure
 
-## Database Phase 1
+## Database Schema
 
-`ecommerce` ມີ 10 ຕາຕະລາງ Foundation:
+`ecommerce` ມີ 15 ຕາຕະລາງ (Phase 1 Foundation + Phase 2 Shopping):
+
+### Phase 1 — Foundation
 
 - `users`
 - `zones`
@@ -33,7 +35,16 @@ Backend ສຳລັບ MillionX E-commerce ສ້າງດ້ວຍ NestJS ແ�
 - `product_images`
 - `customers`
 - `customer_accounts`
+- `customer_social_accounts`
 - `addresses`
+
+### Phase 2 — Shopping
+
+- `carts`
+- `cart_items`
+- `checkout_sessions`
+- `wishlists`
+- `wishlist_items`
 
 `users` ໃຊ້ສະເພາະ Staff/Admin. Customer login ໃຊ້ `customer_accounts` ທີ່ເຊື່ອມກັບ `customers._id` ຜ່ານ `customerId`.
 
@@ -177,4 +188,5 @@ business constraints, bcrypt password, Admin account ແລະ Customer account 
 
 - `docs/ARCHITECTURE.md` — ໂຄງສ້າງແລະກົດຂອງ code
 - `docs/PHASE_01_GUIDE.md` — API ແລະວິທີທົດສອບ Phase 1
+- `docs/PHASE_02_GUIDE.md` — API ແລະວິທີທົດສອບ Phase 2 (Shopping)
 - `docs/DEVELOPMENT_PLAN.md` — ແຜນ Phase ຕໍ່ໄປ

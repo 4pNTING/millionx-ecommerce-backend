@@ -10,7 +10,11 @@ export function categorySubtreeQuery(repository: Repository<CategoryEntity>): st
   const children = repository
     .createQueryBuilder('category_child')
     .select('category_child._id', '_id')
-    .innerJoin('category_subtree', 'subtree_parent', 'category_child.parentId = subtree_parent._id');
+    .innerJoin(
+      'category_subtree',
+      'subtree_parent',
+      'category_child.parentId = subtree_parent._id',
+    );
 
   // Entity query builders preserve the configured schema/table naming and quote parentId.
   return `${root.getQuery()} UNION ${children.getQuery()}`;

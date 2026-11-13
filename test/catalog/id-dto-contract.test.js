@@ -33,7 +33,7 @@ before(async () => {
 });
 
 test('every entity has _id and maps it to the existing physical primary column', () => {
-  assert.equal(source.entityMetadatas.length, 11);
+  assert.equal(source.entityMetadatas.length, 16);
   for (const metadata of source.entityMetadatas) {
     assert.equal(metadata.primaryColumns.length, 1);
     const primary = metadata.primaryColumns[0];
@@ -55,6 +55,11 @@ test('GraphQL exposes only _id, Dto inputs and input list arguments', () => {
     'CustomerAddress',
     'LoginPayload',
     'Zone',
+    'Cart',
+    'CartItem',
+    'CheckoutSession',
+    'Wishlist',
+    'WishlistItem',
   ]) {
     const fields = schema.getType(name).getFields();
     assert.ok(fields._id, name);
@@ -90,6 +95,8 @@ test('GraphQL exposes only _id, Dto inputs and input list arguments', () => {
     'UpdateProductBundleImageDto',
     'UpdateCategoryDto',
     'UpdateCustomerAddressDto',
+    'UpdateCartItemDto',
+    'RemoveCartItemDto',
   ]) {
     assert.ok(schema.getType(name).getFields()._id, name);
   }
@@ -174,5 +181,5 @@ test('all Bruno GraphQL requests validate against the current generated schema',
     );
     checked++;
   }
-  assert.ok(checked >= 27);
+  assert.ok(checked >= 35);
 });

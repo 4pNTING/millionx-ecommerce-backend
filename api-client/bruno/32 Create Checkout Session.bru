@@ -1,0 +1,39 @@
+meta {
+  name: 32 Create Checkout Session
+  type: http
+  seq: 32
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{customerToken}}
+}
+
+body:json {
+  {
+    "query": "mutation CreateCheckoutSession($input: CreateCheckoutSessionDto) { createCheckoutSession(input: $input) { _id cartId subtotal discountAmount shippingAmount taxAmount total currency status expiresAt priceSnapshot { variantId sku unitPrice quantity subtotal } } }",
+    "variables": {
+      "input": {
+        "shippingAmount": "10000.00",
+        "taxAmount": "0.00",
+        "discountAmount": "0.00"
+      }
+    }
+  }
+}
+
+tests {
+  test("ສາມາດສ້າງ Checkout Session ພ້ອມ Price Snapshot ແລະ Expiry ໄດ້", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.createCheckoutSession._id).to.be.a("string");
+    expect(res.getBody().data.createCheckoutSession.status).to.equal("open");
+  });
+}
+

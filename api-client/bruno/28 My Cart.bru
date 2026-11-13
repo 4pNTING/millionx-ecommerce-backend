@@ -1,0 +1,33 @@
+meta {
+  name: 28 My Cart
+  type: http
+  seq: 28
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{customerToken}}
+}
+
+body:json {
+  {
+    "query": "query MyCart($sessionId: String) { myCart(sessionId: $sessionId) { _id customerId sessionId isActive totalItems subtotal currency items { _id cartId variantId quantity sku productName variantName unitPrice lineTotal } } }",
+    "variables": {
+      "sessionId": "guest-session-{{runId}}"
+    }
+  }
+}
+
+tests {
+  test("ສາມາດດຶງຂໍ້ມູນກະຕ່າສິນຄ້າໄດ້", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+  });
+}
+

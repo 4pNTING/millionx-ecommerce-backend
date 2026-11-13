@@ -182,6 +182,89 @@ type CustomerAuthPayload {
   refreshToken: String!
 }
 
+type CartItem {
+  _id: String!
+  cartId: String!
+  variantId: String!
+  quantity: Int!
+  addedAt: DateTime!
+  updatedAt: DateTime!
+  sku: String!
+  variantName: String
+  productId: String!
+  productName: String!
+  productSlug: String!
+  imageUrl: String
+  unitPrice: String
+  compareAtPrice: String
+  currency: String
+  lineTotal: String
+}
+
+type Cart {
+  _id: String!
+  customerId: String
+  sessionId: String
+  isActive: Boolean!
+  totalItems: Int!
+  subtotal: String!
+  currency: String!
+  items: [CartItem!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type PriceSnapshotItem {
+  variantId: String!
+  sku: String!
+  productId: String!
+  productName: String!
+  variantName: String
+  quantity: Int!
+  unitPrice: String!
+  compareAtPrice: String
+  currency: String!
+  subtotal: String!
+}
+
+type CheckoutSession {
+  _id: String!
+  cartId: String!
+  customerId: String
+  subtotal: String!
+  discountAmount: String!
+  shippingAmount: String!
+  taxAmount: String!
+  total: String!
+  currency: String!
+  priceSnapshot: [PriceSnapshotItem!]!
+  status: String!
+  expiresAt: DateTime!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type WishlistItem {
+  _id: String!
+  wishlistId: String!
+  productId: String!
+  productName: String!
+  productSlug: String!
+  brand: String
+  imageUrl: String
+  minPrice: String
+  currency: String
+  addedAt: DateTime!
+}
+
+type Wishlist {
+  _id: String!
+  customerId: String!
+  items: [WishlistItem!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
 """DateTime scalar — returns ISO 8601 UTC string"""
 scalar DateTime
 
@@ -193,6 +276,9 @@ type Query {
   product(_id: String, slug: String, currency: String): Product!
   customers(input: LoadCustomerDto): CustomerPage!
   myCustomerProfile: CustomerProfile!
+  myCart(sessionId: String): Cart
+  checkoutSession(_id: String!): CheckoutSession
+  myWishlist: Wishlist!
 }
 
 input LoadZoneDto {
@@ -269,6 +355,14 @@ type Mutation {
   loginCustomer(input: CustomerLoginDto!): CustomerAuthPayload!
   socialLoginCustomer(input: SocialLoginCustomerDto!): CustomerAuthPayload!
   refreshCustomerToken(input: RefreshTokenDto!): CustomerAuthPayload!
+  addToCart(input: AddToCartDto!): Cart!
+  updateCartItem(input: UpdateCartItemDto!): Cart!
+  removeCartItem(input: RemoveCartItemDto!): Cart!
+  clearCart(sessionId: String): Boolean!
+  mergeGuestCart(input: MergeGuestCartDto!): Cart!
+  createCheckoutSession(input: CreateCheckoutSessionDto): CheckoutSession!
+  addToWishlist(input: AddToWishlistDto!): Wishlist!
+  removeFromWishlist(input: RemoveFromWishlistDto!): Wishlist!
 }
 
 input LoginDto {
@@ -499,4 +593,41 @@ input SocialLoginCustomerDto {
 enum SocialProvider {
   GOOGLE
   FACEBOOK
+}
+
+input AddToCartDto {
+  variantId: String!
+  quantity: Int! = 1
+  sessionId: String
+}
+
+input UpdateCartItemDto {
+  _id: String!
+  quantity: Int!
+  sessionId: String
+}
+
+input RemoveCartItemDto {
+  _id: String!
+  sessionId: String
+}
+
+input MergeGuestCartDto {
+  sessionId: String!
+}
+
+input CreateCheckoutSessionDto {
+  cartId: String
+  sessionId: String
+  shippingAmount: String
+  taxAmount: String
+  discountAmount: String
+}
+
+input AddToWishlistDto {
+  productId: String!
+}
+
+input RemoveFromWishlistDto {
+  productId: String!
 }

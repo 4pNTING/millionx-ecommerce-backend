@@ -1,0 +1,36 @@
+meta {
+  name: 31 Merge Guest Cart
+  type: http
+  seq: 31
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{customerToken}}
+}
+
+body:json {
+  {
+    "query": "mutation MergeGuestCart($input: MergeGuestCartDto!) { mergeGuestCart(input: $input) { _id customerId totalItems subtotal } }",
+    "variables": {
+      "input": {
+        "sessionId": "guest-merge-{{runId}}"
+      }
+    }
+  }
+}
+
+tests {
+  test("ສາມາດຮວມກະຕ່າ Guest ເຂົ້າ Member ໄດ້", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.mergeGuestCart._id).to.be.a("string");
+  });
+}
+

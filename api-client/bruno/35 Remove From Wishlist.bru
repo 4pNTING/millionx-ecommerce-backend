@@ -1,0 +1,36 @@
+meta {
+  name: 35 Remove From Wishlist
+  type: http
+  seq: 35
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{customerToken}}
+}
+
+body:json {
+  {
+    "query": "mutation RemoveFromWishlist($input: RemoveFromWishlistDto!) { removeFromWishlist(input: $input) { _id customerId items { _id productId } } }",
+    "variables": {
+      "input": {
+        "productId": "{{productId}}"
+      }
+    }
+  }
+}
+
+tests {
+  test("ສາມາດລຶບສິນຄ້າອອກຈາກ Wishlist ໄດ້", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.removeFromWishlist._id).to.be.a("string");
+  });
+}
+

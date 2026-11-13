@@ -9,18 +9,18 @@ Phase 1 ປະກອບດ້ວຍ Category, Product, Customer profile, Custome
 
 ## ຕາຕະລາງ
 
-| ສ່ວນ             | ຕາຕະລາງ                       | ໜ້າທີ່                                                  |
-| ---------------- | ----------------------------- | ------------------------------------------------------- |
-| Staff/Auth       | `ecommerce.users`             | Login account ຂອງ Staff/Admin                           |
-| Zone             | `ecommerce.zones`             | ຂໍ້ມູນເຂດທີ່ໃຊ້ໃນລະບົບ                                  |
+| ສ່ວນ             | ຕາຕະລາງ                       | ໜ້າທີ່                                                   |
+| ---------------- | ----------------------------- | -------------------------------------------------------- |
+| Staff/Auth       | `ecommerce.users`             | Login account ຂອງ Staff/Admin                            |
+| Zone             | `ecommerce.zones`             | ຂໍ້ມູນເຂດທີ່ໃຊ້ໃນລະບົບ                                   |
 | Category         | `ecommerce.categories`        | ໝວດໝູ່ຫຼາຍລະດັບ; `parentId` ເປັນ FK ກັບ `categories._id` |
-| Product          | `ecommerce.products`          | ຂໍ້ມູນຫຼັກຂອງສິນຄ້າ                                     |
-| Variant          | `ecommerce.product_variants`  | SKU, Barcode ແລະຕົວເລືອກເຊັ່ນ RAM/ສີ                    |
-| Price            | `ecommerce.product_prices`    | ລາຄາຕາມ Variant ແລະ currency                            |
-| Image            | `ecommerce.product_images`    | ຮູບຂອງ Product ຫຼື Variant                              |
-| Customer         | `ecommerce.customers`         | Profile ແລະຂໍ້ມູນຕິດຕໍ່; ບໍ່ເກັບ password               |
-| Customer Account | `ecommerce.customer_accounts` | Login account ແລະ password hash                         |
-| Address          | `ecommerce.addresses`         | ທີ່ຢູ່ຈັດສົ່ງ ແລະ default address                       |
+| Product          | `ecommerce.products`          | ຂໍ້ມູນຫຼັກຂອງສິນຄ້າ                                      |
+| Variant          | `ecommerce.product_variants`  | SKU, Barcode ແລະຕົວເລືອກເຊັ່ນ RAM/ສີ                     |
+| Price            | `ecommerce.product_prices`    | ລາຄາຕາມ Variant ແລະ currency                             |
+| Image            | `ecommerce.product_images`    | ຮູບຂອງ Product ຫຼື Variant                               |
+| Customer         | `ecommerce.customers`         | Profile ແລະຂໍ້ມູນຕິດຕໍ່; ບໍ່ເກັບ password                |
+| Customer Account | `ecommerce.customer_accounts` | Login account ແລະ password hash                          |
+| Address          | `ecommerce.addresses`         | ທີ່ຢູ່ຈັດສົ່ງ ແລະ default address                        |
 
 `ecommerce.users` ໃຊ້ສຳລັບ Staff/Admin ເທົ່ານັ້ນ; Customer login ໃຊ້ `ecommerce.customer_accounts`.
 

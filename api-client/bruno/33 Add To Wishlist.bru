@@ -1,0 +1,36 @@
+meta {
+  name: 33 Add To Wishlist
+  type: http
+  seq: 33
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{customerToken}}
+}
+
+body:json {
+  {
+    "query": "mutation AddToWishlist($input: AddToWishlistDto!) { addToWishlist(input: $input) { _id customerId items { _id productId productName minPrice currency } } }",
+    "variables": {
+      "input": {
+        "productId": "{{productId}}"
+      }
+    }
+  }
+}
+
+tests {
+  test("ສາມາດເພີ່ມສິນຄ້າເຂົ້າ Wishlist ໄດ້", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.addToWishlist.items.length).to.be.greaterThan(0);
+  });
+}
+

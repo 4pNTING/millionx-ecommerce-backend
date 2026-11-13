@@ -51,6 +51,14 @@
 | 25    | Social Login Facebook        | Login/Auto-Register ຜ່ານ Facebook ໄດ້ Session Token                           |
 | 26    | Products Include Descendants | ອ່ານສິນຄ້າຂອງໝວດແມ່ ແລະ ລູກຫຼານທຸກລະດັບ; ຕັ້ງ `categoryId` ກ່ອນ               |
 | 27    | Update Product               | ແກ້ໄຂສິນຄ້າ, ຕົວເລືອກ ແລະ ລາຄາ ດ້ວຍ `_id` ທຸກລະດັບ                            |
+| 28    | My Cart                      | ອ່ານກະຕ່າສິນຄ້າ (Member ຫຼື Guest ຜ່ານ `sessionId`)                           |
+| 29    | Add To Cart                  | ເພີ່ມສິນຄ້າເຂົ້າກະຕ່າ, ເກັບ `cartItemId`                                      |
+| 30    | Update Cart Item             | ປັບຈຳນວນສິນຄ້າໃນກະຕ່າຕາມ `cartItemId`                                         |
+| 31    | Merge Guest Cart             | ຮວມກະຕ່າ Guest ເຂົ້າ Member Cart ຫຼັງ Login ພາຍໃນ Transaction                 |
+| 32    | Create Checkout Session      | ສ້າງ Checkout Session ພ້ອມ Price Snapshot, Tax, Shipping ແລະ Expiry           |
+| 33    | Add To Wishlist              | ເພີ່ມສິນຄ້າທີ່ມັກເຂົ້າ Wishlist                                               |
+| 34    | My Wishlist                  | ອ່ານລາຍການ Wishlist ຂອງ Customer                                              |
+| 35    | Remove From Wishlist         | ລຶບສິນຄ້າອອກຈາກ Wishlist                                                      |
 
 ## Products: ລວມໝວດລູກ (22 ຕຸລາ 2026)
 

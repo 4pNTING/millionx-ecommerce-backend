@@ -1,0 +1,44 @@
+meta {
+  name: 29 Add To Cart
+  type: http
+  seq: 29
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{customerToken}}
+}
+
+body:json {
+  {
+    "query": "mutation AddToCart($input: AddToCartDto!) { addToCart(input: $input) { _id totalItems subtotal currency items { _id variantId quantity unitPrice lineTotal } } }",
+    "variables": {
+      "input": {
+        "variantId": "{{variantId}}",
+        "quantity": 2
+      }
+    }
+  }
+}
+
+script:post-response {
+  if (res.getStatus() === 200 && res.getBody().data?.addToCart?.items?.length > 0) {
+    const item = res.getBody().data.addToCart.items[0];
+    bru.setEnvVar("cartItemId", item._id);
+  }
+}
+
+tests {
+  test("ສາມາດເພີ່ມສິນຄ້າເຂົ້າກະຕ່າໄດ້", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.addToCart.items.length).to.be.greaterThan(0);
+  });
+}
+

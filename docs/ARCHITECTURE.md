@@ -17,7 +17,10 @@ src/
 │   ├── zone/
 │   ├── category/
 │   ├── product/
-│   └── customer/
+│   ├── customer/
+│   ├── cart/
+│   ├── checkout/
+│   └── wishlist/
 └── infrastructure/
     ├── cache/
     ├── common/
@@ -40,6 +43,24 @@ src/
     │   │   ├── addImage/
     │   │   └── product.repository.ts
     │   ├── customer/
+    │   ├── cart/
+    │   │   ├── addToCart/
+    │   │   ├── getOrCreateCart/
+    │   │   ├── loadCart/
+    │   │   ├── updateCartItem/
+    │   │   ├── removeCartItem/
+    │   │   ├── clearCart/
+    │   │   ├── mergeCarts/
+    │   │   └── cart.repository.ts
+    │   ├── checkout/
+    │   │   ├── createCheckoutSession/
+    │   │   ├── getCheckoutSession/
+    │   │   └── checkout.repository.ts
+    │   ├── wishlist/
+    │   │   ├── addToWishlist/
+    │   │   ├── removeFromWishlist/
+    │   │   ├── loadWishlist/
+    │   │   └── wishlist.repository.ts
     │   ├── user/
     │   └── zone/
     ├── resolvers/
@@ -47,10 +68,17 @@ src/
     │   ├── category/
     │   ├── product/
     │   ├── zone/
-    │   └── customer/
+    │   ├── customer/
+    │   ├── cart/
+    │   ├── checkout/
+    │   └── wishlist/
     └── usecases-proxy/
         ├── category-usecases-proxy.module.ts
-        └── product-usecases-proxy.module.ts
+        ├── product-usecases-proxy.module.ts
+        ├── customer-usecases-proxy.module.ts
+        ├── cart-usecases-proxy.module.ts
+        ├── checkout-usecases-proxy.module.ts
+        └── wishlist-usecases-proxy.module.ts
 ```
 
 ## Request flow

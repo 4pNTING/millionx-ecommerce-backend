@@ -54,7 +54,10 @@ async function main() {
 
   // Step 0: Clear Redis rate limits
   try {
-    execSync("docker exec millionx_ecommerce_redis redis-cli keys 'auth:rate-limit:*' | xargs -r docker exec millionx_ecommerce_redis redis-cli del", { stdio: 'pipe' });
+    execSync(
+      "docker exec millionx_ecommerce_redis redis-cli keys 'auth:rate-limit:*' | xargs -r docker exec millionx_ecommerce_redis redis-cli del",
+      { stdio: 'pipe' },
+    );
     console.log('[Setup] Cleared Redis rate-limit keys.\n');
   } catch (_) {}
 
@@ -62,8 +65,9 @@ async function main() {
   env.baseUrl = 'http://localhost:3001';
   env.runId = Date.now().toString();
 
-  const files = fs.readdirSync(BRUNO_DIR)
-    .filter(f => f.endsWith('.bru'))
+  const files = fs
+    .readdirSync(BRUNO_DIR)
+    .filter((f) => f.endsWith('.bru'))
     .sort((a, b) => {
       const seqA = parseInt(a.split(' ')[0], 10);
       const seqB = parseInt(b.split(' ')[0], 10);
@@ -88,8 +92,10 @@ async function main() {
     // Run pre-request script if present
     if (parsed.preRequestScript) {
       const bruMock = {
-        setEnvVar: (k, v) => { env[k] = v; },
-        getEnvVar: (k) => env[k]
+        setEnvVar: (k, v) => {
+          env[k] = v;
+        },
+        getEnvVar: (k) => env[k],
       };
       try {
         const fn = new Function('bru', parsed.preRequestScript);
@@ -149,11 +155,13 @@ async function main() {
       if (parsed.postResponseScript) {
         const resMock = {
           getStatus: () => res.status,
-          getBody: () => data
+          getBody: () => data,
         };
         const bruMock = {
-          setEnvVar: (k, v) => { env[k] = v; },
-          getEnvVar: (k) => env[k]
+          setEnvVar: (k, v) => {
+            env[k] = v;
+          },
+          getEnvVar: (k) => env[k],
         };
         try {
           const fn = new Function('res', 'bru', parsed.postResponseScript);
@@ -179,8 +187,8 @@ async function main() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         query: 'mutation Login($input: LoginDto!) { login(input: $input) { token } }',
-        variables: { input: { username: 'admin', password: 'wrong-password' } }
-      })
+        variables: { input: { username: 'admin', password: 'wrong-password' } },
+      }),
     });
     const rlData = await rlRes.json();
     if (rlData.errors?.[0]?.extensions?.code === 'TOO_MANY_REQUESTS') {
@@ -201,7 +209,10 @@ async function main() {
 
   // Clear rate limits again so environment is ready for user
   try {
-    execSync("docker exec millionx_ecommerce_redis redis-cli keys 'auth:rate-limit:*' | xargs -r docker exec millionx_ecommerce_redis redis-cli del", { stdio: 'pipe' });
+    execSync(
+      "docker exec millionx_ecommerce_redis redis-cli keys 'auth:rate-limit:*' | xargs -r docker exec millionx_ecommerce_redis redis-cli del",
+      { stdio: 'pipe' },
+    );
   } catch (_) {}
 
   if (failed > 0) {
@@ -209,7 +220,7 @@ async function main() {
   }
 }
 
-main().catch(err => {
+main().catch((err) => {
   console.error(err);
   process.exit(1);
 });
