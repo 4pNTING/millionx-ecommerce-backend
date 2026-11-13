@@ -30,6 +30,7 @@ services:
 
   backend:
     profiles: ['full']
+    image: millionx-ecommerce-backend:latest
     build:
       context: .
       dockerfile: Dockerfile
