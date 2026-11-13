@@ -21,7 +21,7 @@ export class RemoveFromWishlistAction {
     if (!wishlist) {
       const created = wishlistRepo.create({ customerId: input.customerId });
       wishlist = await wishlistRepo.save(created);
-      return this.mapper.hydrateWishlist(wishlist);
+      return this.mapper.hydrateWishlist(wishlist, this.session);
     }
 
     // Delete item by productId in customer's wishlist
@@ -30,6 +30,6 @@ export class RemoveFromWishlistAction {
       productId: input.productId,
     });
 
-    return this.mapper.hydrateWishlist(wishlist);
+    return this.mapper.hydrateWishlist(wishlist, this.session);
   }
 }

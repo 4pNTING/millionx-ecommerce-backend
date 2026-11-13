@@ -1,4 +1,4 @@
-import { DataSource } from 'typeorm';
+import { DataSource, QueryRunner } from 'typeorm';
 import {
   WishlistDetailsModel,
   WishlistItemDetailsModel,
@@ -8,8 +8,9 @@ import {
 export class WishlistDetailsMapper {
   constructor(private readonly dataSource: DataSource) {}
 
-  async hydrateWishlist(wishlist: WishlistModel): Promise<WishlistDetailsModel> {
-    const rawItems = await this.dataSource.query(
+  async hydrateWishlist(wishlist: WishlistModel, runner?: QueryRunner): Promise<WishlistDetailsModel> {
+    const executor = runner ? runner.manager : this.dataSource;
+    const rawItems = await executor.query(
       `
       SELECT 
         wi._id AS "wishlistItemId",

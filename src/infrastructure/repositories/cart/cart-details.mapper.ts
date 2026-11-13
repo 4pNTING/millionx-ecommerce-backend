@@ -1,4 +1,4 @@
-import { DataSource } from 'typeorm';
+import { DataSource, QueryRunner } from 'typeorm';
 import {
   CartDetailsModel,
   CartItemDetailsModel,
@@ -8,8 +8,9 @@ import {
 export class CartDetailsMapper {
   constructor(private readonly dataSource: DataSource) {}
 
-  async hydrateCart(cart: CartModel): Promise<CartDetailsModel> {
-    const rawItems = await this.dataSource.query(
+  async hydrateCart(cart: CartModel, runner?: QueryRunner): Promise<CartDetailsModel> {
+    const executor = runner ? runner.manager : this.dataSource;
+    const rawItems = await executor.query(
       `
       SELECT 
         ci._id AS "cartItemId",

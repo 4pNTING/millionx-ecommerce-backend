@@ -55,6 +55,6 @@ export class AddToCartAction {
     }
 
     // 5. Return updated and hydrated cart
-    return this.mapper.hydrateCart(cart);
+    return this.mapper.hydrateCart(cart, this.session);
   }
 }

@@ -39,6 +39,6 @@ export class UpdateCartItemAction {
       await cartItemRepo.save(item);
     }
 
-    return this.mapper.hydrateCart(cart);
+    return this.mapper.hydrateCart(cart, this.session);
   }
 }

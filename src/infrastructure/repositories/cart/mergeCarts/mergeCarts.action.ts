@@ -28,7 +28,7 @@ export class MergeCartsAction {
     });
 
     if (!guestCart || guestCart._id === memberCart._id) {
-      return this.mapper.hydrateCart(memberCart);
+      return this.mapper.hydrateCart(memberCart, this.session);
     }
 
     // 3. Find all items in guest cart
@@ -71,6 +71,6 @@ export class MergeCartsAction {
     await cartRepo.save(guestCart);
 
     // 5. Return updated member cart
-    return this.mapper.hydrateCart(memberCart);
+    return this.mapper.hydrateCart(memberCart, this.session);
   }
 }

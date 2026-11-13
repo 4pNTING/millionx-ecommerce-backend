@@ -21,7 +21,7 @@
     "start:dev2": "ENV_FILE=.env.linux ts-node -r tsconfig-paths/register src/main.ts",
     "dev2": "npm run start:dev2",
     "start:prod": "node dist/main.js",
-    "schema:generate": "node scripts/generate-schema.js",
+    "schema:generate": "ts-node scripts/generate-schema.ts",
     "seed": "ts-node -r tsconfig-paths/register src/seed.ts",
     "db:migrate:customer-auth": "ts-node -r tsconfig-paths/register src/migrate-customer-auth.ts",
     "db:migrate:primary-keys": "node --env-file=.env scripts/migrate-primary-keys.js",

@@ -53,6 +53,6 @@ export class AddToWishlistAction {
       await wishlistItemRepo.save(item);
     }
 
-    return this.mapper.hydrateWishlist(wishlist);
+    return this.mapper.hydrateWishlist(wishlist, this.session);
   }
 }

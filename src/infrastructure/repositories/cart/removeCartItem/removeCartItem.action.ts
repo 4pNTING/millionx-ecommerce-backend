@@ -32,6 +32,6 @@ export class RemoveCartItemAction {
     }
 
     await cartItemRepo.remove(item);
-    return this.mapper.hydrateCart(cart);
+    return this.mapper.hydrateCart(cart, this.session);
   }
 }
