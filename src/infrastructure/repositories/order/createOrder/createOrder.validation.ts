@@ -1,20 +1,18 @@
 import { BadRequestException } from '@nestjs/common';
 import { CreateOrderRequest } from '../../../../domain/models/order.model';
 
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
 export class CreateOrderValidation {
   execute(input: CreateOrderRequest): void {
     if (!input) {
       throw new BadRequestException('Order input is required');
     }
 
-    if (!input.customerId || !UUID_REGEX.test(input.customerId)) {
-      throw new BadRequestException('customerId must be a valid UUID');
+    if (!input.customerId) {
+      throw new BadRequestException('customerId is required');
     }
 
-    if (!input.checkoutSessionId || !UUID_REGEX.test(input.checkoutSessionId)) {
-      throw new BadRequestException('checkoutSessionId must be a valid UUID');
+    if (!input.checkoutSessionId) {
+      throw new BadRequestException('checkoutSessionId is required');
     }
 
     if (!input.shippingAddress || typeof input.shippingAddress !== 'object') {
