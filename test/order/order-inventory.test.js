@@ -19,6 +19,15 @@ const {
 const {
   AdjustStockValidation,
 } = require('../../src/infrastructure/repositories/inventory/adjustStock/adjustStock.validation');
+const {
+  FindOrderByOrderNumberValidation,
+} = require('../../src/infrastructure/repositories/order/findOrderByOrderNumber/findOrderByOrderNumber.validation');
+const {
+  ReserveStockValidation,
+} = require('../../src/infrastructure/repositories/inventory/reserveStock/reserveStock.validation');
+const {
+  ReleaseOrderReservationsValidation,
+} = require('../../src/infrastructure/repositories/inventory/releaseOrderReservations/releaseOrderReservations.validation');
 
 const {
   CreateOrderAction,
@@ -30,8 +39,17 @@ const {
   UpdateOrderStatusAction,
 } = require('../../src/infrastructure/repositories/order/updateOrderStatus/updateOrderStatus.action');
 const {
+  FindOrderByOrderNumberAction,
+} = require('../../src/infrastructure/repositories/order/findOrderByOrderNumber/findOrderByOrderNumber.action');
+const {
   AdjustStockAction,
 } = require('../../src/infrastructure/repositories/inventory/adjustStock/adjustStock.action');
+const {
+  ReserveStockAction,
+} = require('../../src/infrastructure/repositories/inventory/reserveStock/reserveStock.action');
+const {
+  ReleaseOrderReservationsAction,
+} = require('../../src/infrastructure/repositories/inventory/releaseOrderReservations/releaseOrderReservations.action');
 const {
   ReleaseExpiredReservationsAction,
 } = require('../../src/infrastructure/repositories/inventory/releaseExpiredReservations/releaseExpiredReservations.action');
@@ -511,5 +529,54 @@ describe('Phase 3 — Order & Inventory validations & business logic', () => {
     assert.equal(invUpdate.params[1], 10);
     // Pending order auto-cancelled
     assert.ok(queries.some((q) => q.sql.includes("status = 'cancelled'")));
+  });
+
+  test('FindOrderByOrderNumberValidation, ReserveStockValidation, and ReleaseOrderReservationsValidation validate inputs', () => {
+    const orderNumVal = new FindOrderByOrderNumberValidation();
+    assert.throws(() => orderNumVal.execute(''), /orderNumber must be a non-empty string/);
+    assert.doesNotThrow(() => orderNumVal.execute('MX-20261118-00123'));
+
+    const reserveVal = new ReserveStockValidation();
+    assert.throws(() => reserveVal.execute('bad', variantId, 5), /orderId must be a valid UUID/);
+    assert.throws(() => reserveVal.execute(orderId, 'bad', 5), /variantId must be a valid UUID/);
+    assert.throws(() => reserveVal.execute(orderId, variantId, 0), /quantity must be an integer greater than 0/);
+    assert.doesNotThrow(() => reserveVal.execute(orderId, variantId, 5));
+
+    const releaseVal = new ReleaseOrderReservationsValidation();
+    assert.throws(() => releaseVal.execute('bad'), /orderId must be a valid UUID/);
+    assert.doesNotThrow(() => releaseVal.execute(orderId));
+  });
+
+  test('ReserveStockAction and ReleaseOrderReservationsAction perform CRUD on reservations and inventory', async () => {
+    const queries = [];
+    const mockRunner = {
+      manager: {
+        query: async (sql, params) => {
+          queries.push({ sql, params });
+          if (sql.includes('SELECT _id, "onHand"') && sql.includes('FROM ecommerce.inventory')) {
+            return [{ _id: 'inv-1', variantId, onHand: 10, reserved: 2, available: 8 }];
+          }
+          if (sql.includes('INSERT INTO ecommerce.inventory_reservations')) {
+            return [{ _id: 'res-new-1', orderId, variantId, quantity: 3, status: 'active', expiresAt: new Date(), createdAt: new Date(), updatedAt: new Date() }];
+          }
+          if (sql.includes('FROM ecommerce.inventory_reservations') && sql.includes('"orderId" = $1')) {
+            return [{ _id: 'res-new-1', variantId, quantity: 3 }];
+          }
+          if (sql.includes('FROM ecommerce.inventory') && sql.includes('FOR UPDATE')) {
+            return [{ _id: 'inv-1', onHand: 10, reserved: 5, available: 5 }];
+          }
+          return [];
+        },
+      },
+    };
+
+    const reserveAction = new ReserveStockAction(mockRunner);
+    const reservation = await reserveAction.execute(orderId, variantId, 3);
+    assert.equal(reservation._id, 'res-new-1');
+    assert.equal(reservation.quantity, 3);
+
+    const releaseAction = new ReleaseOrderReservationsAction(mockRunner);
+    await releaseAction.execute(orderId, 'Order cancelled');
+    assert.ok(queries.some((q) => q.sql.includes('UPDATE ecommerce.inventory_reservations')));
   });
 });

@@ -16,6 +16,8 @@ import { LoadOrdersAction } from './loadOrders/loadOrders.action';
 import { LoadOrdersValidation } from './loadOrders/loadOrders.validation';
 import { LoadOrderByIdAction } from './loadOrderById/loadOrderById.action';
 import { LoadOrderByIdValidation } from './loadOrderById/loadOrderById.validation';
+import { FindOrderByOrderNumberAction } from './findOrderByOrderNumber/findOrderByOrderNumber.action';
+import { FindOrderByOrderNumberValidation } from './findOrderByOrderNumber/findOrderByOrderNumber.validation';
 import { CancelOrderAction } from './cancelOrder/cancelOrder.action';
 import { CancelOrderValidation } from './cancelOrder/cancelOrder.validation';
 import { UpdateOrderStatusAction } from './updateOrderStatus/updateOrderStatus.action';
@@ -44,6 +46,11 @@ export class DatabaseOrderRepository implements IOrderRepository {
   async loadOrderById(orderId: string, customerId?: string): Promise<OrderModel | null> {
     new LoadOrderByIdValidation().execute(orderId, customerId);
     return new LoadOrderByIdAction(this.dataSource).execute(orderId, customerId);
+  }
+
+  async findOrderByOrderNumber(orderNumber: string): Promise<OrderModel | null> {
+    new FindOrderByOrderNumberValidation().execute(orderNumber);
+    return new FindOrderByOrderNumberAction(this.dataSource).execute(orderNumber);
   }
 
   async cancelOrder(orderId: string, customerId?: string, reason?: string): Promise<OrderModel> {

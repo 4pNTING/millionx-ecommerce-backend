@@ -7,6 +7,7 @@ import { OrderUsecasesProxyModule } from '../../usecases-proxy/order-usecases-pr
 import { CreateOrderUseCase } from '../../../usecases/order/createOrder.usecase';
 import { LoadOrdersUseCase } from '../../../usecases/order/loadOrders.usecase';
 import { LoadOrderByIdUseCase } from '../../../usecases/order/loadOrderById.usecase';
+import { FindOrderByOrderNumberUseCase } from '../../../usecases/order/findOrderByOrderNumber.usecase';
 import { CancelOrderUseCase } from '../../../usecases/order/cancelOrder.usecase';
 import { UpdateOrderStatusUseCase } from '../../../usecases/order/updateOrderStatus.usecase';
 import {
@@ -35,6 +36,8 @@ export class OrderResolver {
     private readonly loadOrdersUseCase: LoadOrdersUseCase,
     @Inject(OrderUsecasesProxyModule.LOAD_ORDER_BY_ID_PROXY)
     private readonly loadOrderByIdUseCase: LoadOrderByIdUseCase,
+    @Inject(OrderUsecasesProxyModule.FIND_ORDER_BY_ORDER_NUMBER_PROXY)
+    private readonly findOrderByOrderNumberUseCase: FindOrderByOrderNumberUseCase,
     @Inject(OrderUsecasesProxyModule.CANCEL_ORDER_PROXY)
     private readonly cancelOrderUseCase: CancelOrderUseCase,
     @Inject(OrderUsecasesProxyModule.UPDATE_ORDER_STATUS_PROXY)
@@ -86,6 +89,12 @@ export class OrderResolver {
     const isCustomer = context.req?.user?.actorType === 'customer';
     const customerId = isCustomer ? context.req?.user?.customerId : undefined;
     return this.loadOrderByIdUseCase.execute(_id, customerId);
+  }
+
+  @Query(() => Order, { nullable: true })
+  @UseGuards(JwtAuthGuard)
+  async orderByOrderNumber(@Args('orderNumber') orderNumber: string) {
+    return this.findOrderByOrderNumberUseCase.execute(orderNumber);
   }
 
   @Mutation(() => Order)

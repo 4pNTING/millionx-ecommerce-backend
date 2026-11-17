@@ -128,6 +128,10 @@ flowchart LR
 * **`inventory_reservations`**: การจองสต็อกชั่วคราวระหว่างรอชำระเงิน พร้อมเวลาหมดอายุ
 
 ### 2. ระบบการทำงานหลัก (Core Features)
+* **โครงสร้าง Repository แบบแยกโฟลเดอร์ CRUD (Modular Repository Pattern ตามแบบ `zone`):**
+  * โค้ดในชั้น Infrastructure ของ Phase 3 ทั้ง `order` และ `inventory` ถูกแยกโฟลเดอร์ย่อยตาม Operation แต่ละตัวอย่างชัดเจน ประกอบด้วย `<operation>.action.ts` (Logic & Database Transaction) และ `<operation>.validation.ts` (Validation Rule)
+  * **Order Actions:** `createOrder/`, `loadOrders/`, `loadOrderById/`, `findOrderByOrderNumber/`, `cancelOrder/`, `updateOrderStatus/`
+  * **Inventory Actions:** `getInventory/`, `adjustStock/`, `reserveStock/`, `releaseOrderReservations/`, `releaseExpiredReservations/`
 * **การแปลง Checkout Session สู่ Order จริง (`createOrderFromCheckout`):**
   * ดึงข้อมูลและราคาจาก `priceSnapshot` ใน Checkout Session มาสร้าง Order อย่างสมบูรณ์
   * สร้างเลขที่คำสั่งซื้อที่เป็นมิตรต่อผู้ใช้ (Human-readable Order Number เช่น `MX-20261117-00124`) แยกออกจาก `_id` ที่เป็น UUID
@@ -147,7 +151,12 @@ flowchart LR
 * เมื่อคำสั่งซื้อเสร็จสมบูรณ์ (`completed`) จะทำการตัดสต็อกออกจาก `onHand` อย่างถาวร
 
 ### 4. การทดสอบ & Deploy
-* **Automated Tests:** `npm run test:order` 10/10 ผ่าน, `npm run test:shopping` 11/11 ผ่าน, `npm run test:contract` 10/10 ผ่าน, `npm run test:catalog` 9/9 ผ่าน
+* **Automated Tests:**
+  * `npm run test:order`: 12/12 ผ่าน (ครอบคลุม CRUD actions, Pessimistic Lock, Expiry worker, Validations)
+  * `npm run test:shopping`: 11/11 ผ่าน
+  * `npm run test:contract`: 10/10 ผ่าน
+  * `npm run test:catalog`: 9/9 ผ่าน
+  * **รวมผ่านทั้งหมด 42 Automated Unit & Contract Tests (100% Pass)**
 * **Bruno API Suite:** Requests 36–43 ผ่านครบ 100% (รวม Requests 01–43 ผ่านทั้งหมด 43/43)
 * **Docker Image:** บิลด์และแท็กเป็น `millionx-ecommerce-backend:latest` ใช้งานบนพอร์ต `3001`
 * **Git:** บันทึกและ Push ขึ้นกิ่ง `main` บน GitHub เรียบร้อย

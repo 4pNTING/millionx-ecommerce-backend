@@ -352,6 +352,7 @@ type Query {
   myWishlist: Wishlist!
   myOrders(input: LoadOrderDto): OrderListPayload!
   order(_id: String!): Order
+  orderByOrderNumber(orderNumber: String!): Order
   inventory(variantId: String!): Inventory
 }
 

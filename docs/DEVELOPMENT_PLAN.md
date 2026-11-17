@@ -95,13 +95,14 @@
 6. ບັນທຶກ status history.
 7. ທົດສອບ concurrent checkout ເພື່ອປ້ອງກັນ overselling.
 
-### ສະຖານະກວດລ່າສຸດ — 2026-11-17 (Phase 3 Completed)
+### ສະຖານະກວດລ່າສຸດ — 2026-11-18 (Phase 3 Completed & Modularized)
 
 - **Implementation:** ສຳເລັດ 6 ຕາຕະລາງ (`orders`, `order_items`, `order_status_history`, `inventory`, `inventory_movements`, `inventory_reservations`) ພ້ອມ Entity, Domain Model, Repository, Use Case, Proxy Module, GraphQL Resolvers ແລະ DTOs ທັງໝົດ (ລວມທັງໝົດ 22 ຕາຕະລາງ).
+- **Modular CRUD Architecture:** ແຍກໂຄງສ້າງ Repositories ຂອງ `order` ແລະ `inventory` ອອກເປັນ Subfolder ຕາມ Operation (Action + Validation) ແບບດຽວກັບ `src/infrastructure/repositories/zone/` ຢ່າງສົມບູນ.
 - **Database Init & Migrations:** ສ້າງ `database/init/04_order_inventory.sql` ແລະ `database/migrations/20261117_phase3_order_inventory.sql` (Seed ສະຕັອກເລີ່ມຕົ້ນ 100 ໃຫ້ທຸກ Product Variant).
-- **GraphQL Schema:** ອັບເດດ `src/schema.gql` ຮອງຮັບ Queries: `myOrders`, `order`, `inventory` ແລະ Mutations: `createOrder`, `cancelOrder`, `updateOrderStatus`, `adjustInventory`, `releaseExpiredReservations`.
+- **GraphQL Schema:** ອັບເດດ `src/schema.gql` ຮອງຮັບ Queries: `myOrders`, `order`, `orderByOrderNumber`, `inventory` ແລະ Mutations: `createOrder`, `cancelOrder`, `updateOrderStatus`, `adjustInventory`, `releaseExpiredReservations`.
 - **Testing:**
-  - `npm run test:order` ຜ່ານ 10/10 tests (Validations, Action logic, Pessimistic lock, Anti-overselling rejection, Reservation release, Auto-cancellation).
+  - `npm run test:order` ຜ່ານ 12/12 tests (Validations, Action logic, Pessimistic lock, Anti-overselling rejection, Reservation release, Auto-cancellation, Order Number lookup, Stock Reservations CRUD).
   - `npm run test:shopping` ຜ່ານ 11/11 tests.
   - `npm run test:contract` ຜ່ານ 10/10 tests (ກວດສອບ 22 entities ມີ `_id`, DTO naming convention, ແລະ Bruno requests 43 ຊຸດ validate ຜ່ານ schema).
   - `npm run test:catalog` ຜ່ານ 9/9 tests.
