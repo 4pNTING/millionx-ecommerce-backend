@@ -22,7 +22,7 @@ Backend ສຳລັບ MillionX E-commerce ສ້າງດ້ວຍ NestJS ແ�
 
 ## Database Schema
 
-`ecommerce` ມີ 15 ຕາຕະລາງ (Phase 1 Foundation + Phase 2 Shopping):
+`ecommerce` ມີ 22 ຕາຕະລາງ (Phase 1 Foundation + Phase 2 Shopping + Phase 3 Order & Inventory):
 
 ### Phase 1 — Foundation
 
@@ -45,6 +45,15 @@ Backend ສຳລັບ MillionX E-commerce ສ້າງດ້ວຍ NestJS ແ�
 - `checkout_sessions`
 - `wishlists`
 - `wishlist_items`
+
+### Phase 3 — Order & Inventory
+
+- `orders`
+- `order_items`
+- `order_status_history`
+- `inventory`
+- `inventory_movements`
+- `inventory_reservations`
 
 `users` ໃຊ້ສະເພາະ Staff/Admin. Customer login ໃຊ້ `customer_accounts` ທີ່ເຊື່ອມກັບ `customers._id` ຜ່ານ `customerId`.
 
@@ -187,6 +196,8 @@ business constraints, bcrypt password, Admin account ແລະ Customer account 
 ## ເອກະສານ
 
 - `docs/ARCHITECTURE.md` — ໂຄງສ້າງແລະກົດຂອງ code
+- `docs/PROJECT_PHASES_DOCUMENT.md` — ສະຖາປັດຕະຍະກຳແລະລາຍລະອຽດທຸກ Phase (Phase 1–5)
 - `docs/PHASE_01_GUIDE.md` — API ແລະວິທີທົດສອບ Phase 1
 - `docs/PHASE_02_GUIDE.md` — API ແລະວິທີທົດສອບ Phase 2 (Shopping)
+- `docs/PHASE_03_GUIDE.md` — API ແລະວິທີທົດສອບ Phase 3 (Order + Inventory)
 - `docs/DEVELOPMENT_PLAN.md` — ແຜນ Phase ຕໍ່ໄປ
