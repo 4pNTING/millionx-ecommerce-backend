@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import {
   CheckoutSessionModel,
+  CheckoutSessionStatus,
   PriceSnapshotItemModel,
 } from '../../domain/models/checkout-session.model';
 
@@ -43,7 +44,7 @@ export class CheckoutSessionEntity implements CheckoutSessionModel {
   priceSnapshot: PriceSnapshotItemModel[];
 
   @Column({ length: 50, default: 'open' })
-  status: 'open' | 'completed' | 'expired' | 'abandoned';
+  status: CheckoutSessionStatus;
 
   @Column('timestamptz')
   expiresAt: Date;

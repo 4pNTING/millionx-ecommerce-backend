@@ -2,11 +2,11 @@ import { BadRequestException } from '@nestjs/common';
 import { OrderStatus } from '../../../../domain/models/order.model';
 
 const VALID_STATUSES: OrderStatus[] = [
-  'pending',
-  'confirmed',
-  'processing',
-  'completed',
-  'cancelled',
+  OrderStatus.pending,
+  OrderStatus.confirmed,
+  OrderStatus.processing,
+  OrderStatus.completed,
+  OrderStatus.cancelled,
 ];
 
 export class UpdateOrderStatusValidation {

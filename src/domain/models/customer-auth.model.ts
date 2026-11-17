@@ -27,6 +27,10 @@ export interface RegisteredCustomerAccount {
   customer: CustomerProfileModel;
 }
 
+import { SocialProvider } from '../enums/enum';
+
+export { SocialProvider };
+
 export interface CustomerAuthResponse {
   accountId: string;
   customerId: string;
@@ -34,11 +38,6 @@ export interface CustomerAuthResponse {
   phone?: string;
   token: string;
   refreshToken: string;
-}
-
-export enum SocialProvider {
-  GOOGLE = 'GOOGLE',
-  FACEBOOK = 'FACEBOOK',
 }
 
 export interface SocialLoginCustomerRequest {

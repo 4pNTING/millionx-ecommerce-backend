@@ -2,6 +2,7 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { DataSource, QueryRunner } from 'typeorm';
 import {
   CheckoutSessionModel,
+  CheckoutSessionStatus,
   CreateCheckoutSessionRequest,
   PriceSnapshotItemModel,
 } from '../../../../domain/models/checkout-session.model';
@@ -129,7 +130,7 @@ export class CreateCheckoutSessionAction {
       total: totalNum.toFixed(2),
       currency: resolvedCurrency,
       priceSnapshot,
-      status: 'open',
+      status: CheckoutSessionStatus.open,
       expiresAt,
     });
 

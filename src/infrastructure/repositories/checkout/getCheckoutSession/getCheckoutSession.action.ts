@@ -1,6 +1,6 @@
 import { Repository } from 'typeorm';
 import { CheckoutSessionEntity } from '../../../entities/checkout-session.entity';
-import { CheckoutSessionModel } from '../../../../domain/models/checkout-session.model';
+import { CheckoutSessionModel, CheckoutSessionStatus } from '../../../../domain/models/checkout-session.model';
 
 export class GetCheckoutSessionAction {
   constructor(private readonly checkoutRepo: Repository<CheckoutSessionEntity>) {}
@@ -17,8 +17,8 @@ export class GetCheckoutSessionAction {
     }
 
     // Auto-expire if open and past expiresAt
-    if (session.status === 'open' && new Date(session.expiresAt) < new Date()) {
-      session.status = 'expired';
+    if (session.status === CheckoutSessionStatus.open && new Date(session.expiresAt) < new Date()) {
+      session.status = CheckoutSessionStatus.expired;
       await this.checkoutRepo.save(session);
     }
 

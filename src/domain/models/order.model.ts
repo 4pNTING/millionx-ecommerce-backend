@@ -1,9 +1,6 @@
-export type OrderStatus =
-  | 'pending'
-  | 'confirmed'
-  | 'processing'
-  | 'completed'
-  | 'cancelled';
+import { OrderStatus } from '../enums/enum';
+
+export { OrderStatus };
 
 export interface OrderShippingAddress {
   recipientName: string;

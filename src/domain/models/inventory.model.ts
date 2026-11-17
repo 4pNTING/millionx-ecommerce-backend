@@ -1,3 +1,15 @@
+import {
+  InventoryMovementType,
+  InventoryMovementReferenceType,
+  InventoryReservationStatus,
+} from '../enums/enum';
+
+export {
+  InventoryMovementType,
+  InventoryMovementReferenceType,
+  InventoryReservationStatus,
+};
+
 export interface InventoryModel {
   _id: string;
   variantId: string;
@@ -6,19 +18,6 @@ export interface InventoryModel {
   available: number;
   updatedAt: Date;
 }
-
-export type InventoryMovementType =
-  | 'inbound'
-  | 'outbound'
-  | 'reserved'
-  | 'released'
-  | 'adjustment';
-
-export type InventoryMovementReferenceType =
-  | 'order'
-  | 'purchase_order'
-  | 'manual_adjustment'
-  | 'reservation_release';
 
 export interface InventoryMovementModel {
   _id: string;
@@ -30,12 +29,6 @@ export interface InventoryMovementModel {
   note?: string | null;
   createdAt: Date;
 }
-
-export type InventoryReservationStatus =
-  | 'active'
-  | 'consumed'
-  | 'released'
-  | 'expired';
 
 export interface InventoryReservationModel {
   _id: string;

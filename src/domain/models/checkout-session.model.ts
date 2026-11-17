@@ -1,3 +1,7 @@
+import { CheckoutSessionStatus } from '../enums/enum';
+
+export { CheckoutSessionStatus };
+
 export interface PriceSnapshotItemModel {
   variantId: string;
   sku: string;
@@ -22,7 +26,7 @@ export interface CheckoutSessionModel {
   total: string;
   currency: string;
   priceSnapshot: PriceSnapshotItemModel[];
-  status: 'open' | 'completed' | 'expired' | 'abandoned';
+  status: CheckoutSessionStatus;
   expiresAt: Date;
   createdAt: Date;
   updatedAt: Date;

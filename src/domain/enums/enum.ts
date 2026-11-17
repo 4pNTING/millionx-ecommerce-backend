@@ -17,16 +17,82 @@ registerEnumType(ActiveStatus, {
   description: 'Filter for active, inactive, or all items',
 });
 
+// ─── Social Provider ──────────────────────────────────────
+export enum SocialProvider {
+  GOOGLE = 'GOOGLE',
+  FACEBOOK = 'FACEBOOK',
+}
+
+registerEnumType(SocialProvider, {
+  name: 'SocialProvider',
+  description: 'Supported social login providers',
+});
+
+// ─── Order Status ─────────────────────────────────────────
+export enum OrderStatus {
+  pending = 'pending',
+  confirmed = 'confirmed',
+  processing = 'processing',
+  completed = 'completed',
+  cancelled = 'cancelled',
+}
+
+registerEnumType(OrderStatus, {
+  name: 'OrderStatus',
+  description: 'Lifecycle status of a customer order',
+});
+
+// ─── Inventory Movement Type ──────────────────────────────
 export enum InventoryMovementType {
-  IN = 'in',
-  OUT = 'out',
-  TRANSFER = 'transfer',
-  ADJUST = 'adjust',
+  inbound = 'inbound',
+  outbound = 'outbound',
+  reserved = 'reserved',
+  released = 'released',
+  adjustment = 'adjustment',
 }
 
 registerEnumType(InventoryMovementType, {
   name: 'InventoryMovementType',
-  description: 'Type of inventory movement: in, out, transfer, or adjust',
+  description: 'Type of inventory movement: inbound, outbound, reserved, released, or adjustment',
+});
+
+// ─── Inventory Movement Reference Type ────────────────────
+export enum InventoryMovementReferenceType {
+  order = 'order',
+  purchase_order = 'purchase_order',
+  manual_adjustment = 'manual_adjustment',
+  reservation_release = 'reservation_release',
+}
+
+registerEnumType(InventoryMovementReferenceType, {
+  name: 'InventoryMovementReferenceType',
+  description: 'Reference source for inventory movement',
+});
+
+// ─── Inventory Reservation Status ─────────────────────────
+export enum InventoryReservationStatus {
+  active = 'active',
+  consumed = 'consumed',
+  released = 'released',
+  expired = 'expired',
+}
+
+registerEnumType(InventoryReservationStatus, {
+  name: 'InventoryReservationStatus',
+  description: 'Status of an inventory reservation: active, consumed, released, or expired',
+});
+
+// ─── Checkout Session Status ──────────────────────────────
+export enum CheckoutSessionStatus {
+  open = 'open',
+  completed = 'completed',
+  expired = 'expired',
+  abandoned = 'abandoned',
+}
+
+registerEnumType(CheckoutSessionStatus, {
+  name: 'CheckoutSessionStatus',
+  description: 'Status of a checkout session: open, completed, expired, or abandoned',
 });
 
 // ─── Table Status ─────────────────────────────────────────
@@ -40,21 +106,6 @@ export enum TableStatus {
 registerEnumType(TableStatus, {
   name: 'TableStatus',
   description: 'Status of a restaurant table',
-});
-
-// ─── Order Status ─────────────────────────────────────────
-export enum OrderStatus {
-  pending = 'pending', // รอยืนยัน
-  confirmed = 'confirmed', // ยืนยันแล้ว
-  preparing = 'preparing', // กำลังเตรียม
-  served = 'served', // เสิร์ฟแล้ว
-  paid = 'paid', // ชำระแล้ว
-  cancelled = 'cancelled', // ยกเลิก
-}
-
-registerEnumType(OrderStatus, {
-  name: 'OrderStatus',
-  description: 'Lifecycle status of a customer order',
 });
 
 // ─── Payment Method ───────────────────────────────────────
