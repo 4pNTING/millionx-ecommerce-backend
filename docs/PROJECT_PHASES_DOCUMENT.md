@@ -150,16 +150,9 @@ flowchart LR
 * เมื่อคำสั่งซื้อถูกยกเลิก (`cancelled`) จะทำการปล่อยสต็อกที่จองไว้คืนเป็น `available` ทันที
 * เมื่อคำสั่งซื้อเสร็จสมบูรณ์ (`completed`) จะทำการตัดสต็อกออกจาก `onHand` อย่างถาวร
 
-### 4. การทดสอบ & Deploy
-* **Automated Tests:**
-  * `npm run test:order`: 12/12 ผ่าน (ครอบคลุม CRUD actions, Pessimistic Lock, Expiry worker, Validations)
-  * `npm run test:shopping`: 11/11 ผ่าน
-  * `npm run test:contract`: 10/10 ผ่าน
-  * `npm run test:catalog`: 9/9 ผ่าน
-  * **รวมผ่านทั้งหมด 42 Automated Unit & Contract Tests (100% Pass)**
-* **Bruno API Suite:** Requests 36–43 ผ่านครบ 100% (รวม Requests 01–43 ผ่านทั้งหมด 43/43)
+### 4. การ Deploy & ส่งมอบระบบ
 * **Docker Image:** บิลด์และแท็กเป็น `millionx-ecommerce-backend:latest` ใช้งานบนพอร์ต `3001`
-* **Git:** บันทึกและ Push ขึ้นกิ่ง `main` บน GitHub เรียบร้อย
+* **Git Repository:** บันทึกและ Push ขึ้นกิ่ง `main` บน GitHub เรียบร้อย
 
 ---
 

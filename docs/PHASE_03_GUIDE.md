@@ -348,28 +348,4 @@ mutation ReleaseExpiredReservations {
    * ເມື່ອ Order ຖືກຍົກເລີກ (`cancelled`), ສະຕັອກທີ່ `reserved` ໄວ້ຈະຖືກປ່ອຍຄືນເປັນ `available` ທັນທີ.
    * ເມື່ອ Order ສຳເລັດ (`completed`), ສະຕັອກຈະຖືກຫັກອອກຈາກ `onHand` ຢ່າງຖາວອນ.
 
----
-
-## ການທົດສອບ & Verification (Tests)
-
-* **Unit & Logic Tests (`npm run test:order`):** ຜ່ານ 12/12 tests
-  1. `CreateOrderValidation` validates customerId, checkoutSessionId, and shippingAddress
-  2. `LoadOrdersValidation` validates customerId and paging bounds
-  3. `CancelOrderValidation` and `UpdateOrderStatusValidation` validate IDs and statuses
-  4. `AdjustStockValidation` validates UUID, quantityDelta and movement types
-  5. `CreateOrderAction` creates order, reserves inventory, and marks session completed
-  6. `CreateOrderAction` throws error if stock is insufficient
-  7. `CancelOrderAction` releases reservations and sets status cancelled
-  8. `UpdateOrderStatusAction` deducts onHand when completed
-  9. `AdjustStockAction` increases or decreases onHand correctly
-  10. `ReleaseExpiredReservationsAction` releases stale reservations and cancels pending order
-  11. `FindOrderByOrderNumberValidation`, `ReserveStockValidation`, and `ReleaseOrderReservationsValidation` validate inputs
-  12. `ReserveStockAction` and `ReleaseOrderReservationsAction` perform CRUD on reservations and inventory
-* **All Automated Test Suites:**
-  * `npm run test:order`: 12/12 ຜ່ານ
-  * `npm run test:shopping`: 11/11 ຜ່ານ
-  * `npm run test:contract`: 10/10 ຜ່ານ
-  * `npm run test:catalog`: 9/9 ຜ່ານ
-  * **ລວມທັງໝົດ 42 tests ຜ່ານ 100%**
-* **Bruno API Collection:** 43/43 requests ຜ່ານ 100% (Requests 01–43)
 
