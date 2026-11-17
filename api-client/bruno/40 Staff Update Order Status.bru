@@ -1,0 +1,38 @@
+meta {
+  name: 40 Staff Update Order Status
+  type: http
+  seq: 40
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{staffToken}}
+}
+
+body:json {
+  {
+    "query": "mutation UpdateOrderStatus($input: UpdateOrderStatusDto!) { updateOrderStatus(input: $input) { _id orderNumber status statusHistory { fromStatus toStatus note createdBy } } }",
+    "variables": {
+      "input": {
+        "_id": "{{orderId}}",
+        "status": "confirmed",
+        "note": "Order verified by admin"
+      }
+    }
+  }
+}
+
+tests {
+  test("Staff ສາມາດປ່ຽນສະຖານະ Order ເປັນ confirmed ໄດ້", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.updateOrderStatus._id).to.equal(bru.getEnvVar("orderId"));
+    expect(res.getBody().data.updateOrderStatus.status).to.equal("confirmed");
+  });
+}

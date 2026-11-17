@@ -95,6 +95,21 @@
 6. ບັນທຶກ status history.
 7. ທົດສອບ concurrent checkout ເພື່ອປ້ອງກັນ overselling.
 
+### ສະຖານະກວດລ່າສຸດ — 2026-11-17 (Phase 3 Completed)
+
+- **Implementation:** ສຳເລັດ 6 ຕາຕະລາງ (`orders`, `order_items`, `order_status_history`, `inventory`, `inventory_movements`, `inventory_reservations`) ພ້ອມ Entity, Domain Model, Repository, Use Case, Proxy Module, GraphQL Resolvers ແລະ DTOs ທັງໝົດ (ລວມທັງໝົດ 22 ຕາຕະລາງ).
+- **Database Init & Migrations:** ສ້າງ `database/init/04_order_inventory.sql` ແລະ `database/migrations/20261117_phase3_order_inventory.sql` (Seed ສະຕັອກເລີ່ມຕົ້ນ 100 ໃຫ້ທຸກ Product Variant).
+- **GraphQL Schema:** ອັບເດດ `src/schema.gql` ຮອງຮັບ Queries: `myOrders`, `order`, `inventory` ແລະ Mutations: `createOrder`, `cancelOrder`, `updateOrderStatus`, `adjustInventory`, `releaseExpiredReservations`.
+- **Testing:**
+  - `npm run test:order` ຜ່ານ 10/10 tests (Validations, Action logic, Pessimistic lock, Anti-overselling rejection, Reservation release, Auto-cancellation).
+  - `npm run test:shopping` ຜ່ານ 11/11 tests.
+  - `npm run test:contract` ຜ່ານ 10/10 tests (ກວດສອບ 22 entities ມີ `_id`, DTO naming convention, ແລະ Bruno requests 43 ຊຸດ validate ຜ່ານ schema).
+  - `npm run test:catalog` ຜ່ານ 9/9 tests.
+  - `npm run test:bruno` ຜ່ານ 43/43 requests (100% pass, HTTP 429 Verified).
+- **Bruno Collection:** ເພີ່ມ Requests 36 ຫາ 43 ສຳລັບ Check Inventory, Create Order, My Orders, Get Order By Id, Staff Update Status, Staff Adjust Inventory, Cancel Order, ແລະ Release Expired Reservations.
+- **Docker & Deploy:** Build ແລະ deploy image `millionx-ecommerce-backend:latest` ພ້ອມ start container `millionx_ecommerce_backend` ສຳເລັດ.
+- **Documentation:** ສ້າງ `docs/PHASE_03_GUIDE.md` ແລະອັບເດດ `docs/PROJECT_PHASES_DOCUMENT.md`.
+
 ## Phase 4 — Payment + Delivery
 
 ຕາຕະລາງ: payments, refunds, webhook_events, shipping_methods, shipments, shipment_items.

@@ -1,0 +1,41 @@
+meta {
+  name: 41 Staff Adjust Inventory
+  type: http
+  seq: 41
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{staffToken}}
+}
+
+body:json {
+  {
+    "query": "mutation AdjustInventory($input: AdjustStockDto!) { adjustInventory(input: $input) { _id variantId onHand reserved available updatedAt } }",
+    "variables": {
+      "input": {
+        "variantId": "{{variantId}}",
+        "quantityDelta": 10,
+        "type": "inbound",
+        "referenceType": "purchase_order",
+        "note": "Restocked new batch"
+      }
+    }
+  }
+}
+
+tests {
+  test("Staff ສາມາດປັບປຸງສະຕັອກສິນຄ້າ (Adjust Stock) ໄດ້", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.adjustInventory._id).to.be.a("string");
+    expect(res.getBody().data.adjustInventory.variantId).to.equal(bru.getEnvVar("variantId"));
+    expect(res.getBody().data.adjustInventory.available).to.be.a("number");
+  });
+}

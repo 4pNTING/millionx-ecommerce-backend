@@ -37,3 +37,10 @@ tests {
   });
 }
 
+script:post-response {
+  if (res.getStatus() === 200 && res.getBody()?.data?.createCheckoutSession?._id) {
+    bru.setEnvVar("checkoutSessionId", res.getBody().data.createCheckoutSession._id);
+  }
+}
+
+

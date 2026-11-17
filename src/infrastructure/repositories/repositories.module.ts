@@ -34,6 +34,16 @@ import { DatabaseCartRepository } from './cart/cart.repository';
 import { DatabaseCheckoutRepository } from './checkout/checkout.repository';
 import { DatabaseWishlistRepository } from './wishlist/wishlist.repository';
 
+// Order & Inventory (Phase 3)
+import { OrderEntity } from '../entities/order.entity';
+import { OrderItemEntity } from '../entities/order-item.entity';
+import { OrderStatusHistoryEntity } from '../entities/order-status-history.entity';
+import { InventoryEntity } from '../entities/inventory.entity';
+import { InventoryMovementEntity } from '../entities/inventory-movement.entity';
+import { InventoryReservationEntity } from '../entities/inventory-reservation.entity';
+import { DatabaseOrderRepository } from './order/order.repository';
+import { DatabaseInventoryRepository } from './inventory/inventory.repository';
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -57,6 +67,13 @@ import { DatabaseWishlistRepository } from './wishlist/wishlist.repository';
       CheckoutSessionEntity,
       WishlistEntity,
       WishlistItemEntity,
+      // Order & Inventory (Phase 3)
+      OrderEntity,
+      OrderItemEntity,
+      OrderStatusHistoryEntity,
+      InventoryEntity,
+      InventoryMovementEntity,
+      InventoryReservationEntity,
     ]),
   ],
   providers: [
@@ -73,6 +90,9 @@ import { DatabaseWishlistRepository } from './wishlist/wishlist.repository';
     DatabaseCartRepository,
     DatabaseCheckoutRepository,
     DatabaseWishlistRepository,
+    // Order & Inventory (Phase 3)
+    DatabaseOrderRepository,
+    DatabaseInventoryRepository,
   ],
   exports: [
     // Staff and zone
@@ -88,6 +108,9 @@ import { DatabaseWishlistRepository } from './wishlist/wishlist.repository';
     DatabaseCartRepository,
     DatabaseCheckoutRepository,
     DatabaseWishlistRepository,
+    // Order & Inventory (Phase 3)
+    DatabaseOrderRepository,
+    DatabaseInventoryRepository,
   ],
 })
 export class RepositoriesModule {}

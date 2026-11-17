@@ -1,0 +1,37 @@
+meta {
+  name: 38 My Orders
+  type: http
+  seq: 38
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{customerToken}}
+}
+
+body:json {
+  {
+    "query": "query MyOrders($input: LoadOrderDto) { myOrders(input: $input) { total page limit items { _id orderNumber status total currency items { sku productName quantity subtotal } } } }",
+    "variables": {
+      "input": {
+        "page": 1,
+        "limit": 10
+      }
+    }
+  }
+}
+
+tests {
+  test("ສາມາດດຶງລາຍການຄຳສັ່ງຊື້ທັງໝົດຂອງລູກຄ້າໄດ້", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.myOrders.total).to.be.a("number");
+    expect(res.getBody().data.myOrders.items).to.be.an("array");
+  });
+}

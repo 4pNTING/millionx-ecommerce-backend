@@ -1,0 +1,51 @@
+meta {
+  name: 37 Create Order From Checkout
+  type: http
+  seq: 37
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{customerToken}}
+}
+
+body:json {
+  {
+    "query": "mutation CreateOrder($input: CreateOrderDto!) { createOrder(input: $input) { _id orderNumber customerId status subtotal discountAmount shippingAmount taxAmount total currency shippingAddress { recipientName phone addressLine1 city country } items { _id variantId sku productName quantity unitPrice subtotal } statusHistory { _id fromStatus toStatus note createdBy } createdAt } }",
+    "variables": {
+      "input": {
+        "checkoutSessionId": "{{checkoutSessionId}}",
+        "shippingAddress": {
+          "recipientName": "Somchai Vongsa",
+          "phone": "02012345678",
+          "addressLine1": "Lane Xang Avenue",
+          "city": "Vientiane",
+          "country": "Laos"
+        },
+        "notes": "Please handle with care"
+      }
+    }
+  }
+}
+
+tests {
+  test("ສາມາດສ້າງ Order ຈາກ Checkout Session ແລະຕັດຈອງສະຕັອກສຳເລັດ", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.createOrder._id).to.be.a("string");
+    expect(res.getBody().data.createOrder.status).to.equal("pending");
+    expect(res.getBody().data.createOrder.items.length).to.be.greaterThan(0);
+  });
+}
+
+script:post-response {
+  if (res.getStatus() === 200 && res.getBody()?.data?.createOrder?._id) {
+    bru.setEnvVar("orderId", res.getBody().data.createOrder._id);
+  }
+}

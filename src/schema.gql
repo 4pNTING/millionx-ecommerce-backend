@@ -265,6 +265,77 @@ type Wishlist {
   updatedAt: DateTime!
 }
 
+type OrderShippingAddressOutput {
+  recipientName: String!
+  phone: String!
+  addressLine1: String!
+  addressLine2: String
+  city: String
+  stateProvince: String
+  postalCode: String
+  country: String
+}
+
+type OrderItem {
+  _id: String!
+  orderId: String!
+  variantId: String!
+  sku: String!
+  productName: String!
+  variantName: String!
+  quantity: Int!
+  unitPrice: String!
+  subtotal: String!
+  createdAt: DateTime!
+}
+
+type OrderStatusHistory {
+  _id: String!
+  orderId: String!
+  fromStatus: String
+  toStatus: String!
+  note: String
+  createdBy: String!
+  createdAt: DateTime!
+}
+
+type Order {
+  _id: String!
+  orderNumber: String!
+  customerId: String!
+  checkoutSessionId: String
+  subtotal: String!
+  discountAmount: String!
+  shippingAmount: String!
+  taxAmount: String!
+  total: String!
+  currency: String!
+  status: String!
+  shippingAddress: OrderShippingAddressOutput!
+  billingAddress: OrderShippingAddressOutput
+  notes: String
+  items: [OrderItem!]!
+  statusHistory: [OrderStatusHistory!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type OrderListPayload {
+  items: [Order!]!
+  total: Int!
+  page: Int!
+  limit: Int!
+}
+
+type Inventory {
+  _id: String!
+  variantId: String!
+  onHand: Int!
+  reserved: Int!
+  available: Int!
+  updatedAt: DateTime!
+}
+
 """DateTime scalar — returns ISO 8601 UTC string"""
 scalar DateTime
 
@@ -279,6 +350,9 @@ type Query {
   myCart(sessionId: String): Cart
   checkoutSession(_id: String!): CheckoutSession
   myWishlist: Wishlist!
+  myOrders(input: LoadOrderDto): OrderListPayload!
+  order(_id: String!): Order
+  inventory(variantId: String!): Inventory
 }
 
 input LoadZoneDto {
@@ -329,6 +403,12 @@ input LoadCustomerDto {
   accountIsActive: ActiveStatus = all
 }
 
+input LoadOrderDto {
+  status: String
+  page: Int = 1
+  limit: Int = 20
+}
+
 type Mutation {
   login(input: LoginDto!): LoginPayload!
   refreshStaffToken(input: RefreshTokenDto!): LoginPayload!
@@ -363,6 +443,11 @@ type Mutation {
   createCheckoutSession(input: CreateCheckoutSessionDto): CheckoutSession!
   addToWishlist(input: AddToWishlistDto!): Wishlist!
   removeFromWishlist(input: RemoveFromWishlistDto!): Wishlist!
+  createOrder(input: CreateOrderDto!): Order!
+  cancelOrder(input: CancelOrderDto!): Order!
+  updateOrderStatus(input: UpdateOrderStatusDto!): Order!
+  adjustInventory(input: AdjustStockDto!): Inventory!
+  releaseExpiredReservations: Int!
 }
 
 input LoginDto {
@@ -630,4 +715,41 @@ input AddToWishlistDto {
 
 input RemoveFromWishlistDto {
   productId: String!
+}
+
+input CreateOrderDto {
+  checkoutSessionId: String!
+  shippingAddress: OrderShippingAddressInput!
+  billingAddress: OrderShippingAddressInput
+  notes: String
+}
+
+input OrderShippingAddressInput {
+  recipientName: String!
+  phone: String!
+  addressLine1: String!
+  addressLine2: String
+  city: String
+  stateProvince: String
+  postalCode: String
+  country: String
+}
+
+input CancelOrderDto {
+  _id: String!
+  reason: String
+}
+
+input UpdateOrderStatusDto {
+  _id: String!
+  status: String!
+  note: String
+}
+
+input AdjustStockDto {
+  variantId: String!
+  quantityDelta: Int!
+  type: String! = "adjustment"
+  referenceType: String! = "manual_adjustment"
+  note: String
 }

@@ -1,0 +1,34 @@
+meta {
+  name: 36 Check Inventory
+  type: http
+  seq: 36
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "query": "query Inventory($variantId: String!) { inventory(variantId: $variantId) { _id variantId onHand reserved available updatedAt } }",
+    "variables": {
+      "variantId": "{{variantId}}"
+    }
+  }
+}
+
+tests {
+  test("ສາມາດກວດສອບສະຕັອກສິນຄ້າ (onHand, reserved, available) ໄດ້", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.inventory._id).to.be.a("string");
+    expect(res.getBody().data.inventory.variantId).to.equal(bru.getEnvVar("variantId"));
+    expect(res.getBody().data.inventory.available).to.be.a("number");
+  });
+}

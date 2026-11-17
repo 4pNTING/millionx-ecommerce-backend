@@ -15,8 +15,8 @@ flowchart LR
 
     style P1 fill:#2e7d32,stroke:#1b5e20,color:#ffffff
     style P2 fill:#2e7d32,stroke:#1b5e20,color:#ffffff
-    style P3 fill:#f57f17,stroke:#bc5100,color:#ffffff
-    style P4 fill:#455a64,stroke:#263238,color:#ffffff
+    style P3 fill:#2e7d32,stroke:#1b5e20,color:#ffffff
+    style P4 fill:#f57f17,stroke:#bc5100,color:#ffffff
     style P5 fill:#455a64,stroke:#263238,color:#ffffff
 ```
 
@@ -24,9 +24,9 @@ flowchart LR
 | :---: | :--- | :---: | :---: | :---: | :---: |
 | **Phase 1** | **Foundation** | ✅ **เสร็จสมบูรณ์ 100%** | 11 ตาราง | 11 ตาราง | Requests 01–27 |
 | **Phase 2** | **Shopping** | ✅ **เสร็จสมบูรณ์ 100%** | 5 ตาราง | 16 ตาราง | Requests 28–35 |
-| **Phase 3** | **Order + Inventory** | ⏳ **ขั้นตอนถัดไป (พร้อมเริ่ม)** | 6 ตาราง | 22 ตาราง | Requests 36–45 (แผน) |
-| **Phase 4** | **Payment + Delivery** | ⏹️ ยังไม่เริ่ม | 6 ตาราง | 28 ตาราง | Requests 46–55 (แผน) |
-| **Phase 5** | **Growth + Control** | ⏹️ ยังไม่เริ่ม | 6 ตาราง | 34 ตาราง | Requests 56–65 (แผน) |
+| **Phase 3** | **Order + Inventory** | ✅ **เสร็จสมบูรณ์ 100%** | 6 ตาราง | 22 ตาราง | Requests 36–43 |
+| **Phase 4** | **Payment + Delivery** | ⏳ **ขั้นตอนถัดไป (พร้อมเริ่ม)** | 6 ตาราง | 28 ตาราง | Requests 44–53 (แผน) |
+| **Phase 5** | **Growth + Control** | ⏹️ ยังไม่เริ่ม | 6 ตาราง | 34 ตาราง | Requests 54–63 (แผน) |
 
 ---
 
@@ -115,16 +115,16 @@ flowchart LR
 
 ---
 
-## 🟡 Phase 3 — Order + Inventory (คำสั่งซื้อ & ตัดสต็อกสินค้า)
+## 🟢 Phase 3 — Order + Inventory (คำสั่งซื้อ & ตัดสต็อกสินค้า)
 
-> **สถานะ:** ⏳ ขั้นตอนถัดไป (Next Phase — Ready to Build)
+> **สถานะ:** ✅ เสร็จสมบูรณ์แล้ว (Tested & Deployed)
 
-### 1. ฐานข้อมูลที่วางแผน (Database Schema: `ecommerce` — 6 ตารางใหม่ / รวม 22 ตาราง)
+### 1. ฐานข้อมูล (Database Schema: `ecommerce` — 6 ตารางใหม่ / สะสม 22 ตาราง)
 * **`orders`**: ข้อมูลคำสั่งซื้อหลัก (Order Number, Customer ID, ยอดรวมเงิน, ข้อมูลที่อยู่จัดส่ง Snapshot, สถานะออเดอร์)
-* **`order_items`**: รายการสินค้าในออเดอร์ (บันทึก Snapshot ของ Product, Variant, SKU, และราคาต่อหน่วย)
+* **`order_items`**: รายการสินค้าในออเดอร์ (บันทึก Snapshot ของ Product, Variant, SKU, ແລະราคาต่อหน่วย)
 * **`order_status_history`**: ประวัติการเปลี่ยนสถานะคำสั่งซื้อ (ใครเป็นคนเปลี่ยน, เวลาที่เปลี่ยน, เหตุผล)
-* **`inventory`**: ตารางสต็อกคงเหลือของแต่ละ Variant ตามแต่ละคลัง (`onHand`, `reserved`, `available`)
-* **`inventory_movements`**: ประวัติการเคลื่อนไหวสต็อก (เข้า, ออก, ปรับปรุงสต็อก, ตัดสต็อกจากการขาย)
+* **`inventory`**: ตารางสต็อกคงเหลือของแต่ละ Variant (`onHand`, `reserved`, `available`)
+* **`inventory_movements`**: ประวัติการเคลื่อนไหวสต็อก (เข้า, ออก, ปรับปรุงสต็อก, จอง, คืนสต็อก)
 * **`inventory_reservations`**: การจองสต็อกชั่วคราวระหว่างรอชำระเงิน พร้อมเวลาหมดอายุ
 
 ### 2. ระบบการทำงานหลัก (Core Features)
@@ -135,25 +135,28 @@ flowchart LR
   * ใช้คำสั่ง `SELECT ... FOR UPDATE` ล็อกแถวสต็อกในตาราง `inventory` ขณะกำลังทำการสั่งซื้อ
   * ป้องกันปัญหา Race Condition แม้มีลูกค้ากดสั่งซื้อสินค้าชิ้นสุดท้ายพร้อมกันหลายคน
 * **การจองสต็อกชั่วคราว (Inventory Reservation):**
-  * เมื่อสร้าง Order จะทำการย้ายสต็อก `available` เข้าสู่ `reserved` พร้อมสร้างบันทึกการจอง
-  * มีเวลาให้ลูกค้าชำระเงินตามที่กำหนด (เช่น 15–30 นาที)
-* **Reservation Expiry Worker (ระบบคืนสต็อกอัตโนมัติ):**
-  * Background Job ทำงานทุก 1–5 นาที เพื่อตรวจสอบการจองที่หมดอายุ
-  * ปลดล็อกสต็อกที่ `reserved` กลับคืนสู่ `available` อัตโนมัติหากคำสั่งซื้อไม่ได้รับการชำระเงินทันเวลา
+  * เมื่อสร้าง Order จะทำการย้ายสต็อก `available` เข้าสู่ `reserved` พร้อมสร้างบันทึกการจอง (อายุ 30 นาที)
+* **Reservation Expiry & Auto-cancellation:**
+  * ปลดล็อกสต็อกที่ `reserved` กลับคืนสู่ `available` อัตโนมัติหากหมดอายุ และยกเลิก Pending Order ให้ทันที
+* **Staff Inventory & Order Management:**
+  * Staff สามารถปรับปรุงสต็อกสินค้า (`adjustInventory`) และอัปเดตสถานะคำสั่งซื้อ (`updateOrderStatus`)
 
 ### 3. กฎทางธุรกิจและ Transaction (Business Rules)
-* การสร้าง Order, Items, การล็อกสต็อก, และการบันทึก History ต้องทำเสร็จสิ้นใน **Database Transaction เดียวกัน** ทั้งหมด (Atomic All-or-Nothing)
-* Order ไม่สามารถถูกลบออกจากฐานข้อมูลได้ (Immutable Record) การยกเลิกต้องบันทึกผ่านการเปลี่ยนสถานะใน `order_status_history`
+* การสร้าง Order, Items, การล็อกสต็อก, และการบันทึก History ทำเสร็จสิ้นใน **Database Transaction เดียวกัน** ทั้งหมด (Atomic All-or-Nothing)
+* เมื่อคำสั่งซื้อถูกยกเลิก (`cancelled`) จะทำการปล่อยสต็อกที่จองไว้คืนเป็น `available` ทันที
+* เมื่อคำสั่งซื้อเสร็จสมบูรณ์ (`completed`) จะทำการตัดสต็อกออกจาก `onHand` อย่างถาวร
 
-### 4. แผนการทดสอบ & Deliverables
-* เขียน Bruno Requests 36–45 สำหรับ Order Creation, Inventory Inspection, และ Status Flow
-* ทดสอบ Concurrency Test ยิงคำสั่งซื้อพร้อมกัน 10–20 คำขอเพื่อพิสูจน์ว่าสต็อกไม่ติดลบ (No Negative Stock)
+### 4. การทดสอบ & Deploy
+* **Automated Tests:** `npm run test:order` 10/10 ผ่าน, `npm run test:shopping` 11/11 ผ่าน, `npm run test:contract` 10/10 ผ่าน, `npm run test:catalog` 9/9 ผ่าน
+* **Bruno API Suite:** Requests 36–43 ผ่านครบ 100% (รวม Requests 01–43 ผ่านทั้งหมด 43/43)
+* **Docker Image:** บิลด์และแท็กเป็น `millionx-ecommerce-backend:latest` ใช้งานบนพอร์ต `3001`
+* **Git:** บันทึกและ Push ขึ้นกิ่ง `main` บน GitHub เรียบร้อย
 
 ---
 
-## ⚪ Phase 4 — Payment + Delivery (การชำระเงิน & การจัดส่ง)
+## 🟡 Phase 4 — Payment + Delivery (การชำระเงิน & การจัดส่ง)
 
-> **สถานะ:** ⏹️ ยังไม่เริ่ม (Planned)
+> **สถานะ:** ⏳ ขั้นตอนถัดไป (Next Phase — Ready to Build)
 
 ### 1. ฐานข้อมูลที่วางแผน (Database Schema: `ecommerce` — 6 ตารางใหม่ / รวม 28 ตาราง)
 * **`payments`**: บันทึกธุรกรรมการชำระเงิน (Provider, Transaction ID, ยอดเงิน, สกุลเงิน, สถานะ)
@@ -212,5 +215,5 @@ flowchart LR
 | **โฟกัสหลัก** | ข้อมูลสินค้า & บัญชีลูกค้า | ตะกร้า & การคำนวณราคา | การสั่งซื้อ & จัดการสต็อก | จ่ายเงิน & จัดส่งพัสดุ | โปรโมชัน & ความมั่นคงระบบ |
 | **ตารางใหม่** | 11 ตาราง | 5 ตาราง | 6 ตาราง | 6 ตาราง | 6 ตาราง |
 | **ตารางสะสม** | 11 ตาราง | 16 ตาราง | 22 ตาราง | 28 ตาราง | 34 ตาราง |
-| **สถานะ** | ✅ **เสร็จแล้ว** | ✅ **เสร็จแล้ว** | ⏳ **พร้อมเริ่ม** | ⏹️ รอเริ่ม | ⏹️ รอเริ่ม |
+| **สถานะ** | ✅ **เสร็จแล้ว** | ✅ **เสร็จแล้ว** | ✅ **เสร็จแล้ว** | ⏳ **พร้อมเริ่ม** | ⏹️ รอเริ่ม |
 | **จุดเด่นทางเทคนิค** | PK `_id`, Category Tree, Rate Limit | Transaction Merge, Live Snapshot | Pessimistic Lock, Expiry Worker | Idempotent Webhook, Partial Ship | Outbox Pattern, Coupon Engine |

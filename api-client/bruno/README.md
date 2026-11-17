@@ -59,6 +59,14 @@
 | 33    | Add To Wishlist              | ເພີ່ມສິນຄ້າທີ່ມັກເຂົ້າ Wishlist                                               |
 | 34    | My Wishlist                  | ອ່ານລາຍການ Wishlist ຂອງ Customer                                              |
 | 35    | Remove From Wishlist         | ລຶບສິນຄ້າອອກຈາກ Wishlist                                                      |
+| 36    | Check Inventory              | ກວດສອບສະຕັອກສິນຄ້າ (`onHand`, `reserved`, `available`)                        |
+| 37    | Create Order From Checkout   | ສ້າງ Order ຈາກ Checkout Session, ຈອງສະຕັອກດ້ວຍ `SELECT ... FOR UPDATE`, ເກັບ `orderId` |
+| 38    | My Orders                    | ອ່ານລາຍການ Order ທັງໝົດຂອງ Customer ພ້ອມ Pagination                           |
+| 39    | Get Order By Id              | ອ່ານລາຍລະອຽດ Order, Items ແລະ Status History ຕາມ `orderId`                    |
+| 40    | Staff Update Order Status    | Staff ອັບເດດສະຖານະ Order ເປັນ `confirmed`                                     |
+| 41    | Staff Adjust Inventory       | Staff ປັບປຸງຈຳນວນສະຕັອກສິນຄ້າ (Adjust Stock)                                  |
+| 42    | Cancel Order                 | ລູກຄ້າຍົກເລີກ Order ແລະປ່ອຍຄືນສະຕັອກທີ່ຈອງໄວ້                                |
+| 43    | Release Expired Reservations | Staff ສັ່ງລະບົບປົດລັອກສະຕັອກຂອງ Order ທີ່ໝົດອາຍຸ                              |
 
 ## Products: ລວມໝວດລູກ (22 ຕຸລາ 2026)
 

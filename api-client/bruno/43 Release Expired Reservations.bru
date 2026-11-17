@@ -1,0 +1,30 @@
+meta {
+  name: 43 Release Expired Reservations
+  type: http
+  seq: 43
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{staffToken}}
+}
+
+body:json {
+  {
+    "query": "mutation ReleaseExpiredReservations { releaseExpiredReservations }"
+  }
+}
+
+tests {
+  test("Staff ສາມາດສັ່ງລະບົບປົດລັອກສະຕັອກທີ່ໝົດອາຍຸໄດ້", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.releaseExpiredReservations).to.be.a("number");
+  });
+}

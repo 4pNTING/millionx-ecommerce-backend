@@ -10,7 +10,7 @@ export class CreateCatalogVariantAction {
     attributes: Record<string, unknown>,
   ): Promise<ProductVariantEntity> {
     const repository = this.session.manager.getRepository(ProductVariantEntity);
-    return repository.save(
+    const variant = await repository.save(
       repository.create({
         productId: input.productId,
         sku: input.sku,
@@ -19,5 +19,15 @@ export class CreateCatalogVariantAction {
         attributes,
       }),
     );
+
+    // Ensure initial inventory is seeded for the newly created variant
+    await this.session.manager.query(
+      `INSERT INTO ecommerce.inventory (_id, "variantId", "onHand", reserved, available, "updatedAt")
+       VALUES (gen_random_uuid(), $1, 100, 0, 100, now())
+       ON CONFLICT ("variantId") DO NOTHING`,
+      [variant._id],
+    );
+
+    return variant;
   }
 }

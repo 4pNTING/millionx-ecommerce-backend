@@ -1,0 +1,35 @@
+meta {
+  name: 39 Get Order By Id
+  type: http
+  seq: 39
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{customerToken}}
+}
+
+body:json {
+  {
+    "query": "query Order($_id: String!) { order(_id: $_id) { _id orderNumber customerId status total currency shippingAddress { recipientName phone addressLine1 } items { _id sku productName quantity unitPrice subtotal } statusHistory { fromStatus toStatus note createdBy createdAt } } }",
+    "variables": {
+      "_id": "{{orderId}}"
+    }
+  }
+}
+
+tests {
+  test("ສາມາດດຶງລາຍລະອຽດ Order ພ້ອມ Items ແລະ Status History ໄດ້", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.order._id).to.equal(bru.getEnvVar("orderId"));
+    expect(res.getBody().data.order.items).to.be.an("array");
+    expect(res.getBody().data.order.statusHistory).to.be.an("array");
+  });
+}

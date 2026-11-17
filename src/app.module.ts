@@ -27,6 +27,8 @@ import { CustomerAuthUsecasesProxyModule } from './infrastructure/usecases-proxy
 import { CartUsecasesProxyModule } from './infrastructure/usecases-proxy/cart-usecases-proxy.module';
 import { CheckoutUsecasesProxyModule } from './infrastructure/usecases-proxy/checkout-usecases-proxy.module';
 import { WishlistUsecasesProxyModule } from './infrastructure/usecases-proxy/wishlist-usecases-proxy.module';
+import { OrderUsecasesProxyModule } from './infrastructure/usecases-proxy/order-usecases-proxy.module';
+import { InventoryUsecasesProxyModule } from './infrastructure/usecases-proxy/inventory-usecases-proxy.module';
 
 // Controllers
 import { AuthController } from './infrastructure/controllers/auth/auth.controller';
@@ -43,6 +45,8 @@ import { CustomerAuthResolver } from './infrastructure/resolvers/customer/custom
 import { CartResolver } from './infrastructure/resolvers/cart/cart.resolver';
 import { CheckoutResolver } from './infrastructure/resolvers/checkout/checkout.resolver';
 import { WishlistResolver } from './infrastructure/resolvers/wishlist/wishlist.resolver';
+import { OrderResolver } from './infrastructure/resolvers/order/order.resolver';
+import { InventoryResolver } from './infrastructure/resolvers/inventory/inventory.resolver';
 
 // Entities
 import { UserEntity } from './infrastructure/entities/user.entity';
@@ -61,6 +65,12 @@ import { CartItemEntity } from './infrastructure/entities/cart-item.entity';
 import { CheckoutSessionEntity } from './infrastructure/entities/checkout-session.entity';
 import { WishlistEntity } from './infrastructure/entities/wishlist.entity';
 import { WishlistItemEntity } from './infrastructure/entities/wishlist-item.entity';
+import { OrderEntity } from './infrastructure/entities/order.entity';
+import { OrderItemEntity } from './infrastructure/entities/order-item.entity';
+import { OrderStatusHistoryEntity } from './infrastructure/entities/order-status-history.entity';
+import { InventoryEntity } from './infrastructure/entities/inventory.entity';
+import { InventoryMovementEntity } from './infrastructure/entities/inventory-movement.entity';
+import { InventoryReservationEntity } from './infrastructure/entities/inventory-reservation.entity';
 
 @Module({
   imports: [
@@ -132,6 +142,13 @@ import { WishlistItemEntity } from './infrastructure/entities/wishlist-item.enti
           CheckoutSessionEntity,
           WishlistEntity,
           WishlistItemEntity,
+          // Order & Inventory (Phase 3)
+          OrderEntity,
+          OrderItemEntity,
+          OrderStatusHistoryEntity,
+          InventoryEntity,
+          InventoryMovementEntity,
+          InventoryReservationEntity,
         ],
         autoLoadEntities: true,
         synchronize: false,
@@ -149,6 +166,8 @@ import { WishlistItemEntity } from './infrastructure/entities/wishlist-item.enti
     CartUsecasesProxyModule.register(),
     CheckoutUsecasesProxyModule.register(),
     WishlistUsecasesProxyModule.register(),
+    OrderUsecasesProxyModule.register(),
+    InventoryUsecasesProxyModule.register(),
   ],
   controllers: [AuthController, ZoneController, ProductImageUploadController],
   providers: [
@@ -162,6 +181,8 @@ import { WishlistItemEntity } from './infrastructure/entities/wishlist-item.enti
     CartResolver,
     CheckoutResolver,
     WishlistResolver,
+    OrderResolver,
+    InventoryResolver,
     JwtStrategy,
     CatalogWriteGuard,
     CustomerAccountGuard,

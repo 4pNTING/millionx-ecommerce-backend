@@ -1,0 +1,37 @@
+meta {
+  name: 42 Cancel Order
+  type: http
+  seq: 42
+}
+
+post {
+  url: {{baseUrl}}/api-gateway
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{customerToken}}
+}
+
+body:json {
+  {
+    "query": "mutation CancelOrder($input: CancelOrderDto!) { cancelOrder(input: $input) { _id orderNumber status statusHistory { fromStatus toStatus note createdBy } } }",
+    "variables": {
+      "input": {
+        "_id": "{{orderId}}",
+        "reason": "Customer requested cancellation"
+      }
+    }
+  }
+}
+
+tests {
+  test("ລູກຄ້າສາມາດຍົກເລີກ Order ແລະປ່ອຍຄືນສະຕັອກທີ່ຈອງໄວ້ໄດ້", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().errors).to.equal(undefined);
+    expect(res.getBody().data.cancelOrder._id).to.equal(bru.getEnvVar("orderId"));
+    expect(res.getBody().data.cancelOrder.status).to.equal("cancelled");
+  });
+}
